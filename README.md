@@ -23,3 +23,12 @@ JwkProvider provider = new GuavaCachedJwkProvider(http);
 Jwk jwk = provider.get("{kid of the signing key}"); //throws Exception when not found or can't get one
 
 ```
+
+## TODO
+
+- javadocs
+- Unit Tests
+- CI
+- Better README
+- Release to maven
+- Rate limiting for Http
