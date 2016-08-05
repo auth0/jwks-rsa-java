@@ -16,10 +16,10 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-public class HttpJwksProvider implements JwkProvider {
+public class HttpJwkProvider implements JwkProvider {
     private final URL url;
 
-    public HttpJwksProvider(String domain) {
+    public HttpJwkProvider(String domain) {
         if (Strings.isNullOrEmpty(domain)) {
             throw new IllegalArgumentException("A domain is required");
         }
