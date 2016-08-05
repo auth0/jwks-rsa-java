@@ -1,4 +1,4 @@
-package com.auth0;
+package com.auth0.jwk;
 
 public class InvalidPublicKeyException extends JwksException {
 

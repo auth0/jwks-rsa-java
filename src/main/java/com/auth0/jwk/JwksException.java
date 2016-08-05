@@ -1,8 +1,5 @@
-package com.auth0;
+package com.auth0.jwk;
 
-/**
- * Created by auth0 on 8/4/16.
- */
 public class JwksException extends Exception {
 
     public JwksException(String message) {
