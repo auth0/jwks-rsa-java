@@ -1,6 +1,8 @@
-package com.auth0.jwk.provider;
+package com.auth0.jwk;
 
+import com.auth0.jwk.GuavaCachedJwkProvider;
 import com.auth0.jwk.Jwk;
+import com.auth0.jwk.JwkProvider;
 import com.auth0.jwk.SigningKeyNotFoundException;
 import org.junit.Before;
 import org.junit.Rule;
@@ -10,10 +12,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.Collections;
-
-import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.*;

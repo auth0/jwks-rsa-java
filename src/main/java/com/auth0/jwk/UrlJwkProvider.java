@@ -1,7 +1,5 @@
-package com.auth0.jwk.provider;
+package com.auth0.jwk;
 
-import com.auth0.jwk.Jwk;
-import com.auth0.jwk.SigningKeyNotFoundException;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;

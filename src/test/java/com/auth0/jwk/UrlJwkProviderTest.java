@@ -1,6 +1,7 @@
-package com.auth0.jwk.provider;
+package com.auth0.jwk;
 
 import com.auth0.jwk.SigningKeyNotFoundException;
+import com.auth0.jwk.UrlJwkProvider;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
