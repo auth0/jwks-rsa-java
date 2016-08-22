@@ -7,15 +7,29 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Jwk provider that caches previously obtained Jwk in memory using a Google Guava cache
+ */
 public class GuavaCachedJwkProvider implements JwkProvider {
 
     private final Cache<String, Jwk> cache;
     private final JwkProvider provider;
 
+    /**
+     * Creates a new provider that will cache up to 5 jwks for at most 10 hours
+     * @param provider fallback provider to use when jwk is not cached
+     */
     public GuavaCachedJwkProvider(final JwkProvider provider) {
         this(provider, 5, 10, TimeUnit.HOURS);
     }
 
+    /**
+     * Creates a new cached provider specifying cache size and ttl
+     * @param provider fallback provider to use when jwk is not cached
+     * @param size number of jwt to cache
+     * @param expiresIn amount of time a jwk will live in the cache
+     * @param expiresUnit unit of the expiresIn parameter
+     */
     public GuavaCachedJwkProvider(final JwkProvider provider, int size, int expiresIn, TimeUnit expiresUnit) {
         this.provider = provider;
         this.cache = CacheBuilder.newBuilder()

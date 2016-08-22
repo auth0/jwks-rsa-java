@@ -13,6 +13,9 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Represents a Jwk used to verify JWTs
+ */
 public class Jwk {
     private static final String PUBLIC_KEY_ALGORITHM = "RSA";
 
@@ -26,6 +29,18 @@ public class Jwk {
     private final String certificateThumbprint;
     private final Map<String, Object> additionalAttributes;
 
+    /**
+     * Creates a new Jwk
+     * @param id kid
+     * @param type kyt
+     * @param algorithm alg
+     * @param usage use
+     * @param operations key_ops
+     * @param certificateUrl x5u
+     * @param certificateChain x5c
+     * @param certificateThumbprint x5t
+     * @param additionalAttributes additional attributes not part of the standard ones
+     */
     public Jwk(String id, String type, String algorithm, String usage, String operations, String certificateUrl, List<String> certificateChain, String certificateThumbprint, Map<String, Object> additionalAttributes) {
         this.id = id;
         this.type = type;
@@ -38,7 +53,7 @@ public class Jwk {
         this.additionalAttributes = additionalAttributes;
     }
 
-    public static Jwk fromValues(Map<String, Object> map) {
+    static Jwk fromValues(Map<String, Object> map) {
         Map<String, Object> values = Maps.newHashMap(map);
         String kid = (String) values.remove("kid");
         String kty = (String) values.remove("kty");
@@ -91,6 +106,11 @@ public class Jwk {
         return additionalAttributes;
     }
 
+    /**
+     * Returns a {@link PublicKey} if the {@code 'alg'} is {@code 'RSA'}
+     * @return a public key
+     * @throws InvalidPublicKeyException if the key cannot be built or the key type is not RSA
+     */
     public PublicKey getPublicKey() throws InvalidPublicKeyException {
         if (!PUBLIC_KEY_ALGORITHM.equalsIgnoreCase(type)) {
             return null;

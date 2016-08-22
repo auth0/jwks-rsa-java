@@ -14,9 +14,16 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Jwk provider that loads them from a {@link URL}
+ */
 public class UrlJwkProvider implements JwkProvider {
     final URL url;
 
+    /**
+     * Creates a provider that loads from a given URL
+     * @param url to load the jwks
+     */
     public UrlJwkProvider(URL url) {
         if (url == null) {
             throw new IllegalArgumentException("A non-null url is required");
@@ -24,6 +31,10 @@ public class UrlJwkProvider implements JwkProvider {
         this.url = url;
     }
 
+    /**
+     * Creates a provider that loads from the given domain's well-known directory
+     * @param domain domain where to look for the jwks.json file
+     */
     public UrlJwkProvider(String domain) {
         if (Strings.isNullOrEmpty(domain)) {
             throw new IllegalArgumentException("A domain is required");
@@ -36,7 +47,6 @@ public class UrlJwkProvider implements JwkProvider {
             throw new IllegalArgumentException("Invalid jwks uri", e);
         }
     }
-
 
     private Map<String, Object> getJwks() throws SigningKeyNotFoundException {
         try {
