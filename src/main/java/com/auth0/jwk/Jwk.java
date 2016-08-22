@@ -49,6 +49,9 @@ public class Jwk {
         @SuppressWarnings("unchecked")
         List<String> x5c = (List<String>) values.remove("x5c");
         String x5t = (String) values.remove("x5t");
+        if (kid == null || kty == null || alg == null) {
+            throw new IllegalArgumentException("Attributes " + map + " are not from a valid jwk");
+        }
         return new Jwk(kid, kty, alg, use, keyOps, x5u, x5c, x5t, values);
     }
 

@@ -16,10 +16,17 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-public class HttpJwkProvider implements JwkProvider {
-    private final URL url;
+public class UrlJwkProvider implements JwkProvider {
+    final URL url;
 
-    public HttpJwkProvider(String domain) {
+    public UrlJwkProvider(URL url) {
+        if (url == null) {
+            throw new IllegalArgumentException("A non-null url is required");
+        }
+        this.url = url;
+    }
+
+    public UrlJwkProvider(String domain) {
         if (Strings.isNullOrEmpty(domain)) {
             throw new IllegalArgumentException("A domain is required");
         }
@@ -41,7 +48,7 @@ public class HttpJwkProvider implements JwkProvider {
             final TypeReference<Map<String, Object>> typeReference = new TypeReference<Map<String, Object>>() {};
             return new ObjectMapper().reader().readValue(parser, typeReference);
         } catch (IOException e) {
-            throw new SigningKeyNotFoundException("Cannot build jwks from url " + url.toString(), e);
+            throw new SigningKeyNotFoundException("Cannot obtain jwks from url " + url.toString(), e);
         }
     }
 
@@ -50,8 +57,17 @@ public class HttpJwkProvider implements JwkProvider {
         List<Jwk> jwks = Lists.newArrayList();
         @SuppressWarnings("unchecked")
         final List<Map<String, Object>> keys = (List<Map<String, Object>>) getJwks().get("keys");
-        for (Map<String, Object> values: keys) {
-            jwks.add(Jwk.fromValues(values));
+
+        if (keys == null || keys.isEmpty()) {
+            throw new SigningKeyNotFoundException("No keys found in " + url.toString(), null);
+        }
+
+        try {
+            for (Map<String, Object> values: keys) {
+                jwks.add(Jwk.fromValues(values));
+            }
+        } catch(IllegalArgumentException e) {
+            throw new SigningKeyNotFoundException("Failed to parse jwk from json", e);
         }
         return jwks;
     }
@@ -64,6 +80,6 @@ public class HttpJwkProvider implements JwkProvider {
                 return jwk;
             }
         }
-        return null;
+        throw new SigningKeyNotFoundException("No key found in " + url.toString() + " with kid " + keyId, null);
     }
 }
