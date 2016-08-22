@@ -4,9 +4,7 @@ import com.auth0.jwk.Jwk;
 import com.auth0.jwk.SigningKeyNotFoundException;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.Lists;
 
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -26,11 +24,6 @@ public class GuavaCachedJwkProvider implements JwkProvider {
                 .maximumSize(size)
                 .expireAfterWrite(expiresIn, expiresUnit)
                 .build();
-    }
-
-    @Override
-    public List<Jwk> getAll() throws SigningKeyNotFoundException {
-        return Lists.newArrayList(cache.asMap().values());
     }
 
     @Override

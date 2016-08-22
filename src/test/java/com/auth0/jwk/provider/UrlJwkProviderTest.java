@@ -54,20 +54,8 @@ public class UrlJwkProviderTest {
     }
 
     @Test
-    public void shouldReturnAllJwks() throws Exception {
-        assertThat(provider.getAll(), hasSize(1));
-    }
-
-    @Test
     public void shouldReturnSingleJwkById() throws Exception {
         assertThat(provider.get(KID), notNullValue());
-    }
-
-    @Test
-    public void shouldFailToLoadAllWhenUrlHasNothing() throws Exception {
-        expectedException.expect(SigningKeyNotFoundException.class);
-        provider = new UrlJwkProvider(new URL("file:///not_found.file"));
-        provider.getAll();
     }
 
     @Test
@@ -78,25 +66,12 @@ public class UrlJwkProviderTest {
     }
 
     @Test
-    public void shouldFailToLoadAllWhenKeysIsEmpty() throws Exception {
-        expectedException.expect(SigningKeyNotFoundException.class);
-        provider = new UrlJwkProvider(getClass().getResource("/empty-jwks.json"));
-        provider.getAll();
-    }
-
-    @Test
     public void shouldFailToLoadSingleWhenKeysIsEmpty() throws Exception {
         expectedException.expect(SigningKeyNotFoundException.class);
         provider = new UrlJwkProvider(getClass().getResource("/empty-jwks.json"));
         provider.get(KID);
     }
 
-    @Test
-    public void shouldFailToLoadAllWhenJsonIsInvalid() throws Exception {
-        expectedException.expect(SigningKeyNotFoundException.class);
-        provider = new UrlJwkProvider(getClass().getResource("/invalid-jwks.json"));
-        provider.getAll();
-    }
 
     @Test
     public void shouldFailToLoadSingleWhenJsonIsInvalid() throws Exception {

@@ -52,8 +52,7 @@ public class UrlJwkProvider implements JwkProvider {
         }
     }
 
-    @Override
-    public List<Jwk> getAll() throws SigningKeyNotFoundException {
+    private List<Jwk> getAll() throws SigningKeyNotFoundException {
         List<Jwk> jwks = Lists.newArrayList();
         @SuppressWarnings("unchecked")
         final List<Map<String, Object>> keys = (List<Map<String, Object>>) getJwks().get("keys");
