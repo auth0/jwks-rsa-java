@@ -30,7 +30,7 @@ public class GuavaCachedJwkProvider implements JwkProvider {
      * @param expiresIn amount of time a jwk will live in the cache
      * @param expiresUnit unit of the expiresIn parameter
      */
-    public GuavaCachedJwkProvider(final JwkProvider provider, int size, int expiresIn, TimeUnit expiresUnit) {
+    public GuavaCachedJwkProvider(final JwkProvider provider, long size, long expiresIn, TimeUnit expiresUnit) {
         this.provider = provider;
         this.cache = CacheBuilder.newBuilder()
                 .maximumSize(size)
