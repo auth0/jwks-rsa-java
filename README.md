@@ -1,7 +1,7 @@
 # jwks-rsa for Java
 
 [![Build Status](https://travis-ci.org/auth0/jwks-rsa-java.svg?branch=master)](https://travis-ci.org/auth0/jwks-rsa-java)
-[![Maven Central](https://img.shields.io/maven-central/v/com.auth0.android/lock.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%20com.auth0%20a%3Ajwks-rsa)
+[![Maven Central](https://img.shields.io/maven-central/v/com.auth0/jwks-rsa.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%20com.auth0%20a%3Ajwks-rsa)
 
 ## Install
 
