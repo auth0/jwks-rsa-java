@@ -17,6 +17,7 @@ import java.util.Map;
 /**
  * Jwk provider that loads them from a {@link URL}
  */
+@SuppressWarnings("WeakerAccess")
 public class UrlJwkProvider implements JwkProvider {
     final URL url;
 

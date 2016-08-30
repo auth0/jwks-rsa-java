@@ -3,6 +3,7 @@ package com.auth0.jwk;
 /**
  * Provider of Jwk
  */
+@SuppressWarnings("WeakerAccess")
 public interface JwkProvider {
     /**
      * Returns a jwk using the kid value

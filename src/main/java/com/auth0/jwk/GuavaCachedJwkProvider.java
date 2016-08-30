@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Jwk provider that caches previously obtained Jwk in memory using a Google Guava cache
  */
+@SuppressWarnings("WeakerAccess")
 public class GuavaCachedJwkProvider implements JwkProvider {
 
     private final Cache<String, Jwk> cache;

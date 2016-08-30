@@ -14,8 +14,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Represents a Jwk used to verify JWTs
+ * Represents a JSON Web Key (JWK) used to verify the signature of JWTs
  */
+@SuppressWarnings("WeakerAccess")
 public class Jwk {
     private static final String PUBLIC_KEY_ALGORITHM = "RSA";
 
@@ -41,6 +42,7 @@ public class Jwk {
      * @param certificateThumbprint x5t
      * @param additionalAttributes additional attributes not part of the standard ones
      */
+    @SuppressWarnings("WeakerAccess")
     public Jwk(String id, String type, String algorithm, String usage, String operations, String certificateUrl, List<String> certificateChain, String certificateThumbprint, Map<String, Object> additionalAttributes) {
         this.id = id;
         this.type = type;
@@ -70,34 +72,42 @@ public class Jwk {
         return new Jwk(kid, kty, alg, use, keyOps, x5u, x5c, x5t, values);
     }
 
+    @SuppressWarnings("WeakerAccess")
     public String getId() {
         return id;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public String getType() {
         return type;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public String getAlgorithm() {
         return algorithm;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public String getUsage() {
         return usage;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public String getOperations() {
         return operations;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public String getCertificateUrl() {
         return certificateUrl;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public List<String> getCertificateChain() {
         return certificateChain;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public String getCertificateThumbprint() {
         return certificateThumbprint;
     }
@@ -111,6 +121,7 @@ public class Jwk {
      * @return a public key
      * @throws InvalidPublicKeyException if the key cannot be built or the key type is not RSA
      */
+    @SuppressWarnings("WeakerAccess")
     public PublicKey getPublicKey() throws InvalidPublicKeyException {
         if (!PUBLIC_KEY_ALGORITHM.equalsIgnoreCase(type)) {
             return null;

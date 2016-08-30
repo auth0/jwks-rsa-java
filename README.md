@@ -19,7 +19,7 @@
 `UrlJwkProvider` fetches the jwk from `/.well-known/jwks.json` of the supplied domain issuer and returns a `Jwk` if the `kid` matches one of the registered keys.
 
 ```java
-JwkProvider provider = new HttpJwkProvider("https://samples.auth0.com/");
+JwkProvider provider = new UrlJwkProvider("https://samples.auth0.com/");
 Jwk jwk = provider.get("{kid of the signing key}"); //throws Exception when not found or can't get one
 ```
 

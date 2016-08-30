@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * JwkProvider builder
  */
+@SuppressWarnings("WeakerAccess")
 public class JwkProviderBuilder {
 
     private String url;
@@ -65,7 +66,7 @@ public class JwkProviderBuilder {
      */
     public JwkProvider build() {
         if (url == null) {
-            throw new IllegalStateException("Cannot build provider");
+            throw new IllegalStateException("Cannot build provider without domain");
         }
 
         final UrlJwkProvider urlProvider = new UrlJwkProvider(url);
