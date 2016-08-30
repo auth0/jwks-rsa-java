@@ -1,4 +1,4 @@
-# jwks-rsa for Java
+# jwks-rsa
 
 [![Build Status](https://travis-ci.org/auth0/jwks-rsa-java.svg?branch=master)](https://travis-ci.org/auth0/jwks-rsa-java)
 [![Maven Central](https://img.shields.io/maven-central/v/com.auth0/jwks-rsa.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%20com.auth0%20a%3Ajwks-rsa)
@@ -23,7 +23,7 @@ compile 'com.auth0:jwks-rsa:0.1.0'
 
 ## Usage
 
-### No Cache
+### UrlJwkProvider
 
 `UrlJwkProvider` fetches the jwk from `/.well-known/jwks.json` of the supplied domain issuer and returns a `Jwk` if the `kid` matches one of the registered keys.
 
@@ -32,17 +32,15 @@ JwkProvider provider = new UrlJwkProvider("https://samples.auth0.com/");
 Jwk jwk = provider.get("{kid of the signing key}"); //throws Exception when not found or can't get one
 ```
 
-or using the `JwkProviderBuilder`
+
+Also it can load `jwks.json` file from any given Url (even to a local file in your filesystem).
 
 ```java
-JwkProvider provider = new JwkProviderBuilder()
-    .forDomain("https://samples.auth0.com/")
-    .cached(false)
-    .build();
+JwkProvider provider = new UrlJwkProvider(new URL("https://samples.auth0.com/"));
 Jwk jwk = provider.get("{kid of the signing key}"); //throws Exception when not found or can't get one
 ```
 
-### Cached
+### GuavaCachedJwkProvider
 
 `GuavaCachedJwkProvider` cache the jwk in a LRU in memory cache, if the jwk is not found in the cache it will ask another provider for it and store it's result in the cache.
 
@@ -55,7 +53,9 @@ Jwk jwk = provider.get("{kid of the signing key}"); //throws Exception when not 
 
 ```
 
-or using the `JwkProviderBuilder` falling back to `UrlJwkProvider` when jwk is not cached
+### JwkProviderBuilder
+
+To create a provider for domain `https://samples.auth0.com` with cache.
 
 ```java
 JwkProvider provider = new JwkProviderBuilder()
