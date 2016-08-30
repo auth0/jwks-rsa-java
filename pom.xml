@@ -11,7 +11,7 @@
   <groupId>com.auth0</groupId>
   <artifactId>jwks-rsa</artifactId>
   <packaging>jar</packaging>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.1.0-SNAPSHOT</version>
   <name>jwks-rsa</name>
   <url>http://www.auth0.com</url>
 
