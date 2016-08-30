@@ -11,5 +11,5 @@ public interface JwkProvider {
      * @return a jwk
      * @throws SigningKeyNotFoundException if no jwk can be found using the give kid
      */
-    Jwk get(String keyId) throws SigningKeyNotFoundException;
+    Jwk get(String keyId) throws JwkException;
 }

@@ -81,7 +81,7 @@ public class UrlJwkProvider implements JwkProvider {
     }
 
     @Override
-    public Jwk get(String keyId) throws SigningKeyNotFoundException {
+    public Jwk get(String keyId) throws JwkException {
         final List<Jwk> jwks = getAll();
         for (Jwk jwk: jwks) {
             if (keyId.equals(jwk.getId())) {

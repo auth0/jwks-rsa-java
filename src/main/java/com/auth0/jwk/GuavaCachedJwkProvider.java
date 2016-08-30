@@ -40,7 +40,7 @@ public class GuavaCachedJwkProvider implements JwkProvider {
     }
 
     @Override
-    public Jwk get(final String keyId) throws SigningKeyNotFoundException {
+    public Jwk get(final String keyId) throws JwkException {
         try {
             return cache.get(keyId, new Callable<Jwk>() {
                 @Override
