@@ -37,13 +37,17 @@ public class UrlJwkProvider implements JwkProvider {
      * @param domain domain where to look for the jwks.json file
      */
     public UrlJwkProvider(String domain) {
+        this(urlForDomain(domain));
+    }
+
+    private static URL urlForDomain(String domain) {
         if (Strings.isNullOrEmpty(domain)) {
             throw new IllegalArgumentException("A domain is required");
         }
 
         try {
             final URL url = new URL(domain);
-            this.url = new URL(url, "/.well-known/jwks.json");
+            return new URL(url, "/.well-known/jwks.json");
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Invalid jwks uri", e);
         }
