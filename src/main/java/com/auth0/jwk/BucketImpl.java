@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Leaky Bucket implementation to make guarantee availability of a fixed amount of tokens in a given time rate.
+ * Token Bucket implementation to guarantee availability of a fixed amount of tokens in a given time rate.
  */
 class BucketImpl implements Bucket {
 

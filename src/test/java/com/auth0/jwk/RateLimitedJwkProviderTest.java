@@ -10,15 +10,15 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GuavaCachedJwkProviderTest {
+public class RateLimitedJwkProviderTest {
 
     private static final String KID = "KID";
-    private GuavaCachedJwkProvider provider;
+    private RateLimitedJwkProvider provider;
 
     @Mock
     private JwkProvider fallback;
@@ -26,38 +26,36 @@ public class GuavaCachedJwkProviderTest {
     @Mock
     private Jwk jwk;
 
+    @Mock
+    private Bucket bucket;
+
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
-        provider = new GuavaCachedJwkProvider(fallback);
+        provider = new RateLimitedJwkProvider(fallback, bucket);
     }
 
     @Test
-    public void shouldFailToGetSingle() throws Exception {
-        expectedException.expect(SigningKeyNotFoundException.class);
-        when(fallback.get(anyString())).thenThrow(new SigningKeyNotFoundException("TEST!", null));
+    public void shouldFailToGetWhenBucketIsEmpty() throws Exception {
+        when(bucket.consume()).thenReturn(false);
+        expectedException.expect(RateLimitReachedException.class);
+        when(fallback.get(eq(KID))).thenReturn(jwk);
         provider.get(KID);
     }
 
     @Test
-    public void shouldUseFallbackWhenNotCached() throws Exception {
+    public void shouldGetWhenBucketHasTokensAvailable() throws Exception {
+        when(bucket.consume()).thenReturn(true);
         when(fallback.get(eq(KID))).thenReturn(jwk);
         assertThat(provider.get(KID), equalTo(jwk));
         verify(fallback).get(eq(KID));
     }
 
     @Test
-    public void shouldUseCachedValue() throws Exception {
-        when(fallback.get(eq(KID))).thenReturn(jwk).thenThrow(new SigningKeyNotFoundException("TEST!", null));
-        provider.get(KID);
-        assertThat(provider.get(KID), equalTo(jwk));
-        verify(fallback, only()).get(KID);
-    }
-
-    @Test
     public void shouldGetBaseProvider() throws Exception {
         assertThat(provider.getBaseProvider(), equalTo(fallback));
     }
+
 }
