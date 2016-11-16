@@ -13,21 +13,14 @@ public class BucketImplTest {
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
-    private static final long RATE = 500;
-    private static final int SIZE = 5;
+    private static final long RATE = 500L;
+    private static final long SIZE = 5L;
 
     @Test
     public void shouldThrowOnCreateWithNegativeSize() throws Exception {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Invalid bucket size.");
         new BucketImpl(-1, 10, TimeUnit.SECONDS);
-    }
-
-    @Test
-    public void shouldThrowOnCreateWithMoreThanMaxSize() throws Exception {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Invalid bucket size.");
-        new BucketImpl(Integer.MAX_VALUE, 10, TimeUnit.SECONDS);
     }
 
     @Test

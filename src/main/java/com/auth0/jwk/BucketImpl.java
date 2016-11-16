@@ -3,7 +3,6 @@ package com.auth0.jwk;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -11,20 +10,18 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 class BucketImpl implements Bucket {
 
-    private static final int MAX_BUCKET_SIZE = Integer.MAX_VALUE - 5;
-
-    private final int size;
+    private final long size;
     private final long rate;
     private final TimeUnit rateUnit;
     private final long beginTime = System.currentTimeMillis();
-    private AtomicInteger available;
+    private AtomicLong available;
     private AtomicLong lastTokenAddedAt;
 
-    BucketImpl(int size, long rate, TimeUnit rateUnit) {
-        assertPositiveValue(size, MAX_BUCKET_SIZE, "Invalid bucket size.");
+    BucketImpl(long size, long rate, TimeUnit rateUnit) {
+        assertPositiveValue(size, "Invalid bucket size.");
         assertPositiveValue(rate, "Invalid bucket refill rate.");
         this.size = size;
-        this.available = new AtomicInteger(size);
+        this.available = new AtomicLong(size);
         this.lastTokenAddedAt = new AtomicLong(System.currentTimeMillis());
         this.rate = rate;
         this.rateUnit = rateUnit;
@@ -55,7 +52,7 @@ class BucketImpl implements Bucket {
         lastTokenAddedAt.set(System.currentTimeMillis());
     }
 
-    private void assertPositiveValue(int value, int maxValue, String exceptionMessage) {
+    private void assertPositiveValue(long value, long maxValue, String exceptionMessage) {
         if (value < 1 || value > maxValue) {
             throw new IllegalArgumentException(exceptionMessage);
         }
@@ -76,16 +73,16 @@ class BucketImpl implements Bucket {
     }
 
     @Override
-    public long willLeakIn(int count) {
+    public long willLeakIn(long count) {
         assertPositiveValue(count, size, String.format("Cannot consume %d tokens when the BucketImpl size is %d!", count, size));
-        int av = available.get();
+        long av = available.get();
         if (av >= count) {
             log(String.format("%d Tokens are available already.", count));
             return 0;
         }
 
         long nextIn = rateUnit.toMillis(rate) - (System.currentTimeMillis() - lastTokenAddedAt.get());
-        final int remaining = count - av - 1;
+        final long remaining = count - av - 1;
         if (remaining > 0) {
             nextIn += rateUnit.toMillis(rate) * remaining;
         }
@@ -99,7 +96,7 @@ class BucketImpl implements Bucket {
     }
 
     @Override
-    public boolean consume(int count) {
+    public boolean consume(long count) {
         assertPositiveValue(count, size, String.format("Cannot consume %d tokens when the BucketImpl size is %d!", count, size));
         if (count <= available.get()) {
             available.addAndGet(-count);

@@ -81,7 +81,7 @@ public class JwkProviderBuilder {
      * @param unit unit of time for the expire of jwk
      * @return the builder
      */
-    public JwkProviderBuilder rateLimited(int bucketSize, long refillRate, TimeUnit unit) {
+    public JwkProviderBuilder rateLimited(long bucketSize, long refillRate, TimeUnit unit) {
         bucket = new BucketImpl(bucketSize, refillRate, unit);
         return this;
     }
