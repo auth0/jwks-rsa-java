@@ -50,26 +50,37 @@ Jwk jwk = provider.get("{kid of the signing key}"); //throws Exception when not 
 JwkProvider http = new UrlJwkProvider("https://samples.auth0.com/");
 JwkProvider provider = new GuavaCachedJwkProvider(http);
 Jwk jwk = provider.get("{kid of the signing key}"); //throws Exception when not found or can't get one
+```
 
+### RateLimitJwkProvider
+
+`RateLimitJwkProvider` will limit the amounts of tokens to get in a given time frame.
+
+> By default the rate is limited to 10 tokens per minute but these values can be changed
+
+```java
+JwkProvider url = new UrlJwkProvider("https://samples.auth0.com/");
+Bucket bucket = new Bucket(10, 1, TimeUnit.MINUTES);
+JwkProvider provider = new RateLimitJwkProvider(url, bucket);
+Jwk jwk = provider.get("{kid of the signing key}"); //throws Exception when not found or can't get one
 ```
 
 ### JwkProviderBuilder
 
-To create a provider for domain `https://samples.auth0.com` with cache.
+To create a provider for domain `https://samples.auth0.com` with cache and rate limit:
 
 ```java
-JwkProvider provider = new JwkProviderBuilder()
-    .forDomain("https://samples.auth0.com/")
+JwkProvider provider = new JwkProviderBuilder("https://samples.auth0.com/")
     .build();
 Jwk jwk = provider.get("{kid of the signing key}"); //throws Exception when not found or can't get one
 ```
 
-and specifying cache attributes
+and specifying cache and rate limit attributes
 
 ```java
-JwkProvider provider = new JwkProviderBuilder()
-    .forDomain("https://samples.auth0.com/")
+JwkProvider provider = new JwkProviderBuilder("https://samples.auth0.com/")
     .cached(10, 24, TimeUnit.HOURS)
+    .rateLimited(10, 1, TimeUnit.MINUTES)
     .build();
 Jwk jwk = provider.get("{kid of the signing key}"); //throws Exception when not found or can't get one
 ```
