@@ -1,5 +1,6 @@
 package com.auth0.jwk;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
@@ -51,5 +52,10 @@ public class GuavaCachedJwkProvider implements JwkProvider {
         } catch (ExecutionException e) {
             throw new SigningKeyNotFoundException("Failed to get key with kid " + keyId, e);
         }
+    }
+
+    @VisibleForTesting
+    JwkProvider getBaseProvider() {
+        return provider;
     }
 }
