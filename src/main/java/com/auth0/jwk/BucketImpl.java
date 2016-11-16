@@ -14,6 +14,7 @@ class BucketImpl implements Bucket {
     private final long rate;
     private final TimeUnit rateUnit;
     private long available;
+    private long accumDelta;
 
     BucketImpl(long size, long rate, TimeUnit rateUnit) {
         assertPositiveValue(size, "Invalid bucket size.");
@@ -26,7 +27,7 @@ class BucketImpl implements Bucket {
     }
 
     private void log(String message) {
-        System.out.println(String.format("%-8d - %s", stopwatch.elapsed(TimeUnit.MILLISECONDS), message));
+        System.out.println(String.format("%-8d - %s", getTimeSinceLastTokenAddition(), message));
     }
 
     private void assertPositiveValue(long value, long maxValue, String exceptionMessage) {
@@ -47,16 +48,22 @@ class BucketImpl implements Bucket {
     @Override
     public synchronized long willLeakIn(long count) {
         assertPositiveValue(count, size, String.format("Cannot consume %d tokens when the BucketImpl size is %d!", count, size));
+        updateAvailableTokens();
         if (available >= count) {
             return 0;
         }
-        long nextIn = getRatePerToken() - stopwatch.elapsed(TimeUnit.MILLISECONDS);
+
+        long leakDelta = getTimeSinceLastTokenAddition();
+        if (leakDelta < getRatePerToken()) {
+            leakDelta = getRatePerToken() - leakDelta;
+        }
+        log("Leak delta for 1 token is: " + leakDelta);
         final long remaining = count - available - 1;
         if (remaining > 0) {
-            nextIn += getRatePerToken() * remaining;
+            leakDelta += getRatePerToken() * remaining;
         }
-        log(String.format("Can't consume %d. Actual state is: %d/%d. Retry in %d ms.", count, available, size, nextIn));
-        return nextIn;
+        log(String.format("Can't consume %d. Actual state is: %d/%d. Retry in %d ms.", count, available, size, leakDelta));
+        return leakDelta;
     }
 
     @Override
@@ -67,34 +74,43 @@ class BucketImpl implements Bucket {
     @Override
     public synchronized boolean consume(long count) {
         assertPositiveValue(count, size, String.format("Cannot consume %d tokens when the BucketImpl size is %d!", count, size));
-        available += calculateTokensToAdd();
-        restartStopWatch();
+        updateAvailableTokens();
 
         if (count <= available) {
             available -= count;
-            log(String.format("Consumed %d tokens. New state is: %d/%d.", count, available, size));
+            log(String.format("Consumed %d tokens. New state is: %d/%d with delta %d", count, available, size, accumDelta));
             return true;
         }
         log("Didn't consume any token.");
         return false;
     }
 
-    private long calculateTokensToAdd() {
+    private void updateAvailableTokens() {
         final long ratePerToken = getRatePerToken();
-        final long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-        long count = 0;
-        if (elapsed >= ratePerToken) {
-            count = elapsed / ratePerToken;
-            if (count > size - available) {
-                count = size - available;
-            }
+        final long elapsed = getTimeSinceLastTokenAddition();
+        if (elapsed < ratePerToken) {
+            return;
         }
-        return count;
+
+        accumDelta = elapsed % ratePerToken;
+        long count = elapsed / ratePerToken;
+        if (count > size - available) {
+            count = size - available;
+        }
+        if (count > 0) {
+            available += count;
+        }
+        restartStopWatch();
+        log(String.format("Updated tokens. %d available with delta %d", available, accumDelta));
     }
 
     private void restartStopWatch() {
         stopwatch.reset();
         stopwatch.start();
+    }
+
+    private long getTimeSinceLastTokenAddition() {
+        return stopwatch.elapsed(TimeUnit.MILLISECONDS) + accumDelta;
     }
 
     private long getRatePerToken() {
