@@ -60,10 +60,10 @@ public class BucketImplTest {
         assertThat(bucket, notNullValue());
         assertThat(bucket.consume(SIZE), equalTo(true));
 
-        assertThat(bucket.willLeakIn(), lessThan(RATE));
+        assertThat(bucket.willLeakIn(), lessThanOrEqualTo(RATE));
         Thread.sleep(RATE);
         assertThat(bucket.consume(), equalTo(true));
-        assertThat(bucket.willLeakIn(), lessThan(RATE));
+        assertThat(bucket.willLeakIn(), lessThanOrEqualTo(RATE));
     }
 
     @Test

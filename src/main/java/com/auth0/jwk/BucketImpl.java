@@ -13,7 +13,6 @@ class BucketImpl implements Bucket {
     private final long size;
     private final long rate;
     private final TimeUnit rateUnit;
-    private final long beginTime = System.currentTimeMillis();
     private AtomicLong available;
     private AtomicLong lastTokenAddedAt;
 
@@ -47,7 +46,6 @@ class BucketImpl implements Bucket {
     private void addToken() {
         if (available.get() < size) {
             available.incrementAndGet();
-            log(String.format("Added 1 token.. Current state: %d/%d", available.get(), size));
         }
         lastTokenAddedAt.set(System.currentTimeMillis());
     }
@@ -62,11 +60,6 @@ class BucketImpl implements Bucket {
         this.assertPositiveValue(value.intValue(), value.intValue(), exceptionMessage);
     }
 
-    private void log(String message) {
-        long msDiff = System.currentTimeMillis() - beginTime;
-        System.out.println(String.format("%-8d - %s", msDiff, message));
-    }
-
     @Override
     public long willLeakIn() {
         return willLeakIn(1);
@@ -77,7 +70,6 @@ class BucketImpl implements Bucket {
         assertPositiveValue(count, size, String.format("Cannot consume %d tokens when the BucketImpl size is %d!", count, size));
         long av = available.get();
         if (av >= count) {
-            log(String.format("%d Tokens are available already.", count));
             return 0;
         }
 
@@ -86,7 +78,6 @@ class BucketImpl implements Bucket {
         if (remaining > 0) {
             nextIn += rateUnit.toMillis(rate) * remaining;
         }
-        log(String.format("Can't consume %d. Actual state is: %d/%d. Retry in %d ms.", count, available.get(), size, nextIn));
         return nextIn;
     }
 
@@ -100,10 +91,8 @@ class BucketImpl implements Bucket {
         assertPositiveValue(count, size, String.format("Cannot consume %d tokens when the BucketImpl size is %d!", count, size));
         if (count <= available.get()) {
             available.addAndGet(-count);
-            log(String.format("Consumed %d tokens.. Current state: %d/%d", count, available.get(), size));
             return true;
         }
-        log(String.format("Not enough tokens available to consume %d", count));
         System.out.println();
         return false;
     }
