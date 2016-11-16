@@ -20,8 +20,9 @@ class BucketImpl implements Bucket {
     private AtomicInteger available;
     private AtomicLong lastTokenAddedAt;
 
-    public BucketImpl(int size, long rate, TimeUnit rateUnit) {
+    BucketImpl(int size, long rate, TimeUnit rateUnit) {
         assertPositiveValue(size, MAX_BUCKET_SIZE, "Invalid bucket size.");
+        assertPositiveValue(rate, "Invalid bucket refill rate.");
         this.size = size;
         this.available = new AtomicInteger(size);
         this.lastTokenAddedAt = new AtomicLong(System.currentTimeMillis());
@@ -43,7 +44,7 @@ class BucketImpl implements Bucket {
                 addToken();
             }
         };
-        executorService.scheduleAtFixedRate(refillTask, rate, rate, rateUnit);
+        executorService.scheduleAtFixedRate(refillTask, 0, rate, rateUnit);
     }
 
     private void addToken() {
@@ -58,6 +59,10 @@ class BucketImpl implements Bucket {
         if (value < 1 || value > maxValue) {
             throw new IllegalArgumentException(exceptionMessage);
         }
+    }
+
+    private void assertPositiveValue(Number value, String exceptionMessage) {
+        this.assertPositiveValue(value.intValue(), value.intValue(), exceptionMessage);
     }
 
     private void log(String message) {
@@ -79,7 +84,7 @@ class BucketImpl implements Bucket {
             return 0;
         }
 
-        long nextIn = rateUnit.toMillis(rate) - System.currentTimeMillis() - lastTokenAddedAt.get();
+        long nextIn = rateUnit.toMillis(rate) - (System.currentTimeMillis() - lastTokenAddedAt.get());
         final int remaining = count - av - 1;
         if (remaining > 0) {
             nextIn += rateUnit.toMillis(rate) * remaining;
