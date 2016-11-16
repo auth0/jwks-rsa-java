@@ -63,11 +63,24 @@ public class BucketImplTest {
         assertThat(bucket.willLeakIn(), lessThanOrEqualTo(RATE));
         Thread.sleep(RATE);
         assertThat(bucket.consume(), equalTo(true));
+        assertThat(bucket.willLeakIn(SIZE), lessThanOrEqualTo(SIZE * RATE));
+        Thread.sleep(SIZE * RATE);
+        assertThat(bucket.consume(SIZE), equalTo(true));
         assertThat(bucket.willLeakIn(), lessThanOrEqualTo(RATE));
+        assertThat(bucket.consume(), equalTo(false));
     }
 
     @Test
-    public void shouldConsumeAllBucket() throws Exception {
+    public void shouldNotAddMoreTokensThatTheBucketSize() throws Exception {
+        Bucket bucket = new BucketImpl(SIZE, RATE, TimeUnit.MILLISECONDS);
+        assertThat(bucket, notNullValue());
+        Thread.sleep(SIZE * RATE * 2);
+        assertThat(bucket.consume(SIZE), equalTo(true));
+        assertThat(bucket.consume(), equalTo(false));
+    }
+
+    @Test
+    public void shouldConsumeAllBucketTokens() throws Exception {
         Bucket bucket = new BucketImpl(SIZE, RATE, TimeUnit.MILLISECONDS);
         assertThat(bucket, notNullValue());
         assertThat(bucket.consume(SIZE), equalTo(true));
@@ -75,7 +88,7 @@ public class BucketImplTest {
     }
 
     @Test
-    public void shouldConsume() throws Exception {
+    public void shouldConsumeByOneToken() throws Exception {
         Bucket bucket = new BucketImpl(SIZE, RATE, TimeUnit.MILLISECONDS);
         assertThat(bucket, notNullValue());
         assertThat(bucket.consume(), equalTo(true));
