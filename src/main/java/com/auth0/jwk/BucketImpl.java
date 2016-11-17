@@ -1,53 +1,29 @@
 package com.auth0.jwk;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import com.google.common.base.Stopwatch;
+
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Token Bucket implementation to guarantee availability of a fixed amount of tokens in a given time rate.
  */
 class BucketImpl implements Bucket {
 
+    private final Stopwatch stopwatch;
     private final long size;
     private final long rate;
     private final TimeUnit rateUnit;
-    private AtomicLong available;
-    private AtomicLong lastTokenAddedAt;
+    private long available;
+    private long accumDelta;
 
     BucketImpl(long size, long rate, TimeUnit rateUnit) {
         assertPositiveValue(size, "Invalid bucket size.");
         assertPositiveValue(rate, "Invalid bucket refill rate.");
+        this.stopwatch = Stopwatch.createStarted();
         this.size = size;
-        this.available = new AtomicLong(size);
-        this.lastTokenAddedAt = new AtomicLong(System.currentTimeMillis());
+        this.available = size;
         this.rate = rate;
         this.rateUnit = rateUnit;
-
-        beginRefillAtRate();
-    }
-
-    private void beginRefillAtRate() {
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        Runnable refillTask = new Runnable() {
-            public void run() {
-                try {
-                    rateUnit.sleep(rate);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                addToken();
-            }
-        };
-        executorService.scheduleAtFixedRate(refillTask, 0, rate, rateUnit);
-    }
-
-    private void addToken() {
-        if (available.get() < size) {
-            available.incrementAndGet();
-        }
-        lastTokenAddedAt.set(System.currentTimeMillis());
     }
 
     private void assertPositiveValue(long value, long maxValue, String exceptionMessage) {
@@ -61,39 +37,74 @@ class BucketImpl implements Bucket {
     }
 
     @Override
-    public long willLeakIn() {
+    public synchronized long willLeakIn() {
         return willLeakIn(1);
     }
 
     @Override
-    public long willLeakIn(long count) {
+    public synchronized long willLeakIn(long count) {
         assertPositiveValue(count, size, String.format("Cannot consume %d tokens when the BucketImpl size is %d!", count, size));
-        long av = available.get();
-        if (av >= count) {
+        updateAvailableTokens();
+        if (available >= count) {
             return 0;
         }
 
-        long nextIn = rateUnit.toMillis(rate) - (System.currentTimeMillis() - lastTokenAddedAt.get());
-        final long remaining = count - av - 1;
-        if (remaining > 0) {
-            nextIn += rateUnit.toMillis(rate) * remaining;
+        long leakDelta = getTimeSinceLastTokenAddition();
+        if (leakDelta < getRatePerToken()) {
+            leakDelta = getRatePerToken() - leakDelta;
         }
-        return nextIn;
+        final long remaining = count - available - 1;
+        if (remaining > 0) {
+            leakDelta += getRatePerToken() * remaining;
+        }
+        return leakDelta;
     }
 
     @Override
-    public boolean consume() {
+    public synchronized boolean consume() {
         return consume(1);
     }
 
     @Override
-    public boolean consume(long count) {
+    public synchronized boolean consume(long count) {
         assertPositiveValue(count, size, String.format("Cannot consume %d tokens when the BucketImpl size is %d!", count, size));
-        if (count <= available.get()) {
-            available.addAndGet(-count);
+        updateAvailableTokens();
+
+        if (count <= available) {
+            available -= count;
             return true;
         }
-        System.out.println();
         return false;
+    }
+
+    private void updateAvailableTokens() {
+        final long ratePerToken = getRatePerToken();
+        final long elapsed = getTimeSinceLastTokenAddition();
+        if (elapsed < ratePerToken) {
+            return;
+        }
+
+        accumDelta = elapsed % ratePerToken;
+        long count = elapsed / ratePerToken;
+        if (count > size - available) {
+            count = size - available;
+        }
+        if (count > 0) {
+            available += count;
+        }
+        restartStopWatch();
+    }
+
+    private void restartStopWatch() {
+        stopwatch.reset();
+        stopwatch.start();
+    }
+
+    private long getTimeSinceLastTokenAddition() {
+        return stopwatch.elapsed(TimeUnit.MILLISECONDS) + accumDelta;
+    }
+
+    private long getRatePerToken() {
+        return rateUnit.toMillis(rate);
     }
 }
