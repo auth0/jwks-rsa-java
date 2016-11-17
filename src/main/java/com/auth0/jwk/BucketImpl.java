@@ -26,10 +26,6 @@ class BucketImpl implements Bucket {
         this.rateUnit = rateUnit;
     }
 
-    private void log(String message) {
-        System.out.println(String.format("%-8d - %s", getTimeSinceLastTokenAddition(), message));
-    }
-
     private void assertPositiveValue(long value, long maxValue, String exceptionMessage) {
         if (value < 1 || value > maxValue) {
             throw new IllegalArgumentException(exceptionMessage);
@@ -57,12 +53,10 @@ class BucketImpl implements Bucket {
         if (leakDelta < getRatePerToken()) {
             leakDelta = getRatePerToken() - leakDelta;
         }
-        log("Leak delta for 1 token is: " + leakDelta);
         final long remaining = count - available - 1;
         if (remaining > 0) {
             leakDelta += getRatePerToken() * remaining;
         }
-        log(String.format("Can't consume %d. Actual state is: %d/%d. Retry in %d ms.", count, available, size, leakDelta));
         return leakDelta;
     }
 
@@ -78,10 +72,8 @@ class BucketImpl implements Bucket {
 
         if (count <= available) {
             available -= count;
-            log(String.format("Consumed %d tokens. New state is: %d/%d with delta %d", count, available, size, accumDelta));
             return true;
         }
-        log("Didn't consume any token.");
         return false;
     }
 
@@ -101,7 +93,6 @@ class BucketImpl implements Bucket {
             available += count;
         }
         restartStopWatch();
-        log(String.format("Updated tokens. %d available with delta %d", available, accumDelta));
     }
 
     private void restartStopWatch() {
