@@ -54,9 +54,9 @@ Jwk jwk = provider.get("{kid of the signing key}"); //throws Exception when not 
 
 ### RateLimitJwkProvider
 
-`RateLimitJwkProvider` will limit the amounts of tokens to get in a given time frame.
+`RateLimitJwkProvider` will limit the amounts of different signing keys to get in a given time frame.
 
-> By default the rate is limited to 10 tokens per minute but these values can be changed
+> By default the rate is limited to 10 different keys per minute but these values can be changed
 
 ```java
 JwkProvider url = new UrlJwkProvider("https://samples.auth0.com/");
