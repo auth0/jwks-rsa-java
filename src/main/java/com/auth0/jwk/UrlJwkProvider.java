@@ -47,7 +47,7 @@ public class UrlJwkProvider implements JwkProvider {
 
         try {
             final URL url = new URL(domain);
-            return new URL(url, "/.well-known/jwks.json");
+            return new URL(url);
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Invalid jwks uri", e);
         }
