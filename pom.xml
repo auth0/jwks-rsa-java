@@ -14,6 +14,14 @@
   <name>jwks-rsa</name>
   <url>http://www.auth0.com</url>
 
+  <licenses>
+    <license>
+      <name>The MIT License (MIT)</name>
+      <url>https://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
   <properties>
     <jackson.version>2.8.1</jackson.version>
     <java.version>1.7</java.version>
