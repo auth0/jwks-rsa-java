@@ -24,7 +24,7 @@ public class Jwk {
     private final String type;
     private final String algorithm;
     private final String usage;
-    private final String operations;
+    private final List<String> operations;
     private final String certificateUrl;
     private final List<String> certificateChain;
     private final String certificateThumbprint;
@@ -43,7 +43,7 @@ public class Jwk {
      * @param additionalAttributes additional attributes not part of the standard ones
      */
     @SuppressWarnings("WeakerAccess")
-    public Jwk(String id, String type, String algorithm, String usage, String operations, String certificateUrl, List<String> certificateChain, String certificateThumbprint, Map<String, Object> additionalAttributes) {
+    public Jwk(String id, String type, String algorithm, String usage, List<String> operations, String certificateUrl, List<String> certificateChain, String certificateThumbprint, Map<String, Object> additionalAttributes) {
         this.id = id;
         this.type = type;
         this.algorithm = algorithm;
@@ -61,7 +61,8 @@ public class Jwk {
         String kty = (String) values.remove("kty");
         String alg = (String) values.remove("alg");
         String use = (String) values.remove("use");
-        String keyOps = (String) values.remove("key_ops");
+        @SuppressWarnings("unchecked")
+        List<String> keyOps = (List<String>) values.remove("key_ops");
         String x5u = (String) values.remove("x5u");
         @SuppressWarnings("unchecked")
         List<String> x5c = (List<String>) values.remove("x5c");
@@ -93,7 +94,7 @@ public class Jwk {
     }
 
     @SuppressWarnings("WeakerAccess")
-    public String getOperations() {
+    public List<String> getOperations() {
         return operations;
     }
 
