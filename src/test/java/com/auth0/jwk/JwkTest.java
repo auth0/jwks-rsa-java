@@ -40,6 +40,7 @@ public class JwkTest {
         assertThat(jwk.getType(), equalTo(RSA));
         assertThat(jwk.getUsage(), equalTo(SIG));
         assertThat(jwk.getOperationsAsList(), equalTo(KEY_OPS_LIST));
+        assertThat(jwk.getOperations(), is(KEY_OPS_STRING));
         assertThat(jwk.getCertificateThumbprint(), equalTo(THUMBPRINT));
         assertThat(jwk.getCertificateChain(), contains(CERT_CHAIN));
     }
