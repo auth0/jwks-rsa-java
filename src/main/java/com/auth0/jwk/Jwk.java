@@ -10,6 +10,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ public class Jwk {
     private final String type;
     private final String algorithm;
     private final String usage;
-    private final String operations;
+    private final List<String> operations;
     private final String certificateUrl;
     private final List<String> certificateChain;
     private final String certificateThumbprint;
@@ -43,7 +44,7 @@ public class Jwk {
      * @param additionalAttributes additional attributes not part of the standard ones
      */
     @SuppressWarnings("WeakerAccess")
-    public Jwk(String id, String type, String algorithm, String usage, String operations, String certificateUrl, List<String> certificateChain, String certificateThumbprint, Map<String, Object> additionalAttributes) {
+    public Jwk(String id, String type, String algorithm, String usage, List<String> operations, String certificateUrl, List<String> certificateChain, String certificateThumbprint, Map<String, Object> additionalAttributes) {
         this.id = id;
         this.type = type;
         this.algorithm = algorithm;
@@ -55,21 +56,46 @@ public class Jwk {
         this.additionalAttributes = additionalAttributes;
     }
 
+    /**
+     * Creates a new Jwk
+     * @param id
+     * @param type
+     * @param algorithm
+     * @param usage
+     * @param operations
+     * @param certificateUrl
+     * @param certificateChain
+     * @param certificateThumbprint
+     * @param additionalAttributes
+     *
+     * @deprecated The specification states that the 'key_ops' (operations) parameter contains an array value.
+     * Use {@link #Jwk(String, String, String, String, List, String, List, String, Map)}
+     */
+    @Deprecated
+    @SuppressWarnings("WeakerAccess")
+    public Jwk(String id, String type, String algorithm, String usage, String operations, String certificateUrl, List<String> certificateChain, String certificateThumbprint, Map<String, Object> additionalAttributes) {
+        this(id, type, algorithm, usage, Collections.singletonList(operations), certificateUrl, certificateChain, certificateThumbprint, additionalAttributes);
+    }
+
+    @SuppressWarnings("unchecked")
     static Jwk fromValues(Map<String, Object> map) {
         Map<String, Object> values = Maps.newHashMap(map);
         String kid = (String) values.remove("kid");
         String kty = (String) values.remove("kty");
         String alg = (String) values.remove("alg");
         String use = (String) values.remove("use");
-        String keyOps = (String) values.remove("key_ops");
+        Object keyOps = values.remove("key_ops");
         String x5u = (String) values.remove("x5u");
-        @SuppressWarnings("unchecked")
         List<String> x5c = (List<String>) values.remove("x5c");
         String x5t = (String) values.remove("x5t");
         if (kid == null || kty == null || alg == null) {
             throw new IllegalArgumentException("Attributes " + map + " are not from a valid jwk");
         }
-        return new Jwk(kid, kty, alg, use, keyOps, x5u, x5c, x5t, values);
+        if(keyOps instanceof String) {
+            return new Jwk(kid, kty, alg, use, (String) keyOps, x5u, x5c, x5t, values);
+        } else {
+            return new Jwk(kid, kty, alg, use, (List<String>) keyOps, x5u, x5c, x5t, values);
+        }
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -94,6 +120,21 @@ public class Jwk {
 
     @SuppressWarnings("WeakerAccess")
     public String getOperations() {
+        if(operations == null || operations.isEmpty()) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        String delimiter = ",";
+        for(String operation : operations) {
+            sb.append(operation);
+            sb.append(delimiter);
+        }
+        String ops = sb.toString();
+        return ops.substring(0, ops.length() - delimiter.length());
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public List<String> getOperationsAsList() {
         return operations;
     }
 
