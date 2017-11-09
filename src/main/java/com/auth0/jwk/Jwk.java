@@ -57,11 +57,6 @@ public class Jwk {
     }
 
     /**
-     * <p>Deprecated: Specification states that 'key_ops' (operations) is expected to contain an array value.
-     * While the operations parameter may currently be accepted as a String,
-     * a future release will limit this to only accept a List
-     * (see {@link #Jwk(String, String, String, String, List, String, List, String, Map)}.</p>
-     *
      * Creates a new Jwk
      * @param id
      * @param type
@@ -73,6 +68,8 @@ public class Jwk {
      * @param certificateThumbprint
      * @param additionalAttributes
      *
+     * @deprecated The specification states that the 'key_ops' (operations) parameter contains an array value.
+     * Use {@link #Jwk(String, String, String, String, List, String, List, String, Map)}
      */
     @Deprecated
     @SuppressWarnings("WeakerAccess")
@@ -122,7 +119,22 @@ public class Jwk {
     }
 
     @SuppressWarnings("WeakerAccess")
-    public List<String> getOperations() {
+    public String getOperations() {
+        if(operations == null || operations.isEmpty()) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        String delimiter = ",";
+        for(String operation : operations) {
+            sb.append(operation);
+            sb.append(delimiter);
+        }
+        String ops = sb.toString();
+        return ops.substring(0, ops.length() - delimiter.length());
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public List<String> getOperationsAsList() {
         return operations;
     }
 
