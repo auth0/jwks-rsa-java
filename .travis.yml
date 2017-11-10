@@ -1,9 +1,12 @@
 language: java
+sudo: false
 jdk:
 - openjdk7
+- openjdk8
 branches:
   only:
   - master
+script: mvn clean test -B
 notifications:
   slack:
     secure: D0G0glFtsYdT/imUlB5Jy1cqEala/K9O/0YgV4M3rK+Gr3a/oFkGocwNRrXMTRktTRF9srfBjfrDx0ww7rrLgaXjkE/uQq9sm6VXS1aiX9OnkVjfEcMpquHVYv3MiaOaia0ho1tZ3YaYxT2YPwZ6+eCXdo6tGRzoPWGGTAhqOFXbf8B1cs6vb8v6ZRFK8TWzKqrwdvZm76ssqyvydtCX8RccLgG1GG0/hSKMHoe0ItW3W6eCqy73td+e9dr+sRizoqC4DTxQoOKkOFibxeZooEDIkrJhMtyxmxsx0IiandLhmIrUqDIsPtIup9XZVWTyUMltsrXnEHf0EclYp8D4iFz0fKpAzYFQm1EARhZoYFPTbYUAQnPAdgpk7DQmXmKvDUld2MlD0fBGKAxTBbRGX//w2G+QDqefVSYd8aIDqLebN6mItXBUvP6NwF/JbbNwsEXX1C8tiwXVnTdXnSA+6ebsaGMlYvOxHpVv0fKZdhj83jQoatdjgv79uji+KfL3PWEVqwgFECClhjz5O5iYo0N6g9zYEdTUidk7JOPfZEzBpwnPcha5tczQdd58M1r6KRheTdGsboPI1ds4psSXO4t2YeuM6g5956qimoJnicDJxSLL2vOqySLb/N65DGtVIXI5yxTo1rWb8bIwvhfx9rbhED0QDiKwSGwzN9Q/Ubo=
