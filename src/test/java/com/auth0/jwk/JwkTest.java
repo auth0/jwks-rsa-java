@@ -57,7 +57,7 @@ public class JwkTest {
     }
 
     @Test
-    public void shouldReturnPublicKeyForStringKeyOps() throws Exception {
+    public void shouldReturnPublicKeyForStringKeyOpsParam() throws Exception {
         final String kid = randomKeyId();
         Map<String, Object> values = publicKeyValues(kid, KEY_OPS_STRING);
         Jwk jwk = Jwk.fromValues(values);
@@ -68,7 +68,7 @@ public class JwkTest {
     }
 
     @Test
-    public void shouldReturnPublicKeyForNullKeyOps() throws Exception {
+    public void shouldReturnPublicKeyForNullKeyOpsParam() throws Exception {
         final String kid = randomKeyId();
         Map<String, Object> values = publicKeyValues(kid, null);
         Jwk jwk = Jwk.fromValues(values);
@@ -79,7 +79,7 @@ public class JwkTest {
     }
 
     @Test
-    public void shouldReturnPublicKeyForEmptyKeyOps() throws Exception {
+    public void shouldReturnPublicKeyForEmptyKeyOpsParam() throws Exception {
         final String kid = randomKeyId();
         Map<String, Object> values = publicKeyValues(kid, Lists.newArrayList());
         Jwk jwk = Jwk.fromValues(values);
@@ -96,6 +96,33 @@ public class JwkTest {
         Map<String, Object> values = nonRSAValues(kid);
         Jwk jwk = Jwk.fromValues(values);
         assertThat(jwk.getPublicKey(), nullValue());
+    }
+    
+    @Test
+    public void shouldThrowInvalidArgumentExceptionOnMissingKidParam() throws Exception {
+        final String kid = randomKeyId();
+        Map<String, Object> values = publicKeyValues(kid, KEY_OPS_LIST);
+        values.remove("kid");
+        expectedException.expect(IllegalArgumentException.class);
+        Jwk.fromValues(values);
+    }
+
+    @Test
+    public void shouldThrowInvalidArgumentExceptionOnMissingKtyParam() throws Exception {
+        final String kid = randomKeyId();
+        Map<String, Object> values = publicKeyValues(kid, KEY_OPS_LIST);
+        values.remove("kty");
+        expectedException.expect(IllegalArgumentException.class);
+        Jwk.fromValues(values);
+    }
+
+    @Test
+    public void shouldReturnKeyWithMissingAlgParam() throws Exception {
+        final String kid = randomKeyId();
+        Map<String, Object> values = publicKeyValues(kid, KEY_OPS_LIST);
+        values.remove("alg");
+        Jwk jwk = Jwk.fromValues(values);
+        assertThat(jwk.getPublicKey(), notNullValue());
     }
 
     private static String randomKeyId() {

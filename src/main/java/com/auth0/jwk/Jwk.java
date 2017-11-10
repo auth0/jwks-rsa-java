@@ -88,7 +88,7 @@ public class Jwk {
         String x5u = (String) values.remove("x5u");
         List<String> x5c = (List<String>) values.remove("x5c");
         String x5t = (String) values.remove("x5t");
-        if (kid == null || kty == null || alg == null) {
+        if (kid == null || kty == null) {
             throw new IllegalArgumentException("Attributes " + map + " are not from a valid jwk");
         }
         if(keyOps instanceof String) {
