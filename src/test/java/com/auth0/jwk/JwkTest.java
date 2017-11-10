@@ -97,6 +97,33 @@ public class JwkTest {
         Jwk jwk = Jwk.fromValues(values);
         assertThat(jwk.getPublicKey(), nullValue());
     }
+    
+    @Test
+    public void shouldThrowInvalidArgumentExceptionMissingKID() throws Exception {
+        final String kid = randomKeyId();
+        Map<String, Object> values = publicKeyValues(kid);
+        values.remove("kid");
+        expectedException.expect(IllegalArgumentException.class);
+        Jwk.fromValues(values);
+    }
+
+    @Test
+    public void shouldThrowInvalidArgumentExceptionMissingKTY() throws Exception {
+        final String kid = randomKeyId();
+        Map<String, Object> values = publicKeyValues(kid);
+        values.remove("kty");
+        expectedException.expect(IllegalArgumentException.class);
+        Jwk.fromValues(values);
+    }
+
+    @Test
+    public void shouldReturnKeyWihMissingAlgParam() throws Exception {
+        final String kid = randomKeyId();
+        Map<String, Object> values = publicKeyValues(kid);
+        values.remove("alg");
+        Jwk jwk = Jwk.fromValues(values);
+        assertThat(jwk.getPublicKey(), notNullValue());
+    }
 
     private static String randomKeyId() {
         byte[] bytes = new byte[50];
