@@ -101,7 +101,7 @@ public class JwkTest {
     @Test
     public void shouldThrowInvalidArgumentExceptionMissingKID() throws Exception {
         final String kid = randomKeyId();
-        Map<String, Object> values = publicKeyValues(kid);
+        Map<String, Object> values = publicKeyValues(kid, KEY_OPS_LIST);
         values.remove("kid");
         expectedException.expect(IllegalArgumentException.class);
         Jwk.fromValues(values);
@@ -110,7 +110,7 @@ public class JwkTest {
     @Test
     public void shouldThrowInvalidArgumentExceptionMissingKTY() throws Exception {
         final String kid = randomKeyId();
-        Map<String, Object> values = publicKeyValues(kid);
+        Map<String, Object> values = publicKeyValues(kid, KEY_OPS_LIST);
         values.remove("kty");
         expectedException.expect(IllegalArgumentException.class);
         Jwk.fromValues(values);
@@ -119,7 +119,7 @@ public class JwkTest {
     @Test
     public void shouldReturnKeyWihMissingAlgParam() throws Exception {
         final String kid = randomKeyId();
-        Map<String, Object> values = publicKeyValues(kid);
+        Map<String, Object> values = publicKeyValues(kid, KEY_OPS_LIST);
         values.remove("alg");
         Jwk jwk = Jwk.fromValues(values);
         assertThat(jwk.getPublicKey(), notNullValue());
