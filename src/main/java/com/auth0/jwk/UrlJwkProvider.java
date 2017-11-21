@@ -10,7 +10,9 @@ import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.Proxy;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +22,7 @@ import java.util.Map;
 @SuppressWarnings("WeakerAccess")
 public class UrlJwkProvider implements JwkProvider {
     final URL url;
+    private Proxy proxy;
 
     /**
      * Creates a provider that loads from a given URL
@@ -30,6 +33,10 @@ public class UrlJwkProvider implements JwkProvider {
             throw new IllegalArgumentException("A non-null url is required");
         }
         this.url = url;
+    }
+    
+    public void setProxy(Proxy proxy) {
+        this.proxy = proxy;
     }
 
     /**
@@ -55,7 +62,17 @@ public class UrlJwkProvider implements JwkProvider {
 
     private Map<String, Object> getJwks() throws SigningKeyNotFoundException {
         try {
-            final InputStream inputStream = this.url.openStream();
+            URLConnection urlConnection = null;
+            if (proxy != null) {
+                try {
+                    urlConnection = this.url.openConnection(proxy);
+                } catch (UnsupportedOperationException ex) {
+                    urlConnection = this.url.openConnection();
+                }
+            } else {
+                urlConnection = this.url.openConnection();
+            }
+            final InputStream inputStream = urlConnection.getInputStream();
             final JsonFactory factory = new JsonFactory();
             final JsonParser parser = factory.createParser(inputStream);
             final TypeReference<Map<String, Object>> typeReference = new TypeReference<Map<String, Object>>() {};
