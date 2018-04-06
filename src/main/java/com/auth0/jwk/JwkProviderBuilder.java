@@ -1,5 +1,6 @@
 package com.auth0.jwk;
 
+import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -8,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("WeakerAccess")
 public class JwkProviderBuilder {
 
-    private final String url;
+    private final URL url;
     private TimeUnit expiresUnit;
     private long expiresIn;
     private long cacheSize;
@@ -16,23 +17,35 @@ public class JwkProviderBuilder {
     private BucketImpl bucket;
     private boolean rateLimited;
 
+
     /**
      * Creates a new Builder with a URL from where to load the jwks.
-     * It can be a url lik 'https://samples.auth0.com' or just the Auth0 domain 'samples.auth0.com'.
      *
-     * @param domain from where to load the jwks
+     * @param url to load the jwks
+     * @throws IllegalStateException if url is null
      */
-    public JwkProviderBuilder(String domain) {
-        if (domain == null) {
-            throw new IllegalStateException("Cannot build provider without domain");
+    public JwkProviderBuilder(URL url) {
+        if (url == null) {
+            throw new IllegalStateException("Cannot build provider without url to jwks");
         }
-        this.url = normalizeDomain(domain);
+        this.url = url;
         this.cached = true;
         this.expiresIn = 10;
         this.expiresUnit = TimeUnit.HOURS;
         this.cacheSize = 5;
         this.rateLimited = true;
         this.bucket = new BucketImpl(10, 1, TimeUnit.MINUTES);
+    }
+
+    /**
+     * Creates a new Builder with a URL from where to load the jwks.
+     * It can be a url link 'https://samples.auth0.com' or just the Auth0 domain 'samples.auth0.com'.
+     *
+     * @param domain from where to load the jwks
+     * @throws IllegalStateException if domain is null
+     */
+    public JwkProviderBuilder(String domain) {
+        this(buildJwkUrl(domain));
     }
 
     /**
@@ -102,7 +115,14 @@ public class JwkProviderBuilder {
         return urlProvider;
     }
 
-    private String normalizeDomain(String domain) {
+    private static URL buildJwkUrl(String domain) {
+        if (domain == null) {
+            throw new IllegalStateException("Cannot build provider without domain");
+        }
+        return JwkUrlFactory.forNormalizedDomain(normalizeDomain(domain));
+    }
+
+    private static String normalizeDomain(String domain) {
         if (!domain.startsWith("http")) {
             return "https://" + domain;
         }

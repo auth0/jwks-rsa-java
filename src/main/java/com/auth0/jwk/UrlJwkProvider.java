@@ -4,12 +4,10 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -34,23 +32,10 @@ public class UrlJwkProvider implements JwkProvider {
 
     /**
      * Creates a provider that loads from the given domain's well-known directory
-     * @param domain domain where to look for the jwks.json file
+     * @param domain normalized domain where to look for the jwks.json file
      */
     public UrlJwkProvider(String domain) {
-        this(urlForDomain(domain));
-    }
-
-    private static URL urlForDomain(String domain) {
-        if (Strings.isNullOrEmpty(domain)) {
-            throw new IllegalArgumentException("A domain is required");
-        }
-
-        try {
-            final URL url = new URL(domain);
-            return new URL(url, "/.well-known/jwks.json");
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException("Invalid jwks uri", e);
-        }
+        this(JwkUrlFactory.forNormalizedDomain(domain));
     }
 
     private Map<String, Object> getJwks() throws SigningKeyNotFoundException {
