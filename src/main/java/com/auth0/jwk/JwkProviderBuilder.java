@@ -3,6 +3,8 @@ package com.auth0.jwk;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
+import static com.auth0.jwk.UrlJwkProvider.urlForDomain;
+
 /**
  * JwkProvider builder
  */
@@ -17,9 +19,8 @@ public class JwkProviderBuilder {
     private BucketImpl bucket;
     private boolean rateLimited;
 
-
     /**
-     * Creates a new Builder with a URL from where to load the jwks.
+     * Creates a new Builder with the given URL where to load the jwks from.
      *
      * @param url to load the jwks
      * @throws IllegalStateException if url is null
@@ -38,14 +39,23 @@ public class JwkProviderBuilder {
     }
 
     /**
-     * Creates a new Builder with a URL from where to load the jwks.
-     * It can be a url link 'https://samples.auth0.com' or just the Auth0 domain 'samples.auth0.com'.
+     * Creates a new Builder with a domain where to look for the jwks.
+     * It can be a url link 'https://samples.auth0.com' or just a domain 'samples.auth0.com'.
+     * <br><br> Use {@link #JwkProviderBuilder(URL)} if you need to pass a full URL.
      *
-     * @param domain from where to load the jwks
+     * @param domain where jwks is published
      * @throws IllegalStateException if domain is null
+     * @see UrlJwkProvider#UrlJwkProvider(String)
      */
     public JwkProviderBuilder(String domain) {
         this(buildJwkUrl(domain));
+    }
+
+    private static URL buildJwkUrl(String domain) {
+        if (domain == null) {
+            throw new IllegalStateException("Cannot build provider without domain");
+        }
+        return urlForDomain(domain);
     }
 
     /**
@@ -113,19 +123,5 @@ public class JwkProviderBuilder {
             urlProvider = new GuavaCachedJwkProvider(urlProvider, cacheSize, expiresIn, expiresUnit);
         }
         return urlProvider;
-    }
-
-    private static URL buildJwkUrl(String domain) {
-        if (domain == null) {
-            throw new IllegalStateException("Cannot build provider without domain");
-        }
-        return JwkUrlFactory.forNormalizedDomain(normalizeDomain(domain));
-    }
-
-    private static String normalizeDomain(String domain) {
-        if (!domain.startsWith("http")) {
-            return "https://" + domain;
-        }
-        return domain;
     }
 }

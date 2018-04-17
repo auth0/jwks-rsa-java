@@ -7,7 +7,7 @@ import org.junit.rules.ExpectedException;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
-import static com.auth0.jwk.JwkUrlFactory.WELL_KNOWN_JWKS_PATH;
+import static com.auth0.jwk.UrlJwkProvider.WELL_KNOWN_JWKS_PATH;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 

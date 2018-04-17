@@ -8,34 +8,57 @@ import com.google.common.collect.Lists;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
 
 /**
  * Jwk provider that loads them from a {@link URL}
  */
 @SuppressWarnings("WeakerAccess")
 public class UrlJwkProvider implements JwkProvider {
+
+    static final String WELL_KNOWN_JWKS_PATH = "/.well-known/jwks.json";
+
     final URL url;
 
     /**
-     * Creates a provider that loads from a given URL
+     * Creates a provider that loads from the given URL
      * @param url to load the jwks
      */
     public UrlJwkProvider(URL url) {
-        if (url == null) {
-            throw new IllegalArgumentException("A non-null url is required");
-        }
+        checkArgument(url != null, "A non-null url is required");
         this.url = url;
     }
 
     /**
-     * Creates a provider that loads from the given domain's well-known directory
-     * @param domain normalized domain where to look for the jwks.json file
+     * Creates a provider that loads from the given domain's well-known directory.
+     * <br>If the protocol (http or https) is not provided then https is used by default
+     * (some.domain -> "https://" + some.domain + {@value #WELL_KNOWN_JWKS_PATH}).
+     * <br><br> Use {@link #UrlJwkProvider(URL)} if you need to pass a full URL.
+     * @param domain where jwks is published
      */
     public UrlJwkProvider(String domain) {
-        this(JwkUrlFactory.forNormalizedDomain(domain));
+        this(urlForDomain(domain));
+    }
+
+    static URL urlForDomain(String domain) {
+        checkArgument(!isNullOrEmpty(domain), "A domain is required");
+
+        if (!domain.startsWith("http")) {
+            domain = "https://" + domain;
+        }
+
+        try {
+            final URL url = new URL(domain);
+            return new URL(url, WELL_KNOWN_JWKS_PATH);
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("Invalid jwks uri", e);
+        }
     }
 
     private Map<String, Object> getJwks() throws SigningKeyNotFoundException {
