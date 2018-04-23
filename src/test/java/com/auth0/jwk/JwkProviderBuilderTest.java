@@ -8,7 +8,9 @@ import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 import static com.auth0.jwk.UrlJwkProvider.WELL_KNOWN_JWKS_PATH;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 public class JwkProviderBuilderTest {
@@ -26,31 +28,31 @@ public class JwkProviderBuilderTest {
     }
 
     @Test
-    public void shouldCreateForDomain() throws Exception {
+    public void shouldCreateForDomain() {
         assertThat(new JwkProviderBuilder(domain).build(), notNullValue());
     }
 
     @Test
-    public void shouldCreateForNormalizedDomain() throws Exception {
+    public void shouldCreateForNormalizedDomain() {
         assertThat(new JwkProviderBuilder(normalizedDomain).build(), notNullValue());
     }
 
     @Test
-    public void shouldFailWhenNoUrlIsProvided() throws Exception {
+    public void shouldFailWhenNoUrlIsProvided() {
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("Cannot build provider without url to jwks");
         new JwkProviderBuilder((URL) null).build();
     }
 
     @Test
-    public void shouldFailWhenNoDomainIsProvided() throws Exception {
+    public void shouldFailWhenNoDomainIsProvided() {
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("Cannot build provider without domain");
         new JwkProviderBuilder((String) null).build();
     }
 
     @Test
-    public void shouldCreateCachedProvider() throws Exception {
+    public void shouldCreateCachedProvider() {
         JwkProvider provider = new JwkProviderBuilder(domain)
                 .rateLimited(false)
                 .cached(true)
@@ -61,7 +63,7 @@ public class JwkProviderBuilderTest {
     }
 
     @Test
-    public void shouldCreateCachedProviderWithCustomValues() throws Exception {
+    public void shouldCreateCachedProviderWithCustomValues() {
         JwkProvider provider = new JwkProviderBuilder(domain)
                 .rateLimited(false)
                 .cached(10, 24, TimeUnit.HOURS)
@@ -72,7 +74,7 @@ public class JwkProviderBuilderTest {
     }
 
     @Test
-    public void shouldCreateRateLimitedProvider() throws Exception {
+    public void shouldCreateRateLimitedProvider() {
         JwkProvider provider = new JwkProviderBuilder(domain)
                 .cached(false)
                 .rateLimited(true)
@@ -83,7 +85,7 @@ public class JwkProviderBuilderTest {
     }
 
     @Test
-    public void shouldCreateRateLimitedProviderWithCustomValues() throws Exception {
+    public void shouldCreateRateLimitedProviderWithCustomValues() {
         JwkProvider provider = new JwkProviderBuilder(domain)
                 .cached(false)
                 .rateLimited(10, 24, TimeUnit.HOURS)
@@ -94,7 +96,7 @@ public class JwkProviderBuilderTest {
     }
 
     @Test
-    public void shouldCreateCachedAndRateLimitedProvider() throws Exception {
+    public void shouldCreateCachedAndRateLimitedProvider() {
         JwkProvider provider = new JwkProviderBuilder(domain)
                 .cached(true)
                 .rateLimited(true)
@@ -107,7 +109,7 @@ public class JwkProviderBuilderTest {
     }
 
     @Test
-    public void shouldCreateCachedAndRateLimitedProviderWithCustomValues() throws Exception {
+    public void shouldCreateCachedAndRateLimitedProviderWithCustomValues() {
         JwkProvider provider = new JwkProviderBuilder(domain)
                 .cached(10, 24, TimeUnit.HOURS)
                 .rateLimited(10, 24, TimeUnit.HOURS)
@@ -120,7 +122,7 @@ public class JwkProviderBuilderTest {
     }
 
     @Test
-    public void shouldCreateCachedAndRateLimitedProviderByDefault() throws Exception {
+    public void shouldCreateCachedAndRateLimitedProviderByDefault() {
         JwkProvider provider = new JwkProviderBuilder(domain).build();
         assertThat(provider, notNullValue());
         assertThat(provider, instanceOf(GuavaCachedJwkProvider.class));

@@ -15,14 +15,12 @@ import static org.junit.Assert.assertThat;
 public class UrlJwkProviderTest {
 
     private static final String KID = "NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg";
-    private UrlJwkProvider provider;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void setUp() {
-        provider = new UrlJwkProvider(getClass().getResource("/jwks.json"));
     }
 
     @Test
@@ -45,20 +43,21 @@ public class UrlJwkProviderTest {
 
     @Test
     public void shouldReturnSingleJwkById() throws Exception {
+        UrlJwkProvider provider = new UrlJwkProvider(getClass().getResource("/jwks.json"));
         assertThat(provider.get(KID), notNullValue());
     }
 
     @Test
     public void shouldFailToLoadSingleWhenUrlHasNothing() throws Exception {
         expectedException.expect(SigningKeyNotFoundException.class);
-        provider = new UrlJwkProvider(new URL("file:///not_found.file"));
+        UrlJwkProvider provider = new UrlJwkProvider(new URL("file:///not_found.file"));
         provider.get(KID);
     }
 
     @Test
     public void shouldFailToLoadSingleWhenKeysIsEmpty() throws Exception {
         expectedException.expect(SigningKeyNotFoundException.class);
-        provider = new UrlJwkProvider(getClass().getResource("/empty-jwks.json"));
+        UrlJwkProvider provider = new UrlJwkProvider(getClass().getResource("/empty-jwks.json"));
         provider.get(KID);
     }
 
@@ -66,7 +65,7 @@ public class UrlJwkProviderTest {
     @Test
     public void shouldFailToLoadSingleWhenJsonIsInvalid() throws Exception {
         expectedException.expect(SigningKeyNotFoundException.class);
-        provider = new UrlJwkProvider(getClass().getResource("/invalid-jwks.json"));
+        UrlJwkProvider provider = new UrlJwkProvider(getClass().getResource("/invalid-jwks.json"));
         provider.get(KID);
     }
 
@@ -121,5 +120,11 @@ public class UrlJwkProviderTest {
         String domainWithSubPath = domain + "/sub/path/";
         String actualJwksUrl = new UrlJwkProvider(domainWithSubPath).url.toString();
         assertThat(actualJwksUrl, equalTo("https://" + domain + WELL_KNOWN_JWKS_PATH));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailOnInvalidProtocol() {
+        String domainWithInvalidProtocol = "httptest://samples.auth0.com";
+        new UrlJwkProvider(domainWithInvalidProtocol);
     }
 }
