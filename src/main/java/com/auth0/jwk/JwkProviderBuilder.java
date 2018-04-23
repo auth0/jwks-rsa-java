@@ -40,9 +40,12 @@ public class JwkProviderBuilder {
 
     /**
      * Creates a new Builder with a domain where to look for the jwks.
-     * It can be a url link 'https://samples.auth0.com' or just a domain 'samples.auth0.com'.
+     * <br><br> It can be a url link 'https://samples.auth0.com' or just a domain 'samples.auth0.com'.
+     * If the protocol (http or https) is not provided then https is used by default.
+     * The default jwks path "/.well-known/jwks.json" is appended to the given string domain.
+     * <br><br> For example, when the domain is "samples.auth0.com"
+     * the jwks url that will be used is "https://samples.auth0.com/.well-known/jwks.json"
      * <br><br> Use {@link #JwkProviderBuilder(URL)} if you need to pass a full URL.
-     *
      * @param domain where jwks is published
      * @throws IllegalStateException if domain is null
      * @see UrlJwkProvider#UrlJwkProvider(String)

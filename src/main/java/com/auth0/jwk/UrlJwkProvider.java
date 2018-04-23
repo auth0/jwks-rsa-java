@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 
 import java.io.IOException;
@@ -22,6 +23,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 @SuppressWarnings("WeakerAccess")
 public class UrlJwkProvider implements JwkProvider {
 
+    @VisibleForTesting
     static final String WELL_KNOWN_JWKS_PATH = "/.well-known/jwks.json";
 
     final URL url;
@@ -37,8 +39,11 @@ public class UrlJwkProvider implements JwkProvider {
 
     /**
      * Creates a provider that loads from the given domain's well-known directory.
-     * <br>If the protocol (http or https) is not provided then https is used by default
-     * (some.domain -> "https://" + some.domain + {@value #WELL_KNOWN_JWKS_PATH}).
+     * <br><br> It can be a url link 'https://samples.auth0.com' or just a domain 'samples.auth0.com'.
+     * If the protocol (http or https) is not provided then https is used by default.
+     * The default jwks path "/.well-known/jwks.json" is appended to the given string domain.
+     * <br><br> For example, when the domain is "samples.auth0.com"
+     * the jwks url that will be used is "https://samples.auth0.com/.well-known/jwks.json"
      * <br><br> Use {@link #UrlJwkProvider(URL)} if you need to pass a full URL.
      * @param domain where jwks is published
      */
