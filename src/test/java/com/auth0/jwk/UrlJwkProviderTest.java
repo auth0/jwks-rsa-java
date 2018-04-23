@@ -122,8 +122,9 @@ public class UrlJwkProviderTest {
         assertThat(actualJwksUrl, equalTo("https://" + domain + WELL_KNOWN_JWKS_PATH));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailOnInvalidProtocol() {
+        expectedException.expect(IllegalArgumentException.class);
         String domainWithInvalidProtocol = "httptest://samples.auth0.com";
         new UrlJwkProvider(domainWithInvalidProtocol);
     }
