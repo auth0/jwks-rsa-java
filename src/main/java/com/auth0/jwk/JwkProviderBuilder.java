@@ -1,6 +1,9 @@
 package com.auth0.jwk;
 
+import java.net.URL;
 import java.util.concurrent.TimeUnit;
+
+import static com.auth0.jwk.UrlJwkProvider.urlForDomain;
 
 /**
  * JwkProvider builder
@@ -8,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("WeakerAccess")
 public class JwkProviderBuilder {
 
-    private final String url;
+    private final URL url;
     private TimeUnit expiresUnit;
     private long expiresIn;
     private long cacheSize;
@@ -17,22 +20,45 @@ public class JwkProviderBuilder {
     private boolean rateLimited;
 
     /**
-     * Creates a new Builder with a URL from where to load the jwks.
-     * It can be a url lik 'https://samples.auth0.com' or just the Auth0 domain 'samples.auth0.com'.
+     * Creates a new Builder with the given URL where to load the jwks from.
      *
-     * @param domain from where to load the jwks
+     * @param url to load the jwks
+     * @throws IllegalStateException if url is null
      */
-    public JwkProviderBuilder(String domain) {
-        if (domain == null) {
-            throw new IllegalStateException("Cannot build provider without domain");
+    public JwkProviderBuilder(URL url) {
+        if (url == null) {
+            throw new IllegalStateException("Cannot build provider without url to jwks");
         }
-        this.url = normalizeDomain(domain);
+        this.url = url;
         this.cached = true;
         this.expiresIn = 10;
         this.expiresUnit = TimeUnit.HOURS;
         this.cacheSize = 5;
         this.rateLimited = true;
         this.bucket = new BucketImpl(10, 1, TimeUnit.MINUTES);
+    }
+
+    /**
+     * Creates a new Builder with a domain where to look for the jwks.
+     * <br><br> It can be a url link 'https://samples.auth0.com' or just a domain 'samples.auth0.com'.
+     * If the protocol (http or https) is not provided then https is used by default.
+     * The default jwks path "/.well-known/jwks.json" is appended to the given string domain.
+     * <br><br> For example, when the domain is "samples.auth0.com"
+     * the jwks url that will be used is "https://samples.auth0.com/.well-known/jwks.json"
+     * <br><br> Use {@link #JwkProviderBuilder(URL)} if you need to pass a full URL.
+     * @param domain where jwks is published
+     * @throws IllegalStateException if domain is null
+     * @see UrlJwkProvider#UrlJwkProvider(String)
+     */
+    public JwkProviderBuilder(String domain) {
+        this(buildJwkUrl(domain));
+    }
+
+    private static URL buildJwkUrl(String domain) {
+        if (domain == null) {
+            throw new IllegalStateException("Cannot build provider without domain");
+        }
+        return urlForDomain(domain);
     }
 
     /**
@@ -100,12 +126,5 @@ public class JwkProviderBuilder {
             urlProvider = new GuavaCachedJwkProvider(urlProvider, cacheSize, expiresIn, expiresUnit);
         }
         return urlProvider;
-    }
-
-    private String normalizeDomain(String domain) {
-        if (!domain.startsWith("http")) {
-            return "https://" + domain;
-        }
-        return domain;
     }
 }
