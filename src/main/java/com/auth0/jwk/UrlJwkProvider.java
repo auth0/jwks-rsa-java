@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 import java.util.Map;
 
@@ -27,14 +28,31 @@ public class UrlJwkProvider implements JwkProvider {
     static final String WELL_KNOWN_JWKS_PATH = "/.well-known/jwks.json";
 
     final URL url;
+    private final Integer connectTimeout;
+    private final Integer readTimeout;
 
     /**
      * Creates a provider that loads from the given URL
      * @param url to load the jwks
      */
     public UrlJwkProvider(URL url) {
+        this(url, null, null);
+    }
+    
+    /**
+     * Creates a provider that loads from the given URL
+     * @param url to load the jwks
+     * @param connectTimeout connection timeout in milliseconds (null for default)
+     * @param readTimeout read timeout in milliseconds (null for default)
+     */
+    public UrlJwkProvider(URL url, Integer connectTimeout, Integer readTimeout) {
         checkArgument(url != null, "A non-null url is required");
+        checkArgument(connectTimeout == null || connectTimeout >= 0, "Invalid connect timeout value '" + connectTimeout + "'. Must be a non-negative integer.");
+        checkArgument(readTimeout == null || readTimeout >= 0, "Invalid read timeout value '" + readTimeout + "'. Must be a non-negative integer.");
+        
         this.url = url;
+        this.connectTimeout = connectTimeout;
+        this.readTimeout = readTimeout;
     }
 
     /**
@@ -68,7 +86,14 @@ public class UrlJwkProvider implements JwkProvider {
 
     private Map<String, Object> getJwks() throws SigningKeyNotFoundException {
         try {
-            final InputStream inputStream = this.url.openStream();
+            final URLConnection c = this.url.openConnection();
+            if(connectTimeout != null) {
+                c.setConnectTimeout(connectTimeout);
+            }
+            if(readTimeout != null) {
+                c.setReadTimeout(readTimeout);
+            }
+            final InputStream inputStream = c.getInputStream();
             final JsonFactory factory = new JsonFactory();
             final JsonParser parser = factory.createParser(inputStream);
             final TypeReference<Map<String, Object>> typeReference = new TypeReference<Map<String, Object>>() {};
