@@ -1,6 +1,6 @@
 # jwks-rsa
 
-[![Build Status](https://travis-ci.org/auth0/jwks-rsa-java.svg?branch=master)](https://travis-ci.org/auth0/jwks-rsa-java)
+[![CircleCI](https://circleci.com/gh/auth0/jwks-rsa-java.svg?style=svg)](https://circleci.com/gh/auth0/jwks-rsa-java)
 [![Maven Central](https://img.shields.io/maven-central/v/com.auth0/jwks-rsa.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%20com.auth0%20a%3Ajwks-rsa)
 
 ## Install
