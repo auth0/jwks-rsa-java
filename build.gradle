@@ -8,7 +8,7 @@ logger.lifecycle("Using version ${version} for ${name}")
 
 oss {
     name 'auth0'
-    repository 'jwks-rsa'
+    repository 'jwks-rsa-java'
     organization 'auth0'
     description 'JSON Web Key Set parser library'
 
