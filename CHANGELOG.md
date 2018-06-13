@@ -1,5 +1,20 @@
 # Change Log
 
+## [0.5.0](https://github.com/auth0/jwks-rsa-java/tree/0.5.0) (2018-06-13)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.4.0...0.5.0)
+**Closed issues**
+- Improve release procedure [\#29](https://github.com/auth0/jwks-rsa-java/issues/29)
+
+**Added**
+- Optional support for connection / read timeout [\#27](https://github.com/auth0/jwks-rsa-java/pull/27) ([skjolber](https://github.com/skjolber))
+
+**Fixed**
+- Improve release procedure [\#30](https://github.com/auth0/jwks-rsa-java/pull/30) ([lbalmaceda](https://github.com/lbalmaceda))
+
+**Security**
+- [Snyk] Fix for 6 vulnerable dependencies [\#28](https://github.com/auth0/jwks-rsa-java/pull/28) ([crew-security](https://github.com/crew-security))
+- bump commons-io due to security vulnerabilities in that library [\#26](https://github.com/auth0/jwks-rsa-java/pull/26) ([ryber](https://github.com/ryber))
+
 ## [0.4.0](https://github.com/auth0/jwks-rsa-java/tree/jwks-rsa-0.4.0) (2018-04-27)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/jwks-rsa-0.3.0...jwks-rsa-0.4.0)
 
