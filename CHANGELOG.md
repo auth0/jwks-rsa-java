@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.6.0](https://github.com/auth0/jwks-rsa-java/tree/0.6.0) (2018-07-18)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.5.0...0.6.0)
+
+**Changed**
+- Optional kid on single item JWK sets [\#32](https://github.com/auth0/jwks-rsa-java/pull/32) ([lbalmaceda](https://github.com/lbalmaceda))
+
 ## [0.5.0](https://github.com/auth0/jwks-rsa-java/tree/0.5.0) (2018-06-13)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.4.0...0.5.0)
 **Closed issues**
