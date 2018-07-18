@@ -16,9 +16,12 @@ public class GuavaCachedJwkProvider implements JwkProvider {
 
     private final Cache<String, Jwk> cache;
     private final JwkProvider provider;
+    @VisibleForTesting
+    static final String NULL_KID_KEY = "null-kid";
 
     /**
      * Creates a new provider that will cache up to 5 jwks for at most 10 hours
+     *
      * @param provider fallback provider to use when jwk is not cached
      */
     public GuavaCachedJwkProvider(final JwkProvider provider) {
@@ -27,9 +30,10 @@ public class GuavaCachedJwkProvider implements JwkProvider {
 
     /**
      * Creates a new cached provider specifying cache size and ttl
-     * @param provider fallback provider to use when jwk is not cached
-     * @param size number of jwt to cache
-     * @param expiresIn amount of time a jwk will live in the cache
+     *
+     * @param provider    fallback provider to use when jwk is not cached
+     * @param size        number of jwt to cache
+     * @param expiresIn   amount of time a jwk will live in the cache
      * @param expiresUnit unit of the expiresIn parameter
      */
     public GuavaCachedJwkProvider(final JwkProvider provider, long size, long expiresIn, TimeUnit expiresUnit) {
@@ -43,7 +47,8 @@ public class GuavaCachedJwkProvider implements JwkProvider {
     @Override
     public Jwk get(final String keyId) throws JwkException {
         try {
-            return cache.get(keyId, new Callable<Jwk>() {
+            String cacheKey = keyId == null ? NULL_KID_KEY : keyId;
+            return cache.get(cacheKey, new Callable<Jwk>() {
                 @Override
                 public Jwk call() throws Exception {
                     return provider.get(keyId);

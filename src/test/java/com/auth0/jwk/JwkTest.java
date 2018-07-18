@@ -99,11 +99,11 @@ public class JwkTest {
     }
     
     @Test
-    public void shouldThrowInvalidArgumentExceptionOnMissingKidParam() throws Exception {
+    public void shouldNotThrowInvalidArgumentExceptionOnMissingKidParam() throws Exception {
+        //kid is optional - https://tools.ietf.org/html/rfc7517#section-4.5
         final String kid = randomKeyId();
         Map<String, Object> values = publicKeyValues(kid, KEY_OPS_LIST);
         values.remove("kid");
-        expectedException.expect(IllegalArgumentException.class);
         Jwk.fromValues(values);
     }
 

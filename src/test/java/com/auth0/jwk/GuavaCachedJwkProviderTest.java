@@ -35,7 +35,7 @@ public class GuavaCachedJwkProviderTest {
     }
 
     @Test
-    public void shouldFailToGetSingle() throws Exception {
+    public void shouldFailToGetSingleWhenNotExists() throws Exception {
         expectedException.expect(SigningKeyNotFoundException.class);
         when(fallback.get(anyString())).thenThrow(new SigningKeyNotFoundException("TEST!", null));
         provider.get(KID);
@@ -54,6 +54,26 @@ public class GuavaCachedJwkProviderTest {
         provider.get(KID);
         assertThat(provider.get(KID), equalTo(jwk));
         verify(fallback, only()).get(KID);
+    }
+
+    @Test
+    public void shouldCacheWhenIdMatchesDefaultMissingIdKey() throws Exception {
+        when(fallback.get(eq(GuavaCachedJwkProvider.NULL_KID_KEY))).thenReturn(jwk);
+        assertThat(provider.get(GuavaCachedJwkProvider.NULL_KID_KEY), equalTo(jwk));
+        verify(fallback).get(eq(GuavaCachedJwkProvider.NULL_KID_KEY));
+
+        verifyNoMoreInteractions(fallback);
+        assertThat(provider.get(GuavaCachedJwkProvider.NULL_KID_KEY), equalTo(jwk));
+    }
+
+    @Test
+    public void shouldCacheWhenNullId() throws Exception {
+        when(fallback.get(eq(null))).thenReturn(jwk);
+        assertThat(provider.get(null), equalTo(jwk));
+        verify(fallback).get(eq(null));
+
+        verifyNoMoreInteractions(fallback);
+        assertThat(provider.get(null), equalTo(jwk));
     }
 
     @Test
