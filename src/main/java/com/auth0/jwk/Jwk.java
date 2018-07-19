@@ -78,7 +78,7 @@ public class Jwk {
     }
 
     @SuppressWarnings("unchecked")
-    static Jwk fromValues(Map<String, Object> map) {
+    public static Jwk fromValues(Map<String, Object> map) {
         Map<String, Object> values = Maps.newHashMap(map);
         String kid = (String) values.remove("kid");
         String kty = (String) values.remove("kty");
