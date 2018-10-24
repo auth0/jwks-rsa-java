@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.6.1](https://github.com/auth0/jwks-rsa-java/tree/0.6.1) (2018-10-24)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.6.0...0.6.1)
+
+**Security**
+- Use latest jackson-databind dependency [\#43](https://github.com/auth0/jwks-rsa-java/pull/43) ([lbalmaceda](https://github.com/lbalmaceda))
+
 ## [0.6.0](https://github.com/auth0/jwks-rsa-java/tree/0.6.0) (2018-07-18)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.5.0...0.6.0)
 
