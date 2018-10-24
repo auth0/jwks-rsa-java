@@ -48,8 +48,8 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.1'
-        classpath 'gradle.plugin.com.auth0.gradle:oss-library:0.6.0'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
+        classpath 'gradle.plugin.com.auth0.gradle:oss-library:0.8.0'
     }
 }
 
