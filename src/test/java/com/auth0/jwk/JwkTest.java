@@ -91,11 +91,13 @@ public class JwkTest {
     }
 
     @Test
-    public void shouldReturnNullForNonRSAKey() throws Exception {
+    public void shouldThrowForNonRSAKey() throws Exception {
         final String kid = randomKeyId();
         Map<String, Object> values = nonRSAValues(kid);
         Jwk jwk = Jwk.fromValues(values);
-        assertThat(jwk.getPublicKey(), nullValue());
+        expectedException.expect(InvalidPublicKeyException.class);
+        expectedException.expectMessage("The key is not of type RSA");
+        jwk.getPublicKey();
     }
     
     @Test
