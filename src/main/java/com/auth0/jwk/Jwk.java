@@ -33,15 +33,16 @@ public class Jwk {
 
     /**
      * Creates a new Jwk
-     * @param id kid
-     * @param type kyt
-     * @param algorithm alg
-     * @param usage use
-     * @param operations key_ops
-     * @param certificateUrl x5u
-     * @param certificateChain x5c
+     *
+     * @param id                    kid
+     * @param type                  kyt
+     * @param algorithm             alg
+     * @param usage                 use
+     * @param operations            key_ops
+     * @param certificateUrl        x5u
+     * @param certificateChain      x5c
      * @param certificateThumbprint x5t
-     * @param additionalAttributes additional attributes not part of the standard ones
+     * @param additionalAttributes  additional attributes not part of the standard ones
      */
     @SuppressWarnings("WeakerAccess")
     public Jwk(String id, String type, String algorithm, String usage, List<String> operations, String certificateUrl, List<String> certificateChain, String certificateThumbprint, Map<String, Object> additionalAttributes) {
@@ -58,6 +59,7 @@ public class Jwk {
 
     /**
      * Creates a new Jwk
+     *
      * @param id
      * @param type
      * @param algorithm
@@ -67,7 +69,6 @@ public class Jwk {
      * @param certificateChain
      * @param certificateThumbprint
      * @param additionalAttributes
-     *
      * @deprecated The specification states that the 'key_ops' (operations) parameter contains an array value.
      * Use {@link #Jwk(String, String, String, String, List, String, List, String, Map)}
      */
@@ -91,7 +92,7 @@ public class Jwk {
         if (kty == null) {
             throw new IllegalArgumentException("Attributes " + map + " are not from a valid jwk");
         }
-        if(keyOps instanceof String) {
+        if (keyOps instanceof String) {
             return new Jwk(kid, kty, alg, use, (String) keyOps, x5u, x5c, x5t, values);
         } else {
             return new Jwk(kid, kty, alg, use, (List<String>) keyOps, x5u, x5c, x5t, values);
@@ -120,12 +121,12 @@ public class Jwk {
 
     @SuppressWarnings("WeakerAccess")
     public String getOperations() {
-        if(operations == null || operations.isEmpty()) {
+        if (operations == null || operations.isEmpty()) {
             return null;
         }
         StringBuilder sb = new StringBuilder();
         String delimiter = ",";
-        for(String operation : operations) {
+        for (String operation : operations) {
             sb.append(operation);
             sb.append(delimiter);
         }
@@ -159,13 +160,14 @@ public class Jwk {
 
     /**
      * Returns a {@link PublicKey} if the {@code 'alg'} is {@code 'RSA'}
+     *
      * @return a public key
      * @throws InvalidPublicKeyException if the key cannot be built or the key type is not RSA
      */
     @SuppressWarnings("WeakerAccess")
     public PublicKey getPublicKey() throws InvalidPublicKeyException {
         if (!PUBLIC_KEY_ALGORITHM.equalsIgnoreCase(type)) {
-            return null;
+            throw new InvalidPublicKeyException("The key is not of type RSA", null);
         }
         try {
             KeyFactory kf = KeyFactory.getInstance(PUBLIC_KEY_ALGORITHM);
