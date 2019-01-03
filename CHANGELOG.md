@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.7.0](https://github.com/auth0/jwks-rsa-java/tree/0.7.0) (2019-01-03)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.6.1...0.7.0)
+
+**Changed**
+- Throw correct exception when key is not of type RSA [\#48](https://github.com/auth0/jwks-rsa-java/pull/48) ([lbalmaceda](https://github.com/lbalmaceda))
+
+**Security**
+- Bump jackson-databind to patch security issues [\#49](https://github.com/auth0/jwks-rsa-java/pull/49) ([lbalmaceda](https://github.com/lbalmaceda))
+
 ## [0.6.1](https://github.com/auth0/jwks-rsa-java/tree/0.6.1) (2018-10-24)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.6.0...0.6.1)
 
