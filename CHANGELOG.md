@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.8.0](https://github.com/auth0/jwks-rsa-java/tree/0.8.0) (2019-03-28)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.7.0...0.8.0)
+
+**Added**
+- Expose getAll() publicly on UrlJwkProvider [\#38](https://github.com/auth0/jwks-rsa-java/pull/38) ([kampka](https://github.com/kampka))
+- change visibility to public on fromValues method in Jwk [\#36](https://github.com/auth0/jwks-rsa-java/pull/36) ([underscorenico](https://github.com/underscorenico))
+
+**Changed**
+- Update guava to version 27.0.1-jre [\#54](https://github.com/auth0/jwks-rsa-java/pull/54) ([golszewski86](https://github.com/golszewski86))
+
 ## [0.7.0](https://github.com/auth0/jwks-rsa-java/tree/0.7.0) (2019-01-03)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.6.1...0.7.0)
 
