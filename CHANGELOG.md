@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.8.1](https://github.com/auth0/jwks-rsa-java/tree/0.8.1) (2019-05-02)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.8.0...0.8.1)
+
+**Fixed**
+- Add content-type header to the jwks request [\#59](https://github.com/auth0/jwks-rsa-java/pull/59) ([lbalmaceda](https://github.com/lbalmaceda))
+
 ## [0.8.0](https://github.com/auth0/jwks-rsa-java/tree/0.8.0) (2019-03-28)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.7.0...0.8.0)
 
