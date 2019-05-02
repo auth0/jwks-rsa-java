@@ -96,6 +96,7 @@ public class UrlJwkProvider implements JwkProvider {
             if (readTimeout != null) {
                 c.setReadTimeout(readTimeout);
             }
+            c.setRequestProperty("Accept", "application/json");
             final InputStream inputStream = c.getInputStream();
             final JsonFactory factory = new JsonFactory();
             final JsonParser parser = factory.createParser(inputStream);
