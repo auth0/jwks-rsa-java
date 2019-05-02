@@ -198,7 +198,7 @@ public class UrlJwkProviderTest {
     }
 
     @Test
-    public void shouldConfigureURLConnectionTimeouts() throws Exception {
+    public void shouldConfigureURLConnection() throws Exception {
         URLConnection urlConnection = mock(URLConnection.class);
 
         // Although somewhat of a hack, this approach gets the job done - this method can 
@@ -213,6 +213,7 @@ public class UrlJwkProviderTest {
         Jwk jwk = urlJwkProvider.get("NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg");
         assertNotNull(jwk);
 
+        //Request Timeout assertions
         ArgumentCaptor<Integer> connectTimeoutCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(urlConnection).setConnectTimeout(connectTimeoutCaptor.capture());
         assertThat(connectTimeoutCaptor.getValue(), is(connectTimeout));
@@ -220,5 +221,8 @@ public class UrlJwkProviderTest {
         ArgumentCaptor<Integer> readTimeoutCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(urlConnection).setReadTimeout(readTimeoutCaptor.capture());
         assertThat(readTimeoutCaptor.getValue(), is(readTimeout));
+
+        //Request Headers assertions
+        verify(urlConnection).setRequestProperty("Accept", "application/json");
     }
 }
