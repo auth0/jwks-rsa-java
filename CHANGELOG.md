@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.8.2](https://github.com/auth0/jwks-rsa-java/tree/0.8.2) (2019-05-22)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.8.1...0.8.2)
+
+**Security**
+- Fix security issue with jackson-databind [\#63](https://github.com/auth0/jwks-rsa-java/pull/63) ([lbalmaceda](https://github.com/lbalmaceda))
+
 ## [0.8.1](https://github.com/auth0/jwks-rsa-java/tree/0.8.1) (2019-05-02)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.8.0...0.8.1)
 
