@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.8.3](https://github.com/auth0/jwks-rsa-java/tree/0.8.3) (2019-08-15)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.8.2...0.8.3)
+
+**Security**
+- Update dependencies [\#65](https://github.com/auth0/jwks-rsa-java/pull/65) ([jimmyjames](https://github.com/jimmyjames))
+
 ## [0.8.2](https://github.com/auth0/jwks-rsa-java/tree/0.8.2) (2019-05-22)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.8.1...0.8.2)
 
