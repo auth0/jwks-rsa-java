@@ -9,9 +9,7 @@ import com.google.common.collect.Lists;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.*;
 import java.util.List;
 import java.util.Map;
 
@@ -80,9 +78,9 @@ public class UrlJwkProvider implements JwkProvider {
         }
 
         try {
-            final URL url = new URL(domain);
-            return new URL(url, WELL_KNOWN_JWKS_PATH);
-        } catch (MalformedURLException e) {
+            final URI uri = new URI(domain + WELL_KNOWN_JWKS_PATH).normalize();
+            return uri.toURL();
+        } catch (MalformedURLException | URISyntaxException e) {
             throw new IllegalArgumentException("Invalid jwks uri", e);
         }
     }

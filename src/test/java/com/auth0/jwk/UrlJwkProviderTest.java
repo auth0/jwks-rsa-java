@@ -147,11 +147,35 @@ public class UrlJwkProviderTest {
     }
 
     @Test
-    public void shouldUseOnlyDomain() {
+    public void shouldUseDomainAndPathWithSlashIfPresent() {
         String domain = "samples.auth0.com";
         String domainWithSubPath = domain + "/sub/path/";
         String actualJwksUrl = new UrlJwkProvider(domainWithSubPath).url.toString();
-        assertThat(actualJwksUrl, equalTo("https://" + domain + WELL_KNOWN_JWKS_PATH));
+        assertThat(actualJwksUrl, equalTo("https://" + domain + "/sub/path" + WELL_KNOWN_JWKS_PATH));
+    }
+
+    @Test
+    public void shouldUseDomainAndPathWithoutSlashIfPresent() {
+        String domain = "samples.auth0.com";
+        String domainWithSubPath = domain + "/sub/path";
+        String actualJwksUrl = new UrlJwkProvider(domainWithSubPath).url.toString();
+        assertThat(actualJwksUrl, equalTo("https://" + domain + "/sub/path" + WELL_KNOWN_JWKS_PATH));
+    }
+
+    @Test
+    public void shouldUseDomainAndSinglePathWithSlashIfPresent() {
+        String domain = "samples.auth0.com";
+        String domainWithSubPath = domain + "/path/";
+        String actualJwksUrl = new UrlJwkProvider(domainWithSubPath).url.toString();
+        assertThat(actualJwksUrl, equalTo("https://" + domain + "/path" + WELL_KNOWN_JWKS_PATH));
+    }
+
+    @Test
+    public void shouldUseDomainAndSinglePathWithoutSlashIfPresent() {
+        String domain = "samples.auth0.com";
+        String domainWithSubPath = domain + "/path";
+        String actualJwksUrl = new UrlJwkProvider(domainWithSubPath).url.toString();
+        assertThat(actualJwksUrl, equalTo("https://" + domain + "/path" + WELL_KNOWN_JWKS_PATH));
     }
 
     @Test
