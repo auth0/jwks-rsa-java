@@ -60,15 +60,15 @@ public class Jwk {
     /**
      * Creates a new Jwk
      *
-     * @param id
-     * @param type
-     * @param algorithm
-     * @param usage
-     * @param operations
-     * @param certificateUrl
-     * @param certificateChain
-     * @param certificateThumbprint
-     * @param additionalAttributes
+     * @param id                    kid
+     * @param type                  kyt
+     * @param algorithm             alg
+     * @param usage                 use
+     * @param operations            key_operations
+     * @param certificateUrl        x5u
+     * @param certificateChain      x5c
+     * @param certificateThumbprint x5t
+     * @param additionalAttributes  additional attributes not part of the standard ones
      * @deprecated The specification states that the 'key_ops' (operations) parameter contains an array value.
      * Use {@link #Jwk(String, String, String, String, List, String, List, String, Map)}
      */

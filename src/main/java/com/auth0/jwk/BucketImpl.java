@@ -1,5 +1,6 @@
 package com.auth0.jwk;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 
 import java.util.concurrent.TimeUnit;
@@ -106,5 +107,20 @@ class BucketImpl implements Bucket {
 
     private long getRatePerToken() {
         return rateUnit.toMillis(rate);
+    }
+    
+    @VisibleForTesting
+    long getRate() {
+        return rate;
+    }
+    
+    @VisibleForTesting
+    TimeUnit getRateUnit() {
+        return rateUnit;
+    }
+    
+    @VisibleForTesting
+    long getSize() {
+        return size;
     }
 }

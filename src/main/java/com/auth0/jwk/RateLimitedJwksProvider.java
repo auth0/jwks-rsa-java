@@ -1,14 +1,18 @@
 package com.auth0.jwk;
 
+import java.util.List;
+
 import com.google.common.annotations.VisibleForTesting;
 
 /**
- * Jwk provider that limits the amount of Jwks to deliver in a given rate.
+ * 
+ * {@linkplain JwksProvider} that limits the number of invocations per time unit.
+ * This guards against frequent, potentially costly, downstream calls.
+ * 
  */
 @SuppressWarnings("WeakerAccess")
-public class RateLimitedJwkProvider implements JwkProvider {
+public class RateLimitedJwksProvider extends BaseJwksProvider {
 
-    private final JwkProvider provider;
     private final Bucket bucket;
 
     /**
@@ -17,21 +21,21 @@ public class RateLimitedJwkProvider implements JwkProvider {
      * @param bucket   bucket to limit the amount of jwk requested in a given amount of time.
      * @param provider provider to use to request jwk when the bucket allows it.
      */
-    public RateLimitedJwkProvider(JwkProvider provider, Bucket bucket) {
-        this.provider = provider;
+    public RateLimitedJwksProvider(JwksProvider provider, Bucket bucket) {
+        super(provider);
         this.bucket = bucket;
     }
 
     @Override
-    public Jwk get(final String keyId) throws JwkException {
+    public List<Jwk> getJwks() throws JwkException {
         if (!bucket.consume()) {
             throw new RateLimitReachedException(bucket.willLeakIn());
         }
-        return provider.get(keyId);
+        return provider.getJwks();
     }
-
+    
     @VisibleForTesting
-    JwkProvider getBaseProvider() {
-        return provider;
+    Bucket getBucket() {
+        return bucket;
     }
 }

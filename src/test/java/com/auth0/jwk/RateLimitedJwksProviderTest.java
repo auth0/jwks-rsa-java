@@ -6,22 +6,23 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
-public class RateLimitedJwkProviderTest {
+import java.util.Arrays;
+import java.util.List;
 
-    private static final String KID = "KID";
-    private RateLimitedJwkProvider provider;
+@RunWith(MockitoJUnitRunner.class)
+public class RateLimitedJwksProviderTest {
+
+    private RateLimitedJwksProvider provider;
 
     @Mock
-    private JwkProvider fallback;
+    private JwksProvider fallback;
 
     @Mock
     private Jwk jwk;
@@ -32,25 +33,28 @@ public class RateLimitedJwkProviderTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
+    private List<Jwk> jwks;
+
     @Before
     public void setUp() throws Exception {
-        provider = new RateLimitedJwkProvider(fallback, bucket);
+        provider = new RateLimitedJwksProvider(fallback, bucket);
+        
+        jwks = Arrays.asList(jwk);
     }
 
     @Test
     public void shouldFailToGetWhenBucketIsEmpty() throws Exception {
         when(bucket.consume()).thenReturn(false);
         expectedException.expect(RateLimitReachedException.class);
-        when(fallback.get(eq(KID))).thenReturn(jwk);
-        provider.get(KID);
+        provider.getJwks();
     }
 
     @Test
     public void shouldGetWhenBucketHasTokensAvailable() throws Exception {
         when(bucket.consume()).thenReturn(true);
-        when(fallback.get(eq(KID))).thenReturn(jwk);
-        assertThat(provider.get(KID), equalTo(jwk));
-        verify(fallback).get(eq(KID));
+        when(fallback.getJwks()).thenReturn(jwks);
+        assertThat(provider.getJwks(), equalTo(jwks));
+        verify(fallback).getJwks();
     }
 
     @Test

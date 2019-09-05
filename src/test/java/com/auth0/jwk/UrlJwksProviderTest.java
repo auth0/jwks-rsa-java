@@ -10,13 +10,13 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.*;
 
-import static com.auth0.jwk.UrlJwkProvider.WELL_KNOWN_JWKS_PATH;
+import static com.auth0.jwk.UrlJwksProvider.WELL_KNOWN_JWKS_PATH;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
-public class UrlJwkProviderTest {
+public class UrlJwksProviderTest {
 
     private static final String KID = "NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg";
 
@@ -30,81 +30,82 @@ public class UrlJwkProviderTest {
     @Test
     public void shouldFailWithNullUrl() {
         expectedException.expect(IllegalArgumentException.class);
-        new UrlJwkProvider((URL) null);
+        new UrlJwksProvider((URL) null);
     }
 
     @Test
     public void shouldFailToCreateWithNullDomain() {
         expectedException.expect(IllegalArgumentException.class);
-        new UrlJwkProvider((String) null);
+        new UrlJwksProvider((String) null);
     }
 
     @Test
     public void shouldFailToCreateWithEmptyDomain() {
         expectedException.expect(IllegalArgumentException.class);
-        new UrlJwkProvider("");
+        new UrlJwksProvider("");
     }
 
     @Test
     public void shouldReturnWithoutIdWhenSingleJwk() throws Exception {
-        UrlJwkProvider provider = new UrlJwkProvider(getClass().getResource("/jwks-single-no-kid.json"));
-        assertThat(provider.get(null), notNullValue());
+        JwkProvider provider = new DefaultJwkProvider(new UrlJwksProvider(getClass().getResource("/jwks-single-no-kid.json")));
+        assertThat(provider.getJwk(null), notNullValue());
 
-        UrlJwkProvider provider2 = new UrlJwkProvider(getClass().getResource("/jwks-single.json"));
-        assertThat(provider2.get(null), notNullValue());
+        // TODO why was this here?
+        // JwkProvider provider2 = new DefaultJwkProvider(new UrlJwksProvider(getClass().getResource("/jwks-single.json")));
+        // assertThat(provider2.get(null), notNullValue());
     }
 
     @Test
     public void shouldReturnByIdWhenSingleJwk() throws Exception {
-        UrlJwkProvider provider = new UrlJwkProvider(getClass().getResource("/jwks-single.json"));
-        assertThat(provider.get(KID), notNullValue());
+        JwkProvider provider = new DefaultJwkProvider(new UrlJwksProvider(getClass().getResource("/jwks-single.json")));
+        assertThat(provider.getJwk(KID), notNullValue());
     }
 
     @Test
     public void shouldReturnSingleJwkById() throws Exception {
-        UrlJwkProvider provider = new UrlJwkProvider(getClass().getResource("/jwks.json"));
-        assertThat(provider.get(KID), notNullValue());
+        JwkProvider provider = new DefaultJwkProvider(new UrlJwksProvider(getClass().getResource("/jwks.json")));
+        assertThat(provider.getJwk(KID), notNullValue());
     }
 
     @Test
     public void shouldFailToLoadSingleWithoutIdWhenMultipleJwk() throws Exception {
         expectedException.expect(SigningKeyNotFoundException.class);
-        UrlJwkProvider provider = new UrlJwkProvider(getClass().getResource("/jwks.json"));
-        provider.get(null);
+        JwkProvider provider = new DefaultJwkProvider(new UrlJwksProvider(getClass().getResource("/jwks.json")));
+        provider.getJwk(null);
     }
 
     @Test
     public void shouldFailToLoadByDifferentIdWhenSingleJwk() throws Exception {
         expectedException.expect(SigningKeyNotFoundException.class);
-        UrlJwkProvider provider = new UrlJwkProvider(getClass().getResource("/jwks-single-no-kid.json"));
-        provider.get("wrong-kid");
+        JwkProvider provider = new DefaultJwkProvider(new UrlJwksProvider(getClass().getResource("/jwks-single-no-kid.json")));
+        provider.getJwk("wrong-kid");
     }
 
     @Test
     public void shouldFailToLoadSingleWhenUrlHasNothing() throws Exception {
-        expectedException.expect(SigningKeyNotFoundException.class);
-        UrlJwkProvider provider = new UrlJwkProvider(new URL("file:///not_found.file"));
-        provider.get(KID);
+        expectedException.expect(SigningKeyUnavailableException.class);
+        JwkProvider provider = new DefaultJwkProvider(new UrlJwksProvider(new URL("file:///not_found.file")));
+        provider.getJwk(KID);
     }
 
     @Test
     public void shouldFailToLoadSingleWhenKeysIsEmpty() throws Exception {
         expectedException.expect(SigningKeyNotFoundException.class);
-        UrlJwkProvider provider = new UrlJwkProvider(getClass().getResource("/empty-jwks.json"));
-        provider.get(KID);
+        JwkProvider provider = new DefaultJwkProvider(new UrlJwksProvider(getClass().getResource("/empty-jwks.json")));
+        provider.getJwk(KID);
     }
 
     @Test
     public void shouldFailToLoadSingleWhenJsonIsInvalid() throws Exception {
         expectedException.expect(SigningKeyNotFoundException.class);
-        UrlJwkProvider provider = new UrlJwkProvider(getClass().getResource("/invalid-jwks.json"));
-        provider.get(KID);
+        JwkProvider provider = new DefaultJwkProvider(new UrlJwksProvider(getClass().getResource("/invalid-jwks.json")));
+        provider.getJwk(KID);
     }
 
     @Test
     public void shouldBuildCorrectHttpsUrlOnDomain() {
         String domain = "samples.auth0.com";
-        String actualJwksUrl = new UrlJwkProvider(domain).url.toString();
+        String actualJwksUrl = new UrlJwksProvider(domain).url.toString();
         assertThat(actualJwksUrl, equalTo("https://" + domain + WELL_KNOWN_JWKS_PATH));
     }
 
@@ -112,14 +113,14 @@ public class UrlJwkProviderTest {
     public void shouldWorkOnDomainWithSlash() {
         String domain = "samples.auth0.com";
         String domainWithSlash = domain + "/";
-        String actualJwksUrl = new UrlJwkProvider(domainWithSlash).url.toString();
+        String actualJwksUrl = new UrlJwksProvider(domainWithSlash).url.toString();
         assertThat(actualJwksUrl, equalTo("https://" + domain + WELL_KNOWN_JWKS_PATH));
     }
 
     @Test
     public void shouldBuildCorrectHttpsUrlOnDomainWithHttps() {
         String httpsDomain = "https://samples.auth0.com";
-        String actualJwksUrl = new UrlJwkProvider(httpsDomain).url.toString();
+        String actualJwksUrl = new UrlJwksProvider(httpsDomain).url.toString();
         assertThat(actualJwksUrl, equalTo(httpsDomain + WELL_KNOWN_JWKS_PATH));
     }
 
@@ -127,14 +128,14 @@ public class UrlJwkProviderTest {
     public void shouldBuildCorrectHttpsUrlOnDomainWithHttpsAndSlash() {
         String httpsDomain = "https://samples.auth0.com";
         String httpsDomainWithSlash = httpsDomain + "/";
-        String actualJwksUrl = new UrlJwkProvider(httpsDomainWithSlash).url.toString();
+        String actualJwksUrl = new UrlJwksProvider(httpsDomainWithSlash).url.toString();
         assertThat(actualJwksUrl, equalTo(httpsDomain + WELL_KNOWN_JWKS_PATH));
     }
 
     @Test
     public void shouldBuildCorrectHttpUrlOnDomainWithHttp() {
         String httpDomain = "http://samples.auth0.com";
-        String actualJwksUrl = new UrlJwkProvider(httpDomain).url.toString();
+        String actualJwksUrl = new UrlJwksProvider(httpDomain).url.toString();
         assertThat(actualJwksUrl, equalTo(httpDomain + WELL_KNOWN_JWKS_PATH));
     }
 
@@ -142,7 +143,7 @@ public class UrlJwkProviderTest {
     public void shouldBuildCorrectHttpUrlOnDomainWithHttpAndSlash() {
         String httpDomain = "http://samples.auth0.com";
         String httpDomainWithSlash = httpDomain + "/";
-        String actualJwksUrl = new UrlJwkProvider(httpDomainWithSlash).url.toString();
+        String actualJwksUrl = new UrlJwksProvider(httpDomainWithSlash).url.toString();
         assertThat(actualJwksUrl, equalTo(httpDomain + WELL_KNOWN_JWKS_PATH));
     }
 
@@ -150,7 +151,7 @@ public class UrlJwkProviderTest {
     public void shouldUseOnlyDomain() {
         String domain = "samples.auth0.com";
         String domainWithSubPath = domain + "/sub/path/";
-        String actualJwksUrl = new UrlJwkProvider(domainWithSubPath).url.toString();
+        String actualJwksUrl = new UrlJwksProvider(domainWithSubPath).url.toString();
         assertThat(actualJwksUrl, equalTo("https://" + domain + WELL_KNOWN_JWKS_PATH));
     }
 
@@ -158,19 +159,19 @@ public class UrlJwkProviderTest {
     public void shouldFailOnInvalidProtocol() {
         expectedException.expect(IllegalArgumentException.class);
         String domainWithInvalidProtocol = "httptest://samples.auth0.com";
-        new UrlJwkProvider(domainWithInvalidProtocol);
+        new UrlJwksProvider(domainWithInvalidProtocol);
     }
 
     @Test
     public void shouldFailWithNegativeConnectTimeout() throws MalformedURLException {
         expectedException.expect(IllegalArgumentException.class);
-        new UrlJwkProvider(new URL("https://localhost"), -1, null);
+        new UrlJwksProvider(new URL("https://localhost"), -1, null);
     }
 
     @Test
     public void shouldFailWithNegativeReadTimeout() throws MalformedURLException {
         expectedException.expect(IllegalArgumentException.class);
-        new UrlJwkProvider(new URL("https://localhost"), null, -1);
+        new UrlJwksProvider(new URL("https://localhost"), null, -1);
     }
 
     private static class MockURLStreamHandlerFactory implements URLStreamHandlerFactory {
@@ -209,8 +210,8 @@ public class UrlJwkProviderTest {
         int connectTimeout = 10000;
         int readTimeout = 15000;
 
-        UrlJwkProvider urlJwkProvider = new UrlJwkProvider(new URL("mock://localhost"), connectTimeout, readTimeout);
-        Jwk jwk = urlJwkProvider.get("NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg");
+        JwkProvider urlJwkProvider = new DefaultJwkProvider(new UrlJwksProvider(new URL("mock://localhost"), connectTimeout, readTimeout));
+        Jwk jwk = urlJwkProvider.getJwk("NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg");
         assertNotNull(jwk);
 
         //Request Timeout assertions

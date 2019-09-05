@@ -1,8 +1,5 @@
 package com.auth0.jwk;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.google.common.annotations.VisibleForTesting;
@@ -23,11 +20,12 @@ import static com.google.common.base.Strings.isNullOrEmpty;
  * Jwk provider that loads them from a {@link URL}
  */
 @SuppressWarnings("WeakerAccess")
-public class UrlJwkProvider implements JwkProvider {
+public class UrlJwksProvider implements JwksProvider {
 
     @VisibleForTesting
     static final String WELL_KNOWN_JWKS_PATH = "/.well-known/jwks.json";
 
+    @VisibleForTesting
     final URL url;
     private final Integer connectTimeout;
     private final Integer readTimeout;
@@ -38,7 +36,7 @@ public class UrlJwkProvider implements JwkProvider {
      *
      * @param url to load the jwks
      */
-    public UrlJwkProvider(URL url) {
+    public UrlJwksProvider(URL url) {
         this(url, null, null);
     }
 
@@ -49,7 +47,7 @@ public class UrlJwkProvider implements JwkProvider {
      * @param connectTimeout connection timeout in milliseconds (null for default)
      * @param readTimeout    read timeout in milliseconds (null for default)
      */
-    public UrlJwkProvider(URL url, Integer connectTimeout, Integer readTimeout) {
+    public UrlJwksProvider(URL url, Integer connectTimeout, Integer readTimeout) {
         checkArgument(url != null, "A non-null url is required");
         checkArgument(connectTimeout == null || connectTimeout >= 0, "Invalid connect timeout value '" + connectTimeout + "'. Must be a non-negative integer.");
         checkArgument(readTimeout == null || readTimeout >= 0, "Invalid read timeout value '" + readTimeout + "'. Must be a non-negative integer.");
@@ -68,11 +66,11 @@ public class UrlJwkProvider implements JwkProvider {
      * The default jwks path "/.well-known/jwks.json" is appended to the given string domain.
      * <br><br> For example, when the domain is "samples.auth0.com"
      * the jwks url that will be used is "https://samples.auth0.com/.well-known/jwks.json"
-     * <br><br> Use {@link #UrlJwkProvider(URL)} if you need to pass a full URL.
+     * <br><br> Use {@link #UrlJwksProvider(URL)} if you need to pass a full URL.
      *
      * @param domain where jwks is published
      */
-    public UrlJwkProvider(String domain) {
+    public UrlJwksProvider(String domain) {
         this(urlForDomain(domain));
     }
 
@@ -91,7 +89,7 @@ public class UrlJwkProvider implements JwkProvider {
         }
     }
 
-    private Map<String, Object> getJwks() throws SigningKeyNotFoundException {
+    private Map<String, Object> requestJwks() throws JwkException {
         try {
             final URLConnection c = this.url.openConnection();
             if (connectTimeout != null) {
@@ -106,41 +104,26 @@ public class UrlJwkProvider implements JwkProvider {
                 return reader.readValue(inputStream);
             }
         } catch (IOException e) {
-            throw new SigningKeyNotFoundException("Cannot obtain jwks from url " + url.toString(), e);
+            throw new SigningKeyUnavailableException("Cannot obtain jwks from url " + url.toString(), e);
         }
     }
 
-    public List<Jwk> getAll() throws SigningKeyNotFoundException {
-        List<Jwk> jwks = Lists.newArrayList();
-        @SuppressWarnings("unchecked") final List<Map<String, Object>> keys = (List<Map<String, Object>>) getJwks().get("keys");
+    public List<Jwk> getJwks() throws JwkException {
+        @SuppressWarnings("unchecked") final List<Map<String, Object>> keys = (List<Map<String, Object>>) requestJwks().get("keys");
 
         if (keys == null || keys.isEmpty()) {
-            throw new SigningKeyNotFoundException("No keys found in " + url.toString(), null);
+            throw new SigningKeyNotFoundException("No keys found in " + url.toString());
         }
 
         try {
+            List<Jwk> jwks = Lists.newArrayList();
             for (Map<String, Object> values : keys) {
                 jwks.add(Jwk.fromValues(values));
             }
+            return jwks;
         } catch (IllegalArgumentException e) {
             throw new SigningKeyNotFoundException("Failed to parse jwk from json", e);
         }
-        return jwks;
     }
 
-    @Override
-    public Jwk get(String keyId) throws JwkException {
-        final List<Jwk> jwks = getAll();
-        if (keyId == null && jwks.size() == 1) {
-            return jwks.get(0);
-        }
-        if (keyId != null) {
-            for (Jwk jwk : jwks) {
-                if (keyId.equals(jwk.getId())) {
-                    return jwk;
-                }
-            }
-        }
-        throw new SigningKeyNotFoundException("No key found in " + url.toString() + " with kid " + keyId, null);
-    }
 }

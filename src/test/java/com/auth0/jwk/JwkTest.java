@@ -25,6 +25,7 @@ public class JwkTest {
     private static final String CERT_CHAIN = "CERT_CHAIN";
     private static final List<String> KEY_OPS_LIST = Lists.newArrayList("sign");
     private static final String KEY_OPS_STRING = "sign";
+    private static final String CERT_URL = "https://localhost";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -43,6 +44,7 @@ public class JwkTest {
         assertThat(jwk.getOperations(), is(KEY_OPS_STRING));
         assertThat(jwk.getCertificateThumbprint(), equalTo(THUMBPRINT));
         assertThat(jwk.getCertificateChain(), contains(CERT_CHAIN));
+        assertThat(jwk.getCertificateUrl(), is(CERT_URL));
     }
 
     @Test
@@ -126,7 +128,28 @@ public class JwkTest {
         Jwk jwk = Jwk.fromValues(values);
         assertThat(jwk.getPublicKey(), notNullValue());
     }
+    
+    @Test
+    public void shouldKeepAdditionalAttributes() throws Exception {
+        final String kid = randomKeyId();
+        Map<String, Object> values = publicKeyValues(kid, KEY_OPS_LIST);
+        values.put("additional", "attribute");
+        Jwk jwk = Jwk.fromValues(values);
 
+        assertThat(jwk.getAdditionalAttributes().get("additional"), is("attribute"));
+    }    
+
+    @Test
+    public void shouldReturnToString() throws Exception {
+        final String kid = randomKeyId();
+        Map<String, Object> values = publicKeyValues(kid, KEY_OPS_LIST);
+        Jwk jwk = Jwk.fromValues(values);
+
+        String toString = jwk.toString();
+        
+        assertThat(toString, containsString(kid));
+    }    
+    
     private static String randomKeyId() {
         byte[] bytes = new byte[50];
         new SecureRandom().nextBytes(bytes);
@@ -150,6 +173,7 @@ public class JwkTest {
         values.put("key_ops", keyOps);
         values.put("x5c", Lists.newArrayList(CERT_CHAIN));
         values.put("x5t", THUMBPRINT);
+        values.put("x5u", CERT_URL);
         values.put("kid", kid);
         values.put("n", MODULUS);
         values.put("e", EXPONENT);

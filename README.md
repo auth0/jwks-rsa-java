@@ -18,7 +18,7 @@
 ### Gradle
 
 ```gradle
-implementation 'com.auth0:jwks-rsa:0.8.3'
+implementation 'com.auth0:jwks-rsa:0.9.0'
 ```
 
 ## Usage
@@ -41,50 +41,68 @@ Decode it using any JWT library or tool like [jwt.io](https://jwt.io/?value=eyJ0
 }
 ```
 
-Use this `kid` on any of the `JwkProviders` enumerated below to obtain the signing key provided by the JWKS endpoint you've configured.
+Match the `kid` against the keys provided by your JWKS endpoint, then validate its signature.
 
+### UrlJwksProvider
 
-### UrlJwkProvider
-
-`UrlJwkProvider` fetches the jwk from `/.well-known/jwks.json` of the supplied domain issuer and returns a `Jwk` if the `kid` matches one of the registered keys.
+`UrlJwksProvider` fetches a list of JWKs from an URL.
 
 ```java
-JwkProvider provider = new UrlJwkProvider("https://samples.auth0.com/");
-Jwk jwk = provider.get("{kid of the signing key}"); //throws Exception when not found or can't get one
+URL url = new URL("https://samples.auth0.com/");
+JwksProvider jwksProvider = new UrlJwksProvider(url);
+List<Jwk> jwks = jwksProvider.getJwks(); // throws JwtException when not found or can't get one
 ```
 
-
-Also it can load `jwks.json` file from any given Url (even to a local file in your filesystem).
+Get individual keys via `JwkProvider` using `DefaultJwkProvider`:
 
 ```java
-JwkProvider provider = new UrlJwkProvider(new URL("https://samples.auth0.com/"));
-Jwk jwk = provider.get("{kid of the signing key}"); //throws Exception when not found or can't get one
+JwkProvider provider = new DefaultJwkProvider(jwksProvider);
+Jwk jwk = provider.getJwk("{kid of the signing key}");
 ```
 
-### GuavaCachedJwkProvider
-
-`GuavaCachedJwkProvider` cache the jwk in a LRU in memory cache, if the jwk is not found in the cache it will ask another provider for it and store it's result in the cache.
-
-> By default it stores 5 keys for 10 hours but these values can be changed
+If the JWK path is `/.well-known/jwks.json`, pass a `String` to the constructor:
 
 ```java
-JwkProvider http = new UrlJwkProvider("https://samples.auth0.com/");
-JwkProvider provider = new GuavaCachedJwkProvider(http);
-Jwk jwk = provider.get("{kid of the signing key}"); //throws Exception when not found or can't get one
+UrlJwksProvider provider = new UrlJwksProvider("https://samples.auth0.com/");
 ```
 
-### RateLimitJwkProvider
+### CachedJwksProvider
 
-`RateLimitJwkProvider` will limit the amounts of different signing keys to get in a given time frame.
+`CachedJwksProvider` caches a `JwksProvider`.
 
-> By default the rate is limited to 10 different keys per minute but these values can be changed
+> By default it stores the keys for 10 hours but these values can be changed
 
 ```java
-JwkProvider url = new UrlJwkProvider("https://samples.auth0.com/");
+JwksProvider http = new UrlJwksProvider("https://samples.auth0.com/");
+JwksProvider jwksProvider = new CachedJwksProvider(http);
+```
+
+The implementation blocks so that a single thread is responsible for updating the cache at a time. For preemptive cache updates, configure the '`PreemptiveCachedJwksProvider`.
+
+### RateLimitJwksProvider
+
+`RateLimitJwskProvider` wraps a provider to limit the number of times it is invoked.
+
+> By default the rate is limited to 10 per minute, but these values can be changed
+
+```java
+URL url = new URL("https://samples.auth0.com/");
+JwksProvider http = new UrlJwksProvider(url);
 Bucket bucket = new Bucket(10, 1, TimeUnit.MINUTES);
-JwkProvider provider = new RateLimitJwkProvider(url, bucket);
-Jwk jwk = provider.get("{kid of the signing key}"); //throws Exception when not found or can't get one
+JwksProvider provider = new RateLimitJwksProvider(http, bucket);
 ```
+
+### RetryingJwksProvider
+
+`RetryingJwksProvider` wraps a provider to retry once when keys are reported as unavailable; this is usually triggered by an IOException.
+
+This is a workaround for transient network problems.
+
+### ShadowCachedJwksProvider
+
+`ShadowCachedJwksProvider` wraps a provider to transparently cache keys. If the wrapped provider is unavailable, the shadow provider returns its cached instance untill the cache expires.
+
+This is a workaround for temporary network problems / outage.
 
 ### JwkProviderBuilder
 
@@ -100,7 +118,7 @@ and specifying cache and rate limit attributes
 
 ```java
 JwkProvider provider = new JwkProviderBuilder("https://samples.auth0.com/")
-    .cached(10, 24, TimeUnit.HOURS)
+    .cached(24, TimeUnit.HOURS)
     .rateLimited(10, 1, TimeUnit.MINUTES)
     .build();
 Jwk jwk = provider.get("{kid of the signing key}"); //throws Exception when not found or can't get one
