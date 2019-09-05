@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 
@@ -29,6 +30,7 @@ public class UrlJwkProvider implements JwkProvider {
     private final Integer connectTimeout;
     private final Integer readTimeout;
 
+    private final ObjectReader reader;
     /**
      * Creates a provider that loads from the given URL
      *
@@ -53,6 +55,8 @@ public class UrlJwkProvider implements JwkProvider {
         this.url = url;
         this.connectTimeout = connectTimeout;
         this.readTimeout = readTimeout;
+        
+        this.reader = new ObjectMapper().readerFor(Map.class);
     }
 
     /**
@@ -95,12 +99,10 @@ public class UrlJwkProvider implements JwkProvider {
                 c.setReadTimeout(readTimeout);
             }
             c.setRequestProperty("Accept", "application/json");
-            final InputStream inputStream = c.getInputStream();
-            final JsonFactory factory = new JsonFactory();
-            final JsonParser parser = factory.createParser(inputStream);
-            final TypeReference<Map<String, Object>> typeReference = new TypeReference<Map<String, Object>>() {
-            };
-            return new ObjectMapper().reader().readValue(parser, typeReference);
+            
+            try (InputStream inputStream = c.getInputStream()) {
+                return reader.readValue(inputStream);
+            }
         } catch (IOException e) {
             throw new SigningKeyNotFoundException("Cannot obtain jwks from url " + url.toString(), e);
         }
