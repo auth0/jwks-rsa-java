@@ -12,8 +12,11 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
+import java.lang.Thread.State;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -21,6 +24,24 @@ public class CachedJwksProviderTest {
 
     private static final String KID = "NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg";
 
+    private Runnable lockRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if(!provider.getLock().tryLock()) {
+                throw new RuntimeException();
+            }
+            System.out.println("Got lock");
+        }
+    };
+    
+    private Runnable unlockRunnable = new Runnable() {
+        @Override
+        public void run() {
+            provider.getLock().unlock();
+            System.out.println("Released lock");
+        }
+    };    
+    
     private CachedJwksProvider provider;
 
     @Mock
@@ -36,7 +57,7 @@ public class CachedJwksProviderTest {
 
     @Before
     public void setUp() throws Exception {
-        provider = new CachedJwksProvider(fallback, 10, TimeUnit.HOURS, 15, TimeUnit.SECONDS);
+        provider = new CachedJwksProvider(fallback, 10, TimeUnit.HOURS, 2, TimeUnit.SECONDS);
         when(jwk.getId()).thenReturn(KID);
         jwks = Arrays.asList(jwk);
     }
@@ -139,5 +160,51 @@ public class CachedJwksProviderTest {
         provider.getJwk("c");
     }
 
+    @Test
+    public void shouldThrowExceptionIfAnotherThreadBlocksUpdate() throws Exception {
+        ThreadHelper helper = new ThreadHelper().addRun(lockRunnable).addPause().addRun(unlockRunnable);
+        try {
+            helper.start();
+            while(helper.getState() != State.WAITING) {
+                Thread.yield();
+            }
+
+            expectedException.expect(SigningKeyUnavailableException.class);
+
+            provider.getJwks();
+        } finally {
+            helper.close();
+        }
+    }
+
+    @Test
+    public void shouldAccceptIfAnotherThreadUpdatesCache() throws Exception {
+        Runnable racer = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1000);
+                    provider.getJwks();
+                } catch (Exception e) {
+                    throw new RuntimeException();
+                }
+            }
+        };
+
+        when(fallback.getJwks()).thenReturn(jwks);
+
+        ThreadHelper helper = new ThreadHelper().addRun(lockRunnable).addPause().addRun(racer).addRun(unlockRunnable);
+        try {
+            helper.begin();
+
+            helper.next();
+
+            provider.getJwks();
+            
+            verify(fallback, only()).getJwks();
+        } finally {
+            helper.close();
+        }
+    }    
 }
 

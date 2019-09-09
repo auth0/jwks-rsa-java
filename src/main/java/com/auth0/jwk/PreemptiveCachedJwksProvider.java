@@ -11,8 +11,8 @@ import com.google.common.annotations.VisibleForTesting;
 /**
  * 
  * Caching {@linkplain JwksProvider} which preemptively attempts to update the cache in the background. 
- * While the updates themselves run on a separate, dedicated thread, updates are is not continuously 
- * scheduled, but (lazily) triggered by incoming requests for JWKs. <br><br>
+ * The preemptive updates themselves run on a separate, dedicated thread. Updates 
+ * are is not continuously scheduled, but (lazily) triggered by incoming requests for JWKs. <br><br>
  * 
  * This class is intended for uninterrupted operation in high-load scenarios, as it will avoid
  * a (potentially) large number of threads blocking when the cache expires (and must be refreshed).<br><br>
@@ -27,7 +27,7 @@ public class PreemptiveCachedJwksProvider extends CachedJwksProvider {
     
     private final ReentrantLock lazyLock = new ReentrantLock();
 
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService;
 
     // cache expire time is used as its fingerprint
     private volatile long cacheExpires;
@@ -40,13 +40,24 @@ public class PreemptiveCachedJwksProvider extends CachedJwksProvider {
             TimeUnit refreshTimeoutUnit, 
             long preemptiveTimeUnits, 
             TimeUnit preemptiveTimeUnit) {
-        this(provider, timeToLiveUnit.toMillis(timeToLiveUnits), refreshTimeoutUnit.toMillis(refreshTimeoutUnits), preemptiveTimeUnit.toMillis(preemptiveTimeUnits));
+        this(
+                provider, 
+                timeToLiveUnit.toMillis(timeToLiveUnits), 
+                refreshTimeoutUnit.toMillis(refreshTimeoutUnits), 
+                preemptiveTimeUnit.toMillis(preemptiveTimeUnits),
+                Executors.newSingleThreadExecutor()                
+                );
     }
 
     public PreemptiveCachedJwksProvider(JwksProvider provider, long timeToLive, long refreshTimeoutUnits, long preemptiveTime) {
+        this(provider, timeToLive, refreshTimeoutUnits, preemptiveTime, Executors.newSingleThreadExecutor());
+    }
+
+    public PreemptiveCachedJwksProvider(JwksProvider provider, long timeToLive, long refreshTimeoutUnits, long preemptiveTime, ExecutorService executorService) {
         super(provider, timeToLive, refreshTimeoutUnits);
         
         this.preemptiveTime = preemptiveTime;
+        this.executorService = executorService;
     }
 
     @VisibleForTesting

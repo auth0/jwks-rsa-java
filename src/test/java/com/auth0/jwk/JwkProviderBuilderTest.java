@@ -27,6 +27,12 @@ public class JwkProviderBuilderTest {
         URL urlToJwks = new URL(normalizedDomain + WELL_KNOWN_JWKS_PATH);
         assertThat(new JwkProviderBuilder(urlToJwks).build(), notNullValue());
     }
+    
+    @Test
+    public void shouldCreateForUrlWithConnectionTimeouts() throws Exception {
+        URL urlToJwks = new URL(normalizedDomain + WELL_KNOWN_JWKS_PATH);
+        assertThat(new JwkProviderBuilder(urlToJwks, 10000, 10000).build(), notNullValue());
+    }    
 
     @Test
     public void shouldCreateForDomain() {
@@ -282,6 +288,33 @@ public class JwkProviderBuilderTest {
         assertThat(jwksProviders, hasSize(3));
 
         assertThat(jwksProviders.get(jwksProviders.size() - 1), sameInstance(customJwksProvider));
+    }
+    
+    @Test
+    public void shouldCreatePreemptiveCachedProvider() {
+        JwkProvider provider = new JwkProviderBuilder(domain)
+                .rateLimited(false)
+                .preemptive(10, TimeUnit.SECONDS)
+                .build();
+        assertThat(provider, notNullValue());
+        
+        List<JwksProvider> jwksProviders = jwksProviders(provider);
+        assertThat(jwksProviders, hasSize(2));
+        
+        assertThat(jwksProviders.get(0), instanceOf(PreemptiveCachedJwksProvider.class));
+        assertThat(jwksProviders.get(1), instanceOf(UrlJwksProvider.class));
+    }
+    
+    @Test
+    public void shouldFailWhenRatelimitingWithoutCaching() {
+        expectedException.expect(IllegalStateException.class);
+        new JwkProviderBuilder(normalizedDomain).cached(false).rateLimited(true).build();
+    }
+    
+    @Test
+    public void shouldFailWhenPreemptiveWithoutCaching() {
+        expectedException.expect(IllegalStateException.class);
+        new JwkProviderBuilder(normalizedDomain).cached(false).rateLimited(false).preemptive(10, TimeUnit.SECONDS).build();
     }
     
 }

@@ -125,4 +125,8 @@ public class CachedJwksProvider extends AbstractCachedJwksProvider implements Jw
         return getJwks(time, false);
     }
 
+    @VisibleForTesting
+    ReentrantLock getLock() {
+        return lock;
+    }
 }
