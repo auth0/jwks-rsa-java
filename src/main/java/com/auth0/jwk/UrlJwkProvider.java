@@ -1,8 +1,5 @@
 package com.auth0.jwk;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.google.common.annotations.VisibleForTesting;
@@ -10,7 +7,11 @@ import com.google.common.collect.Lists;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 import java.util.Map;
 
@@ -64,8 +65,12 @@ public class UrlJwkProvider implements JwkProvider {
      * <br><br> It can be a url link 'https://samples.auth0.com' or just a domain 'samples.auth0.com'.
      * If the protocol (http or https) is not provided then https is used by default.
      * The default jwks path "/.well-known/jwks.json" is appended to the given string domain.
+     * If the domain url contains a path, e.g. 'https://auth.example.com/some-resource', the path is preserved and the
+     * default jwks path is appended.
      * <br><br> For example, when the domain is "samples.auth0.com"
      * the jwks url that will be used is "https://samples.auth0.com/.well-known/jwks.json"
+     * If the domain string is "https://auth.example.com/some-resource", the jwks url that will be used is
+     * "https://auth.example.com/some-resource/.well-known/jwks.json"
      * <br><br> Use {@link #UrlJwkProvider(URL)} if you need to pass a full URL.
      *
      * @param domain where jwks is published
