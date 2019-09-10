@@ -79,7 +79,7 @@ public class PreemptiveCachedJwksProvider extends CachedJwksProvider {
      * @param cache current cache (non-null)
      */
     
-    protected void preemptiveUpdate(long time, JwkListCacheItem cache) {
+    protected void preemptiveUpdate(final long time, final JwkListCacheItem cache) {
         if(!cache.isValid(time + preemptiveTimeout)) {
             // cache will expires soon, 
             // preemptively update it
