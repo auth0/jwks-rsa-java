@@ -8,6 +8,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import com.auth0.jwk.AbstractCachedJwksProvider.JwkListCacheItem;
+
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
@@ -19,6 +21,24 @@ import java.util.concurrent.TimeUnit;
 @RunWith(MockitoJUnitRunner.class)
 public class PreemptivceCachedJwksProviderTest {
 
+    private Runnable lockRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if(!provider.getLazyLock().tryLock()) {
+                throw new RuntimeException();
+            }
+            System.out.println("Got lock");
+        }
+    };
+    
+    private Runnable unlockRunnable = new Runnable() {
+        @Override
+        public void run() {
+            provider.getLazyLock().unlock();
+            System.out.println("Released lock");
+        }
+    }; 
+    
     private static final String KID = "NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg";
 
     private PreemptiveCachedJwksProvider provider;
@@ -177,19 +197,111 @@ public class PreemptivceCachedJwksProviderTest {
     
         when(fallback.getJwks()).thenReturn(first).thenReturn(second);
 
-        // first
+        // first jwks
         assertThat(provider.getJwk("a"), equalTo(a));
         verify(fallback, only()).getJwks();
 
-        assertThat(provider.getJwks(provider.getExpires(System.currentTimeMillis()) - TimeUnit.SECONDS.toMillis(5)), equalTo(first));
+        long justBeforeExpiry = provider.getExpires(System.currentTimeMillis()) - TimeUnit.SECONDS.toMillis(5);
+
+        assertThat(provider.getJwks(justBeforeExpiry), equalTo(first)); // triggers a preemptive refresh attempt
 
         provider.getExecutorService().awaitTermination(1, TimeUnit.SECONDS);
         verify(fallback, times(2)).getJwks();
         
-        // second
-        assertThat(provider.getJwk("b"), equalTo(b));
+        // second jwks
+        assertThat(provider.getJwk("b"), equalTo(b)); // should already be in cache
+        provider.getExecutorService().awaitTermination(1, TimeUnit.SECONDS); // just to make sure
         verify(fallback, times(2)).getJwks();
     }
 
+    @Test
+    public void shouldNotPreemptivelyRefreshCacheIfRefreshAlreadyInProgress() throws Exception {
+        Jwk a = mock(Jwk.class);
+        when(a.getId()).thenReturn("a");
+        Jwk b = mock(Jwk.class);
+        when(b.getId()).thenReturn("b");
+        
+        List<Jwk> first = Arrays.asList(a);
+        List<Jwk> second = Arrays.asList(b);
+    
+        when(fallback.getJwks()).thenReturn(first).thenReturn(second);
+
+        // first jwks
+        assertThat(provider.getJwk("a"), equalTo(a));
+        verify(fallback, only()).getJwks();
+
+        JwkListCacheItem cache = provider.getCache(System.currentTimeMillis());
+        
+        long justBeforeExpiry = provider.getExpires(System.currentTimeMillis()) - TimeUnit.SECONDS.toMillis(5);
+        
+        assertThat(provider.getJwks(justBeforeExpiry), equalTo(first)); // triggers a preemptive refresh attempt
+
+        provider.getExecutorService().awaitTermination(1, TimeUnit.SECONDS);
+        
+        provider.preemptiveUpdate(justBeforeExpiry, cache); // should not trigger a preemptive refresh attempt
+        
+        verify(fallback, times(2)).getJwks();
+        
+        // second jwks
+        assertThat(provider.getJwk("b"), equalTo(b)); // should already be in cache
+        provider.getExecutorService().awaitTermination(1, TimeUnit.SECONDS); // just to make sure
+        verify(fallback, times(2)).getJwks();
+    }
+    
+    @Test
+    public void shouldFirePreemptivelyRefreshCacheAgainIfPreviousPreemptivelyRefreshAttemptFailed() throws Exception {
+        Jwk a = mock(Jwk.class);
+        when(a.getId()).thenReturn("a");
+        Jwk b = mock(Jwk.class);
+        when(b.getId()).thenReturn("b");
+        
+        List<Jwk> first = Arrays.asList(a);
+        List<Jwk> second = Arrays.asList(b);
+
+        when(fallback.getJwks()).thenReturn(first).thenThrow(new SigningKeyUnavailableException("TEST!")).thenReturn(second);
+
+        // first jwks
+        assertThat(provider.getJwk("a"), equalTo(a));
+        verify(fallback, only()).getJwks();
+
+        long justBeforeExpiry = provider.getExpires(System.currentTimeMillis()) - TimeUnit.SECONDS.toMillis(5);
+        
+        assertThat(provider.getJwks(justBeforeExpiry), equalTo(first)); // triggers a preemptive refresh attempt
+
+        provider.getExecutorService().awaitTermination(1, TimeUnit.SECONDS);
+        
+        assertThat(provider.getJwks(justBeforeExpiry), equalTo(first)); // triggers a another preemptive refresh attempt
+
+        provider.getExecutorService().awaitTermination(1, TimeUnit.SECONDS);
+
+        verify(fallback, times(3)).getJwks();
+        
+        // second jwks
+        assertThat(provider.getJwk("b"), equalTo(b)); // should already be in cache
+        provider.getExecutorService().awaitTermination(1, TimeUnit.SECONDS); // just to make sure
+        verify(fallback, times(3)).getJwks();
+    }
+    
+    @Test
+    public void shouldAccceptIfAnotherThreadPreemptivelyUpdatesCache() throws Exception {
+        when(fallback.getJwks()).thenReturn(jwks);
+
+        provider.getJwks();
+
+        long justBeforeExpiry = provider.getExpires(System.currentTimeMillis()) - TimeUnit.SECONDS.toMillis(5);
+
+        ThreadHelper helper = new ThreadHelper().addRun(lockRunnable).addPause().addRun(unlockRunnable);
+        try {
+            helper.begin();
+
+            provider.getJwks(justBeforeExpiry); // wants to update, but can't get lock
+
+            verify(fallback, only()).getJwks();
+        } finally {
+            helper.close();
+        }
+    }    
+
+   
 }
 

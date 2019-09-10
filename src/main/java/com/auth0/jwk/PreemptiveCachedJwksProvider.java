@@ -22,8 +22,8 @@ import com.google.common.annotations.VisibleForTesting;
 public class PreemptiveCachedJwksProvider extends CachedJwksProvider {
 
     // preemptive update should execute when 
-    // expire - preemptiveTime < current time < expire.
-    private final long preemptiveTime; // milliseconds
+    // expire - preemptiveTimeout < current time < expire.
+    private final long preemptiveTimeout; // milliseconds
     
     private final ReentrantLock lazyLock = new ReentrantLock();
 
@@ -38,25 +38,25 @@ public class PreemptiveCachedJwksProvider extends CachedJwksProvider {
             TimeUnit timeToLiveUnit, 
             long refreshTimeoutUnits, 
             TimeUnit refreshTimeoutUnit, 
-            long preemptiveTimeUnits, 
-            TimeUnit preemptiveTimeUnit) {
+            long preemptiveTimeoutUnits, 
+            TimeUnit preemptiveTimeoutUnit) {
         this(
                 provider, 
                 timeToLiveUnit.toMillis(timeToLiveUnits), 
                 refreshTimeoutUnit.toMillis(refreshTimeoutUnits), 
-                preemptiveTimeUnit.toMillis(preemptiveTimeUnits),
+                preemptiveTimeoutUnit.toMillis(preemptiveTimeoutUnits),
                 Executors.newSingleThreadExecutor()                
                 );
     }
 
-    public PreemptiveCachedJwksProvider(JwksProvider provider, long timeToLive, long refreshTimeoutUnits, long preemptiveTime) {
-        this(provider, timeToLive, refreshTimeoutUnits, preemptiveTime, Executors.newSingleThreadExecutor());
+    public PreemptiveCachedJwksProvider(JwksProvider provider, long timeToLive, long refreshTimeoutUnits, long preemptiveTimeout) {
+        this(provider, timeToLive, refreshTimeoutUnits, preemptiveTimeout, Executors.newSingleThreadExecutor());
     }
 
-    public PreemptiveCachedJwksProvider(JwksProvider provider, long timeToLive, long refreshTimeoutUnits, long preemptiveTime, ExecutorService executorService) {
+    public PreemptiveCachedJwksProvider(JwksProvider provider, long timeToLive, long refreshTimeoutUnits, long preemptiveTimeout, ExecutorService executorService) {
         super(provider, timeToLive, refreshTimeoutUnits);
         
-        this.preemptiveTime = preemptiveTime;
+        this.preemptiveTimeout = preemptiveTimeout;
         this.executorService = executorService;
     }
 
@@ -80,7 +80,7 @@ public class PreemptiveCachedJwksProvider extends CachedJwksProvider {
      */
     
     protected void preemptiveUpdate(long time, JwkListCacheItem cache) {
-        if(!cache.isValid(time + preemptiveTime)) {
+        if(!cache.isValid(time + preemptiveTimeout)) {
             // cache will expires soon, 
             // preemptively update it
             
@@ -119,9 +119,14 @@ public class PreemptiveCachedJwksProvider extends CachedJwksProvider {
             }
         }
     }
+
+    /**
+     * Return the executor service which services the background refresh. 
+     * 
+     * @return executor service
+     */
     
-    @VisibleForTesting
-    ExecutorService getExecutorService() {
+    public ExecutorService getExecutorService() {
         return executorService;
     }
     
@@ -138,5 +143,10 @@ public class PreemptiveCachedJwksProvider extends CachedJwksProvider {
         // no cache or unknown key
         // no preemptive update; caller will do a blocking update.
         return null;
+    }
+    
+    @VisibleForTesting
+    ReentrantLock getLazyLock() {
+        return lazyLock;
     }
 }

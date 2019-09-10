@@ -12,9 +12,9 @@ import java.util.concurrent.TimeUnit;
  * {@linkplain SigningKeyUnavailableException}.
  */
 
-public class ShadowCachedJwksProvider extends AbstractCachedJwksProvider {
+public class OutageCachedJwksProvider extends AbstractCachedJwksProvider {
 
-    public ShadowCachedJwksProvider(JwksProvider delegate, long timeToLiveUnits, TimeUnit timeToLiveUnit) {
+    public OutageCachedJwksProvider(JwksProvider delegate, long timeToLiveUnits, TimeUnit timeToLiveUnit) {
         super(delegate, timeToLiveUnit.toMillis(timeToLiveUnits));
     }
 

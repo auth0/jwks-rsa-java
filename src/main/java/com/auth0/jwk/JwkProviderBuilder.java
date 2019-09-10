@@ -32,10 +32,10 @@ public class JwkProviderBuilder {
     // retrying
     private boolean retrying = false;
 
-    // shadowed
-    private boolean shadowed = false;
-    private long shadowedExpiresIn = this.expiresIn * 10;
-    private TimeUnit shadowedExpiresUnit = this.expiresUnit;
+    // outage
+    private boolean outageCached = false;
+    private long outageCachedExpiresIn = this.expiresIn * 10;
+    private TimeUnit outageCachedExpiresUnit = this.expiresUnit;
     
     /**
      * Creates a new Builder with the given URL where to load the jwks from.
@@ -113,10 +113,12 @@ public class JwkProviderBuilder {
      * @param unit      unit of time for the expire of jwk
      * @return the builder
      */
-    public JwkProviderBuilder cached(long expiresIn, TimeUnit unit) {
+    public JwkProviderBuilder cached(long expiresIn, TimeUnit expiresInUnit, long refreshExpiresIn, TimeUnit refreshExpiresInUnit) {
         this.cached = true;
         this.expiresIn = expiresIn;
-        this.expiresUnit = unit;
+        this.expiresUnit = expiresInUnit;
+        this.refreshExpiresIn = refreshExpiresIn;
+        this.refreshExpiresUnit = refreshExpiresInUnit;
         return this;
     }
     
@@ -127,7 +129,7 @@ public class JwkProviderBuilder {
      * @param unit      unit of time for the expire of jwk
      * @return the builder
      */
-    public JwkProviderBuilder preemptive(long time, TimeUnit unit) {
+    public JwkProviderBuilder preemptiveCacheUpdate(long time, TimeUnit unit) {
         this.preemptive = true;
         this.preemptiveTimeUnits = time;
         this.preemptiveTimeUnit = unit;
@@ -175,8 +177,8 @@ public class JwkProviderBuilder {
         if (this.retrying) {
             provider = new RetryingJwksProvider(provider);
         }
-        if (this.shadowed) {
-            provider = new ShadowCachedJwksProvider(provider, shadowedExpiresIn, shadowedExpiresUnit);
+        if (this.outageCached) {
+            provider = new OutageCachedJwksProvider(provider, outageCachedExpiresIn, outageCachedExpiresUnit);
         }
         if (this.rateLimited) {
             provider = new RateLimitedJwksProvider(provider, bucket);
@@ -199,13 +201,13 @@ public class JwkProviderBuilder {
     }
     
     /**
-     * Toggle the shadow cache. By default the Provider will not use a shadow cache.
+     * Toggle the outage cache. By default the Provider will not use an outage cache.
      *
-     * @param shadowed if the shadow cache is enabled
+     * @param outageCached if the outage cache is enabled
      * @return the builder
      */
-    public JwkProviderBuilder shadowed(boolean shadowed) {
-        this.shadowed = shadowed;
+    public JwkProviderBuilder outageCached(boolean outageCached) {
+        this.outageCached = outageCached;
         return this;
     }
     
@@ -216,10 +218,10 @@ public class JwkProviderBuilder {
      * @param unit      unit of time for the expire of jwk
      * @return the builder
      */
-    public JwkProviderBuilder shadowed(long expiresIn, TimeUnit unit) {
-        this.shadowed = true;
-        this.shadowedExpiresIn = expiresIn;
-        this.shadowedExpiresUnit = unit;
+    public JwkProviderBuilder outageCached(long expiresIn, TimeUnit unit) {
+        this.outageCached = true;
+        this.outageCachedExpiresIn = expiresIn;
+        this.outageCachedExpiresUnit = unit;
         return this;
     }
     

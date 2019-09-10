@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ShadowCachedJwksProviderTest {
+public class OutageCachedJwksProviderTest {
 
-    private ShadowCachedJwksProvider provider;
+    private OutageCachedJwksProvider provider;
 
     @Mock
     private JwksProvider fallback;
@@ -34,7 +34,7 @@ public class ShadowCachedJwksProviderTest {
 
     @Before
     public void setUp() throws Exception {
-        provider = new ShadowCachedJwksProvider(fallback, 10, TimeUnit.HOURS);
+        provider = new OutageCachedJwksProvider(fallback, 10, TimeUnit.HOURS);
 
         jwks = Arrays.asList(jwk);
     }

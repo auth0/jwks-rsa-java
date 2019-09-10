@@ -77,7 +77,7 @@ public class JwkProviderBuilderTest {
     public void shouldCreateCachedProviderWithCustomValues() {
         JwkProvider provider = new JwkProviderBuilder(domain)
                 .rateLimited(false)
-                .cached(24, TimeUnit.HOURS)
+                .cached(24, TimeUnit.HOURS, 15, TimeUnit.SECONDS)
                 .build();
     
         List<JwksProvider> jwksProviders = jwksProviders(provider);
@@ -142,7 +142,7 @@ public class JwkProviderBuilderTest {
     @Test
     public void shouldCreateCachedAndRateLimitedProviderWithCustomValues() {
         JwkProvider provider = new JwkProviderBuilder(domain)
-                .cached(24, TimeUnit.HOURS)
+                .cached(24, TimeUnit.HOURS, 15, TimeUnit.SECONDS)
                 .rateLimited(10, 24, TimeUnit.HOURS)
                 .build();
     
@@ -226,44 +226,44 @@ public class JwkProviderBuilderTest {
     }
 
     @Test
-    public void shouldCreateShadowCachedProvider() {
+    public void shouldCreateOutageCachedProvider() {
         JwkProvider provider = new JwkProviderBuilder(domain)
                 .rateLimited(false)
                 .cached(false)
-                .shadowed(true)
+                .outageCached(true)
                 .build();
         assertThat(provider, notNullValue());
         
         List<JwksProvider> jwksProviders = jwksProviders(provider);
         assertThat(jwksProviders, hasSize(2));
         
-        assertThat(jwksProviders.get(0), instanceOf(ShadowCachedJwksProvider.class));
+        assertThat(jwksProviders.get(0), instanceOf(OutageCachedJwksProvider.class));
         assertThat(jwksProviders.get(1), instanceOf(UrlJwksProvider.class));
     }
     
     @Test
-    public void shouldCreateShadowCachedProviderWithCustomValues() {
+    public void shouldCreateOutageCachedProviderWithCustomValues() {
         JwkProvider provider = new JwkProviderBuilder(domain)
                 .rateLimited(false)
                 .cached(false)
-                .shadowed(24, TimeUnit.HOURS)
+                .outageCached(24, TimeUnit.HOURS)
                 .build();
         
         List<JwksProvider> jwksProviders = jwksProviders(provider);
         assertThat(jwksProviders, hasSize(2));
 
-        ShadowCachedJwksProvider cachedJwksProvider = (ShadowCachedJwksProvider) jwksProviders.get(0);
+        OutageCachedJwksProvider cachedJwksProvider = (OutageCachedJwksProvider) jwksProviders.get(0);
         
         assertThat(cachedJwksProvider.getTimeToLive(), is(TimeUnit.HOURS.toMillis(24)));
     }
     
     @Test
-    public void shouldCreateCachedAndRateLimitedAndShadowedAndRetryingProvider() {
+    public void shouldCreateCachedAndRateLimitedAndOutageAndRetryingProvider() {
         JwkProvider provider = new JwkProviderBuilder(domain)
                 .cached(true)
                 .rateLimited(true)
                 .retrying(true)
-                .shadowed(true)
+                .outageCached(true)
                 .build();
 
         assertThat(provider, notNullValue());
@@ -273,7 +273,7 @@ public class JwkProviderBuilderTest {
 
         assertThat(jwksProviders.get(0), instanceOf(CachedJwksProvider.class));
         assertThat(jwksProviders.get(1), instanceOf(RateLimitedJwksProvider.class));
-        assertThat(jwksProviders.get(2), instanceOf(ShadowCachedJwksProvider.class));
+        assertThat(jwksProviders.get(2), instanceOf(OutageCachedJwksProvider.class));
         assertThat(jwksProviders.get(3), instanceOf(RetryingJwksProvider.class));
         assertThat(jwksProviders.get(4), instanceOf(UrlJwksProvider.class));
     }
@@ -294,7 +294,7 @@ public class JwkProviderBuilderTest {
     public void shouldCreatePreemptiveCachedProvider() {
         JwkProvider provider = new JwkProviderBuilder(domain)
                 .rateLimited(false)
-                .preemptive(10, TimeUnit.SECONDS)
+                .preemptiveCacheUpdate(10, TimeUnit.SECONDS)
                 .build();
         assertThat(provider, notNullValue());
         
@@ -314,7 +314,7 @@ public class JwkProviderBuilderTest {
     @Test
     public void shouldFailWhenPreemptiveWithoutCaching() {
         expectedException.expect(IllegalStateException.class);
-        new JwkProviderBuilder(normalizedDomain).cached(false).rateLimited(false).preemptive(10, TimeUnit.SECONDS).build();
+        new JwkProviderBuilder(normalizedDomain).cached(false).rateLimited(false).preemptiveCacheUpdate(10, TimeUnit.SECONDS).build();
     }
     
 }

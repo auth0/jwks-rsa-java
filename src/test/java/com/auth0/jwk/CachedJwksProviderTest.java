@@ -205,6 +205,6 @@ public class CachedJwksProviderTest {
         } finally {
             helper.close();
         }
-    }    
+    }
 }
 
