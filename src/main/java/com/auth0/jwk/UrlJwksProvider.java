@@ -8,6 +8,8 @@ import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
@@ -64,8 +66,12 @@ public class UrlJwksProvider implements JwksProvider {
      * <br><br> It can be a url link 'https://samples.auth0.com' or just a domain 'samples.auth0.com'.
      * If the protocol (http or https) is not provided then https is used by default.
      * The default jwks path "/.well-known/jwks.json" is appended to the given string domain.
+     * If the domain url contains a path, e.g. 'https://auth.example.com/some-resource', the path is preserved and the
+     * default jwks path is appended.
      * <br><br> For example, when the domain is "samples.auth0.com"
      * the jwks url that will be used is "https://samples.auth0.com/.well-known/jwks.json"
+     * If the domain string is "https://auth.example.com/some-resource", the jwks url that will be used is
+     * "https://auth.example.com/some-resource/.well-known/jwks.json"
      * <br><br> Use {@link #UrlJwksProvider(URL)} if you need to pass a full URL.
      *
      * @param domain where jwks is published
@@ -82,9 +88,9 @@ public class UrlJwksProvider implements JwksProvider {
         }
 
         try {
-            final URL url = new URL(domain);
-            return new URL(url, WELL_KNOWN_JWKS_PATH);
-        } catch (MalformedURLException e) {
+            final URI uri = new URI(domain + WELL_KNOWN_JWKS_PATH).normalize();
+            return uri.toURL();
+        } catch (MalformedURLException | URISyntaxException e) {
             throw new IllegalArgumentException("Invalid jwks uri", e);
         }
     }

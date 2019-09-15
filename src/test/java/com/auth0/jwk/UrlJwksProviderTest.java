@@ -8,7 +8,11 @@ import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
+import java.net.URLStreamHandlerFactory;
 
 import static com.auth0.jwk.UrlJwksProvider.WELL_KNOWN_JWKS_PATH;
 import static org.hamcrest.Matchers.*;
@@ -148,11 +152,35 @@ public class UrlJwksProviderTest {
     }
 
     @Test
-    public void shouldUseOnlyDomain() {
+    public void shouldUseDomainAndPathWithSlashIfPresent() {
         String domain = "samples.auth0.com";
         String domainWithSubPath = domain + "/sub/path/";
         String actualJwksUrl = new UrlJwksProvider(domainWithSubPath).url.toString();
-        assertThat(actualJwksUrl, equalTo("https://" + domain + WELL_KNOWN_JWKS_PATH));
+        assertThat(actualJwksUrl, equalTo("https://" + domain + "/sub/path" + WELL_KNOWN_JWKS_PATH));
+    }
+
+    @Test
+    public void shouldUseDomainAndPathWithoutSlashIfPresent() {
+        String domain = "samples.auth0.com";
+        String domainWithSubPath = domain + "/sub/path";
+        String actualJwksUrl = new UrlJwksProvider(domainWithSubPath).url.toString();
+        assertThat(actualJwksUrl, equalTo("https://" + domain + "/sub/path" + WELL_KNOWN_JWKS_PATH));
+    }
+
+    @Test
+    public void shouldUseDomainAndSinglePathWithSlashIfPresent() {
+        String domain = "samples.auth0.com";
+        String domainWithSubPath = domain + "/path/";
+        String actualJwksUrl = new UrlJwksProvider(domainWithSubPath).url.toString();
+        assertThat(actualJwksUrl, equalTo("https://" + domain + "/path" + WELL_KNOWN_JWKS_PATH));
+    }
+
+    @Test
+    public void shouldUseDomainAndSinglePathWithoutSlashIfPresent() {
+        String domain = "samples.auth0.com";
+        String domainWithSubPath = domain + "/path";
+        String actualJwksUrl = new UrlJwksProvider(domainWithSubPath).url.toString();
+        assertThat(actualJwksUrl, equalTo("https://" + domain + "/path" + WELL_KNOWN_JWKS_PATH));
     }
 
     @Test
