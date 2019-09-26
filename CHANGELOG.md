@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.9.0](https://github.com/auth0/jwks-rsa-java/tree/0.9.0) (2019-09-26)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.8.3...0.9.0)
+
+**Changed**
+- Improve ObjectMapper use [\#68](https://github.com/auth0/jwks-rsa-java/pull/68) ([skjolber](https://github.com/skjolber))
+- Concatenate JWKS path with existing path on domain if present [\#67](https://github.com/auth0/jwks-rsa-java/pull/67) ([ltj](https://github.com/ltj))
+
+**Security**
+- Update jackson-databind to address CVE [\#72](https://github.com/auth0/jwks-rsa-java/pull/72) ([jimmyjames](https://github.com/jimmyjames))
+
 ## [0.8.3](https://github.com/auth0/jwks-rsa-java/tree/0.8.3) (2019-08-15)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.8.2...0.8.3)
 
