@@ -11,14 +11,14 @@
 <dependency>
     <groupId>com.auth0</groupId>
     <artifactId>jwks-rsa</artifactId>
-    <version>0.8.3</version>
+    <version>0.9.0</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```gradle
-implementation 'com.auth0:jwks-rsa:0.8.3'
+implementation 'com.auth0:jwks-rsa:0.9.0'
 ```
 
 ## Usage
