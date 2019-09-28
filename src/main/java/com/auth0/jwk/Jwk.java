@@ -8,7 +8,9 @@ import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.RSAPrivateCrtKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +21,7 @@ import java.util.Map;
  */
 @SuppressWarnings("WeakerAccess")
 public class Jwk {
-    private static final String PUBLIC_KEY_ALGORITHM = "RSA";
+    private static final String KEY_ALGORITHM = "RSA";
 
     private final String id;
     private final String type;
@@ -166,11 +168,11 @@ public class Jwk {
      */
     @SuppressWarnings("WeakerAccess")
     public PublicKey getPublicKey() throws InvalidPublicKeyException {
-        if (!PUBLIC_KEY_ALGORITHM.equalsIgnoreCase(type)) {
+        if (!KEY_ALGORITHM.equalsIgnoreCase(type)) {
             throw new InvalidPublicKeyException("The key is not of type RSA", null);
         }
         try {
-            KeyFactory kf = KeyFactory.getInstance(PUBLIC_KEY_ALGORITHM);
+            KeyFactory kf = KeyFactory.getInstance(KEY_ALGORITHM);
             BigInteger modulus = new BigInteger(1, Base64.decodeBase64(stringValue("n")));
             BigInteger exponent = new BigInteger(1, Base64.decodeBase64(stringValue("e")));
             return kf.generatePublic(new RSAPublicKeySpec(modulus, exponent));
@@ -179,6 +181,36 @@ public class Jwk {
         } catch (NoSuchAlgorithmException e) {
             throw new InvalidPublicKeyException("Invalid algorithm to generate key", e);
         }
+    }
+
+    /**
+     * Returns a {@link PrivateKey} if the {@code 'alg'} is {@code 'RSA'}
+     *
+     * @return a private key
+     * @throws InvalidPrivateKeyException if the key cannot be built or the key type is not RSA
+     */
+    @SuppressWarnings("WeakerAccess")
+    public PrivateKey getPrivateKey() throws InvalidPrivateKeyException{
+        if (!KEY_ALGORITHM.equalsIgnoreCase(type)) {
+            throw new InvalidPrivateKeyException("The key is not of type RSA", null);
+        }
+        try {
+            KeyFactory kf = KeyFactory.getInstance(KEY_ALGORITHM);
+            BigInteger modulus = new BigInteger(1, Base64.decodeBase64(stringValue("n")));
+            BigInteger publicExponent = new BigInteger(1, Base64.decodeBase64(stringValue("e")));
+            BigInteger privateExponent = new BigInteger(1, Base64.decodeBase64("d"));
+            BigInteger primeP = new BigInteger(1, Base64.decodeBase64("p"));
+            BigInteger primeQ = new BigInteger(1, Base64.decodeBase64("q"));
+            BigInteger primeExponentP = new BigInteger(1, Base64.decodeBase64("dp"));
+            BigInteger primeExponentQ = new BigInteger(1, Base64.decodeBase64("dq"));
+            BigInteger crtCoefficient = new BigInteger(1, Base64.decodeBase64("qi"));
+            return kf.generatePrivate(new RSAPrivateCrtKeySpec(modulus, publicExponent, privateExponent, primeP, primeQ, primeExponentP, primeExponentQ, crtCoefficient));
+        } catch (InvalidKeySpecException e) {
+            throw new InvalidPrivateKeyException("Invalid public key", e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new InvalidPrivateKeyException("Invalid algorithm to generate key", e);
+        }
+
     }
 
     private String stringValue(String key) {
