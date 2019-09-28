@@ -206,7 +206,7 @@ public class Jwk {
             BigInteger crtCoefficient = new BigInteger(1, Base64.decodeBase64("qi"));
             return kf.generatePrivate(new RSAPrivateCrtKeySpec(modulus, publicExponent, privateExponent, primeP, primeQ, primeExponentP, primeExponentQ, crtCoefficient));
         } catch (InvalidKeySpecException e) {
-            throw new InvalidPrivateKeyException("Invalid public key", e);
+            throw new InvalidPrivateKeyException("Invalid private key", e);
         } catch (NoSuchAlgorithmException e) {
             throw new InvalidPrivateKeyException("Invalid algorithm to generate key", e);
         }
