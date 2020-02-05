@@ -65,7 +65,7 @@ Jwk jwk = provider.get("{kid of the signing key}"); //throws Exception when not 
 
 `GuavaCachedJwkProvider` cache the jwk in a LRU in memory cache, if the jwk is not found in the cache it will ask another provider for it and store it's result in the cache.
 
-> By default it stores 5 keys for 10 hours but these values can be changed
+> By default it stores 5 keys for 10 minutes, but these values can be changed.
 
 ```java
 JwkProvider http = new UrlJwkProvider("https://samples.auth0.com/");
@@ -77,7 +77,7 @@ Jwk jwk = provider.get("{kid of the signing key}"); //throws Exception when not 
 
 `RateLimitJwkProvider` will limit the amounts of different signing keys to get in a given time frame.
 
-> By default the rate is limited to 10 different keys per minute but these values can be changed
+> By default the rate is limited to 10 different keys per minute but these values can be changed.
 
 ```java
 JwkProvider url = new UrlJwkProvider("https://samples.auth0.com/");
@@ -96,7 +96,7 @@ JwkProvider provider = new JwkProviderBuilder("https://samples.auth0.com/")
 Jwk jwk = provider.get("{kid of the signing key}"); //throws Exception when not found or can't get one
 ```
 
-and specifying cache and rate limit attributes
+and specifying cache and rate limit attributes:
 
 ```java
 JwkProvider provider = new JwkProviderBuilder("https://samples.auth0.com/")

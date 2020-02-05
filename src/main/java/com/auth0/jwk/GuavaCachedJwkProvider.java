@@ -25,7 +25,7 @@ public class GuavaCachedJwkProvider implements JwkProvider {
      * @param provider fallback provider to use when jwk is not cached
      */
     public GuavaCachedJwkProvider(final JwkProvider provider) {
-        this(provider, 5, 10, TimeUnit.HOURS);
+        this(provider, 5, 10, TimeUnit.MINUTES);
     }
 
     /**
