@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.10.0](https://github.com/auth0/jwks-rsa-java/tree/0.10.0) (2020-02-11)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.9.0...0.10.0)
+
+**Changed**
+- Set default cache expiration time to 10 minutes [\#82](https://github.com/auth0/jwks-rsa-java/pull/82) ([jimmyjames](https://github.com/jimmyjames))
+
 ## [0.9.0](https://github.com/auth0/jwks-rsa-java/tree/0.9.0) (2019-09-26)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.8.3...0.9.0)
 
