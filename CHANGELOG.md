@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.11.0](https://github.com/auth0/jwks-rsa-java/tree/0.11.0) (2020-02-14)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.10.0...0.11.0)
+
+**Changed**
+- Update Gradle version to 6.1.1 [\#84](https://github.com/auth0/jwks-rsa-java/pull/84) ([PaulDaviesC](https://github.com/PaulDaviesC))
+
 ## [0.10.0](https://github.com/auth0/jwks-rsa-java/tree/0.10.0) (2020-02-11)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.9.0...0.10.0)
 
