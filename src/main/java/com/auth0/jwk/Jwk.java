@@ -1,25 +1,18 @@
 package com.auth0.jwk;
 
+import com.auth0.jwk.kyt.JwkRsa;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
-import org.apache.commons.codec.binary.Base64;
 
-import java.math.BigInteger;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.RSAPublicKeySpec;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Represents a JSON Web Key (JWK) used to verify the signature of JWTs
  */
 @SuppressWarnings("WeakerAccess")
-public class Jwk {
-    private static final String PUBLIC_KEY_ALGORITHM = "RSA";
+public abstract class Jwk {
+    protected static final String PUBLIC_KEY_RSA_ALGORITHM = "RSA";
 
     private final String id;
     private final String type;
@@ -93,9 +86,9 @@ public class Jwk {
             throw new IllegalArgumentException("Attributes " + map + " are not from a valid jwk");
         }
         if (keyOps instanceof String) {
-            return new Jwk(kid, kty, alg, use, (String) keyOps, x5u, x5c, x5t, values);
+            return new JwkRsa(kid, kty, alg, use, Arrays.asList((String) keyOps), x5u, x5c, x5t, values);
         } else {
-            return new Jwk(kid, kty, alg, use, (List<String>) keyOps, x5u, x5c, x5t, values);
+            return new JwkRsa(kid, kty, alg, use, (List<String>) keyOps, x5u, x5c, x5t, values);
         }
     }
 
@@ -165,23 +158,9 @@ public class Jwk {
      * @throws InvalidPublicKeyException if the key cannot be built or the key type is not RSA
      */
     @SuppressWarnings("WeakerAccess")
-    public PublicKey getPublicKey() throws InvalidPublicKeyException {
-        if (!PUBLIC_KEY_ALGORITHM.equalsIgnoreCase(type)) {
-            throw new InvalidPublicKeyException("The key is not of type RSA", null);
-        }
-        try {
-            KeyFactory kf = KeyFactory.getInstance(PUBLIC_KEY_ALGORITHM);
-            BigInteger modulus = new BigInteger(1, Base64.decodeBase64(stringValue("n")));
-            BigInteger exponent = new BigInteger(1, Base64.decodeBase64(stringValue("e")));
-            return kf.generatePublic(new RSAPublicKeySpec(modulus, exponent));
-        } catch (InvalidKeySpecException e) {
-            throw new InvalidPublicKeyException("Invalid public key", e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new InvalidPublicKeyException("Invalid algorithm to generate key", e);
-        }
-    }
+    public abstract PublicKey getPublicKey() throws InvalidPublicKeyException;
 
-    private String stringValue(String key) {
+    protected String stringValue(String key) {
         return (String) additionalAttributes.get(key);
     }
 
