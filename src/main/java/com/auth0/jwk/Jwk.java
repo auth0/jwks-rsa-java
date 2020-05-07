@@ -1,10 +1,15 @@
 package com.auth0.jwk;
 
-import com.auth0.jwk.kyt.JwkRsa;
+import com.auth0.jwk.kyt.EllipticCurve;
+import com.auth0.jwk.kyt.Rsa;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
 
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
 import java.util.*;
 
 /**
@@ -13,6 +18,7 @@ import java.util.*;
 @SuppressWarnings("WeakerAccess")
 public abstract class Jwk {
     protected static final String PUBLIC_KEY_RSA_ALGORITHM = "RSA";
+    protected static final String PUBLIC_KEY_EC_ALGORITHM = "EC";
 
     private final String id;
     private final String type;
@@ -79,17 +85,19 @@ public abstract class Jwk {
         String alg = (String) values.remove("alg");
         String use = (String) values.remove("use");
         Object keyOps = values.remove("key_ops");
+        List<String> keyOpsList = keyOps instanceof String ? Collections.singletonList((String) keyOps) : (List<String>) keyOps;
         String x5u = (String) values.remove("x5u");
         List<String> x5c = (List<String>) values.remove("x5c");
         String x5t = (String) values.remove("x5t");
         if (kty == null) {
             throw new IllegalArgumentException("Attributes " + map + " are not from a valid jwk");
         }
-        if (keyOps instanceof String) {
-            return new JwkRsa(kid, kty, alg, use, Arrays.asList((String) keyOps), x5u, x5c, x5t, values);
-        } else {
-            return new JwkRsa(kid, kty, alg, use, (List<String>) keyOps, x5u, x5c, x5t, values);
+        if (PUBLIC_KEY_RSA_ALGORITHM.equals(kty)) {
+            return new Rsa(kid, kty, alg, use, keyOpsList, x5u, x5c, x5t, values);
+        } else if (PUBLIC_KEY_EC_ALGORITHM.equals(kty)) {
+            return new EllipticCurve(kid, kty, alg, use, keyOpsList, x5u, x5c, x5t, values);
         }
+        throw new IllegalArgumentException("Unsupported key type: " + kty);
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -158,7 +166,32 @@ public abstract class Jwk {
      * @throws InvalidPublicKeyException if the key cannot be built or the key type is not RSA
      */
     @SuppressWarnings("WeakerAccess")
-    public abstract PublicKey getPublicKey() throws InvalidPublicKeyException;
+    public PublicKey getPublicKey() throws InvalidPublicKeyException {
+        if (!getKeyType().equalsIgnoreCase(getType())) {
+            throw new InvalidPublicKeyException("The key is not of type " + getKeyType());
+        }
+        try {
+            KeyFactory kf = KeyFactory.getInstance(getType());
+            return kf.generatePublic(getKeySpecification());
+        } catch (InvalidKeySpecException e) {
+            throw new InvalidPublicKeyException("Invalid public key", e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new InvalidPublicKeyException("Invalid algorithm to generate key", e);
+        }
+    }
+
+    /**
+     * Returns the name of the key type of the current JWT entry.
+     * @return key type name
+     */
+    protected abstract String getKeyType();
+
+    /**
+     * Returns the Java key specification of the key specified by the current JWT entry.
+     * @return key specification if the key specification cannot be created because some parameter was missing
+     * @throws InvalidPublicKeyException
+     */
+    protected abstract KeySpec getKeySpecification() throws InvalidPublicKeyException;
 
     protected String stringValue(String key) {
         return (String) additionalAttributes.get(key);
