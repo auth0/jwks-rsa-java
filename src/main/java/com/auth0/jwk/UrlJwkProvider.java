@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -28,6 +29,7 @@ public class UrlJwkProvider implements JwkProvider {
     static final String WELL_KNOWN_JWKS_PATH = "/.well-known/jwks.json";
 
     final URL url;
+    private final Proxy proxy;
     private final Integer connectTimeout;
     private final Integer readTimeout;
 
@@ -38,7 +40,28 @@ public class UrlJwkProvider implements JwkProvider {
      * @param url to load the jwks
      */
     public UrlJwkProvider(URL url) {
-        this(url, null, null);
+        this(url, null, null, null);
+    }
+
+    /**
+     * Creates a provider that loads from the given URL using a specified proxy server
+     *
+     * @param url            to load the jwks
+     * @param connectTimeout connection timeout in milliseconds (null for default)
+     * @param readTimeout    read timeout in milliseconds (null for default)
+     * @param proxy          proxy server to use when making the connection
+     */
+    public UrlJwkProvider(URL url, Integer connectTimeout, Integer readTimeout, Proxy proxy) {
+        checkArgument(url != null, "A non-null url is required");
+        checkArgument(connectTimeout == null || connectTimeout >= 0, "Invalid connect timeout value '" + connectTimeout + "'. Must be a non-negative integer.");
+        checkArgument(readTimeout == null || readTimeout >= 0, "Invalid read timeout value '" + readTimeout + "'. Must be a non-negative integer.");
+
+        this.url = url;
+        this.proxy = proxy;
+        this.connectTimeout = connectTimeout;
+        this.readTimeout = readTimeout;
+        
+        this.reader = new ObjectMapper().readerFor(Map.class);
     }
 
     /**
@@ -49,15 +72,7 @@ public class UrlJwkProvider implements JwkProvider {
      * @param readTimeout    read timeout in milliseconds (null for default)
      */
     public UrlJwkProvider(URL url, Integer connectTimeout, Integer readTimeout) {
-        checkArgument(url != null, "A non-null url is required");
-        checkArgument(connectTimeout == null || connectTimeout >= 0, "Invalid connect timeout value '" + connectTimeout + "'. Must be a non-negative integer.");
-        checkArgument(readTimeout == null || readTimeout >= 0, "Invalid read timeout value '" + readTimeout + "'. Must be a non-negative integer.");
-
-        this.url = url;
-        this.connectTimeout = connectTimeout;
-        this.readTimeout = readTimeout;
-        
-        this.reader = new ObjectMapper().readerFor(Map.class);
+        this(url, connectTimeout, readTimeout, null);
     }
 
     /**
@@ -96,7 +111,7 @@ public class UrlJwkProvider implements JwkProvider {
 
     private Map<String, Object> getJwks() throws SigningKeyNotFoundException {
         try {
-            final URLConnection c = this.url.openConnection();
+            final URLConnection c = (proxy == null) ? this.url.openConnection() : this.url.openConnection(proxy);
             if (connectTimeout != null) {
                 c.setConnectTimeout(connectTimeout);
             }
