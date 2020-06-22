@@ -142,8 +142,6 @@ try {
 }
 ```  
 
-#### 
- 
 ## What is Auth0?
 
 Auth0 helps you to:
