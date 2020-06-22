@@ -115,7 +115,7 @@ This error may arise when the hosted JSON Web Key set (JWKS) file doesn't repres
 #### Network error
 There's a special case for Network errors. These errors represent timeouts, invalid URLs, or a faulty internet connection. They may occur when fetching the keys from the given URL. They are raised as a `SigningKeyNotFoundException` instance with an `IOException` cause. 
 
-If you need to detect this scenario, check the cause matches an `IOException`.
+If you need to detect this scenario, check that the cause matches an `IOException`.
 
 ```java
 try {
@@ -128,10 +128,10 @@ try {
 ```
 
 ### Unsupported JSON Web Key
-When the received key is not of type **RSA** or the exponent and modulus values representing it are wrong, a `InvalidPublicKeyException` will be raised.
+When the received key is not of type **RSA** or the exponent and modulus values representing it are wrong, an `InvalidPublicKeyException` will be raised.
 
 ### Rate limits
-When using a rate-limited provider, an `RateLimitReachedException` error might be raised when the limit is breached. The instance can help determine how long to wait until the next call would be available. 
+When using a rate-limited provider, a `RateLimitReachedException` error might be raised when the limit is breached. The instance can help determine how long to wait until the next call would be available. 
 
 ```java
 try {
