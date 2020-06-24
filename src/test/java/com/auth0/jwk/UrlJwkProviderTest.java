@@ -253,4 +253,19 @@ public class UrlJwkProviderTest {
         //Request Headers assertions
         verify(urlConnection).setRequestProperty("Accept", "application/json");
     }
+
+    @Test
+    public void shouldFailWithNetworkError() throws Exception {
+        expectedException.expect(NetworkException.class);
+        URLConnection urlConnection = mock(URLConnection.class);
+
+        // Although somewhat of a hack, this approach gets the job done - this method can
+        // only be called once per virtual machine, but that is sufficient for now.
+        URL.setURLStreamHandlerFactory(new MockURLStreamHandlerFactory(urlConnection));
+        IOException exception = mock(IOException.class);
+        when(urlConnection.getInputStream()).thenThrow(exception);
+
+        UrlJwkProvider urlJwkProvider = new UrlJwkProvider(new URL("mock://localhost"));
+        urlJwkProvider.get("NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg");
+    }
 }
