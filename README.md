@@ -113,17 +113,17 @@ There are certain scenarios in which this library can fail. Read below to unders
 This error may arise when the hosted JSON Web Key set (JWKS) file doesn't represent a valid set of keys, or is empty. They are raised as a `SigningKeyNotFoundException`. The cause would need to be inspected in order to understand the specific failure reason. 
 
 #### Network error
-There's a special case for Network errors. These errors represent timeouts, invalid URLs, or a faulty internet connection. They may occur when fetching the keys from the given URL. They are raised as a `SigningKeyNotFoundException` instance with an `IOException` cause. 
+There's a special case for Network errors. These errors represent timeouts, invalid URLs, or a faulty internet connection. They may occur when fetching the keys from the given URL. They are raised as a `NetworkException` instance. 
 
-If you need to detect this scenario, check that the cause matches an `IOException`.
+If you need to detect this scenario, make sure to check it before the catch of `SigningKeyNotFoundException`.
 
 ```java
 try {
     // ...
+} catch (NetworkException e) {
+    // Network error
 } catch (SigningKeyNotFoundException e) {
-    if (e.getCause() instanceof IOException){
-        // Network error
-    }
+    // Key is invalid or not found
 }
 ```
 

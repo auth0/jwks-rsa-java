@@ -124,7 +124,7 @@ public class UrlJwkProvider implements JwkProvider {
                 return reader.readValue(inputStream);
             }
         } catch (IOException e) {
-            throw new SigningKeyNotFoundException("Cannot obtain jwks from url " + url.toString(), e);
+            throw new NetworkException("Cannot obtain jwks from url " + url.toString(), e);
         }
     }
 
