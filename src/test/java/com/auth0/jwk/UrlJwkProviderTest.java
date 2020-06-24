@@ -8,11 +8,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLStreamHandler;
-import java.net.URLStreamHandlerFactory;
+import java.net.*;
 
 import static com.auth0.jwk.UrlJwkProvider.WELL_KNOWN_JWKS_PATH;
 import static org.hamcrest.Matchers.*;
@@ -211,15 +207,15 @@ public class UrlJwkProviderTest {
             this.value = new WeakReference<URLConnection>(urlConnection);
         }
 
+        public void clear() {
+            this.value.clear();
+        }
+
         @Override
         public URLStreamHandler createURLStreamHandler(String protocol) {
             return "mock".equals(protocol) ? new URLStreamHandler() {
                 protected URLConnection openConnection(URL url) throws IOException {
-                    try {
-                        return value.get();
-                    } finally {
-                        value.clear();
-                    }
+                    return value.get();
                 }
             } : null;
         }
@@ -231,7 +227,8 @@ public class UrlJwkProviderTest {
 
         // Although somewhat of a hack, this approach gets the job done - this method can 
         // only be called once per virtual machine, but that is sufficient for now.
-        URL.setURLStreamHandlerFactory(new MockURLStreamHandlerFactory(urlConnection));
+        MockURLStreamHandlerFactory mockFactory = new MockURLStreamHandlerFactory(urlConnection);
+        URL.setURLStreamHandlerFactory(mockFactory);
         when(urlConnection.getInputStream()).thenReturn(getClass().getResourceAsStream("/jwks.json"));
 
         int connectTimeout = 10000;
@@ -241,6 +238,7 @@ public class UrlJwkProviderTest {
         Jwk jwk = urlJwkProvider.get("NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg");
         assertNotNull(jwk);
 
+        //Test 1: Configuration
         //Request Timeout assertions
         ArgumentCaptor<Integer> connectTimeoutCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(urlConnection).setConnectTimeout(connectTimeoutCaptor.capture());
@@ -252,20 +250,21 @@ public class UrlJwkProviderTest {
 
         //Request Headers assertions
         verify(urlConnection).setRequestProperty("Accept", "application/json");
-    }
 
-    @Test
-    public void shouldFailWithNetworkError() throws Exception {
-        expectedException.expect(NetworkException.class);
-        URLConnection urlConnection = mock(URLConnection.class);
+        //Test 2: Network errors
+        Exception capturedException = null;
+        try {
+            IOException exception = mock(IOException.class);
+            when(urlConnection.getInputStream()).thenThrow(exception);
+            urlJwkProvider.get("NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg");
+        } catch (Exception e) {
+            capturedException = e;
+        }
 
-        // Although somewhat of a hack, this approach gets the job done - this method can
-        // only be called once per virtual machine, but that is sufficient for now.
-        URL.setURLStreamHandlerFactory(new MockURLStreamHandlerFactory(urlConnection));
-        IOException exception = mock(IOException.class);
-        when(urlConnection.getInputStream()).thenThrow(exception);
+        assertThat(capturedException, is(notNullValue()));
+        assertThat(capturedException, is(instanceOf(NetworkException.class)));
 
-        UrlJwkProvider urlJwkProvider = new UrlJwkProvider(new URL("mock://localhost"));
-        urlJwkProvider.get("NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg");
+        //release
+        mockFactory.clear();
     }
 }
