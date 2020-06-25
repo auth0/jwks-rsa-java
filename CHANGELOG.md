@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.12.0](https://github.com/auth0/jwks-rsa-java/tree/0.12.0) (2020-06-25)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.11.0...0.12.0)
+
+**Added**
+- Add NetworkException, docs and tests [\#89](https://github.com/auth0/jwks-rsa-java/pull/89) ([lbalmaceda](https://github.com/lbalmaceda))
+
 ## [0.11.0](https://github.com/auth0/jwks-rsa-java/tree/0.11.0) (2020-02-14)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.10.0...0.11.0)
 
