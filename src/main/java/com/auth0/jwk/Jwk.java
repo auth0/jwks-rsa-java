@@ -44,7 +44,7 @@ public abstract class Jwk {
      * @param additionalAttributes  additional attributes not part of the standard ones
      */
     @SuppressWarnings("WeakerAccess")
-    public Jwk(String id, String type, String algorithm, String usage, List<String> operations, String certificateUrl, List<String> certificateChain, String certificateThumbprint, Map<String, Object> additionalAttributes) {
+    protected Jwk(String id, String type, String algorithm, String usage, List<String> operations, String certificateUrl, List<String> certificateChain, String certificateThumbprint, Map<String, Object> additionalAttributes) {
         this.id = id;
         this.type = type;
         this.algorithm = algorithm;
