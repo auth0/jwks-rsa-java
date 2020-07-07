@@ -56,27 +56,6 @@ public abstract class Jwk {
         this.additionalAttributes = additionalAttributes;
     }
 
-    /**
-     * Creates a new Jwk
-     *
-     * @param id
-     * @param type
-     * @param algorithm
-     * @param usage
-     * @param operations
-     * @param certificateUrl
-     * @param certificateChain
-     * @param certificateThumbprint
-     * @param additionalAttributes
-     * @deprecated The specification states that the 'key_ops' (operations) parameter contains an array value.
-     * Use {@link #Jwk(String, String, String, String, List, String, List, String, Map)}
-     */
-    @Deprecated
-    @SuppressWarnings("WeakerAccess")
-    public Jwk(String id, String type, String algorithm, String usage, String operations, String certificateUrl, List<String> certificateChain, String certificateThumbprint, Map<String, Object> additionalAttributes) {
-        this(id, type, algorithm, usage, Collections.singletonList(operations), certificateUrl, certificateChain, certificateThumbprint, additionalAttributes);
-    }
-
     @SuppressWarnings("unchecked")
     public static Jwk fromValues(Map<String, Object> map) {
         Map<String, Object> values = Maps.newHashMap(map);
