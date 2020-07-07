@@ -11,14 +11,14 @@
 <dependency>
     <groupId>com.auth0</groupId>
     <artifactId>jwks-rsa</artifactId>
-    <version>0.11.0</version>
+    <version>0.12.0</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```gradle
-implementation 'com.auth0:jwks-rsa:0.11.0'
+implementation 'com.auth0:jwks-rsa:0.12.0'
 ```
 
 ## Usage
@@ -105,6 +105,42 @@ JwkProvider provider = new JwkProviderBuilder("https://samples.auth0.com/")
     .build();
 Jwk jwk = provider.get("{kid of the signing key}"); //throws Exception when not found or can't get one
 ```
+
+## Error handling
+There are certain scenarios in which this library can fail. Read below to understand what to expect and how to handle the errors.
+
+### Missing JSON Web Key
+This error may arise when the hosted JSON Web Key set (JWKS) file doesn't represent a valid set of keys, or is empty. They are raised as a `SigningKeyNotFoundException`. The cause would need to be inspected in order to understand the specific failure reason. 
+
+#### Network error
+There's a special case for Network errors. These errors represent timeouts, invalid URLs, or a faulty internet connection. They may occur when fetching the keys from the given URL. They are raised as a `NetworkException` instance. 
+
+If you need to detect this scenario, make sure to check it before the catch of `SigningKeyNotFoundException`.
+
+```java
+try {
+    // ...
+} catch (NetworkException e) {
+    // Network error
+} catch (SigningKeyNotFoundException e) {
+    // Key is invalid or not found
+}
+```
+
+### Unsupported JSON Web Key
+When the received key is not of type **RSA** or the exponent and modulus values representing it are wrong, an `InvalidPublicKeyException` will be raised.
+
+### Rate limits
+When using a rate-limited provider, a `RateLimitReachedException` error might be raised when the limit is breached. The instance can help determine how long to wait until the next call would be available. 
+
+```java
+try {
+    // ...
+} catch (RateLimitReachedException e) {
+    long waitTime = e.getAvailableIn()
+    // wait until available
+}
+```  
 
 ## What is Auth0?
 
