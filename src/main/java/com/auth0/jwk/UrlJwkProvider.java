@@ -29,7 +29,7 @@ public class UrlJwkProvider implements JwkProvider {
     static final String WELL_KNOWN_JWKS_PATH = "/.well-known/jwks.json";
 
     final URL url;
-    private final Proxy proxy;
+    final Proxy proxy;
     private final Integer connectTimeout;
     private final Integer readTimeout;
 
