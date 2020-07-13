@@ -1,5 +1,6 @@
 package com.auth0.jwk;
 
+import java.net.Proxy;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
@@ -12,6 +13,7 @@ import static com.auth0.jwk.UrlJwkProvider.urlForDomain;
 public class JwkProviderBuilder {
 
     private final URL url;
+    private Proxy proxy;
     private TimeUnit expiresUnit;
     private long expiresIn;
     private long cacheSize;
@@ -113,12 +115,22 @@ public class JwkProviderBuilder {
     }
 
     /**
+     * Sets the proxy to use for the connection.
+     * @param proxy proxy server to use when making this connection
+     * @return the builder
+     */
+    public JwkProviderBuilder proxied(Proxy proxy) {
+        this.proxy = proxy;
+        return this;
+    }
+
+    /**
      * Creates a {@link JwkProvider}
      *
      * @return a newly created {@link JwkProvider}
      */
     public JwkProvider build() {
-        JwkProvider urlProvider = new UrlJwkProvider(url);
+        JwkProvider urlProvider = new UrlJwkProvider(url, null, null, proxy);
         if (this.rateLimited) {
             urlProvider = new RateLimitedJwkProvider(urlProvider, bucket);
         }
