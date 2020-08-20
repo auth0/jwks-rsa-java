@@ -66,7 +66,6 @@ test {
 
 dependencies {
     implementation group: 'commons-codec', name: 'commons-codec', version:'1.13'
-    implementation group: 'commons-io', name: 'commons-io', version:'2.6'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version:'2.10.0.pr3'
     implementation group: 'com.google.guava', name: 'guava', version:'27.1-jre'
     testImplementation group: 'junit', name: 'junit', version:'4.12'
