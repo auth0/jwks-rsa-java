@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.13.0](https://github.com/auth0/jwks-rsa-java/tree/0.13.0) (2020-08-26)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.12.0...0.13.0)
+
+**Removed**
+- remove commons-io dependency [\#95](https://github.com/auth0/jwks-rsa-java/pull/95) ([Jaxsun](https://github.com/Jaxsun))
+
 ## [0.12.0](https://github.com/auth0/jwks-rsa-java/tree/0.12.0) (2020-06-25)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.11.0...0.12.0)
 
