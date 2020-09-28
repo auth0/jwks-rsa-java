@@ -10,9 +10,7 @@ import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 import static com.auth0.jwk.UrlJwkProvider.WELL_KNOWN_JWKS_PATH;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class JwkProviderBuilderTest {
@@ -146,7 +144,7 @@ public class JwkProviderBuilderTest {
         UrlJwkProvider urlJwkProvider = (UrlJwkProvider) provider;
         assertThat(urlJwkProvider.url.toString(), equalTo(urlToJwksWithSubPath));
     }
-    
+
     @Test
     public void shouldCreateForUrlAndProxy() throws Exception {
         URL url = new URL(normalizedDomain + WELL_KNOWN_JWKS_PATH);

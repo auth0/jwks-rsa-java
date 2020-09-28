@@ -48,6 +48,7 @@ public class JwkProviderBuilder {
      * <br><br> For example, when the domain is "samples.auth0.com"
      * the jwks url that will be used is "https://samples.auth0.com/.well-known/jwks.json"
      * <br><br> Use {@link #JwkProviderBuilder(URL)} if you need to pass a full URL.
+     *
      * @param domain where jwks is published
      * @throws IllegalStateException if domain is null
      * @see UrlJwkProvider#UrlJwkProvider(String)
@@ -116,6 +117,7 @@ public class JwkProviderBuilder {
 
     /**
      * Sets the proxy to use for the connection.
+     *
      * @param proxy proxy server to use when making this connection
      * @return the builder
      */

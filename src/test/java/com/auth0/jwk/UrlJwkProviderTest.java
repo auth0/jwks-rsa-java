@@ -5,6 +5,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -201,21 +203,45 @@ public class UrlJwkProviderTest {
 
         // The weak reference is just a safeguard against objects not being released
         // for garbage collection
-        private final WeakReference<URLConnection> value;
+        private final WeakReference<URLConnection> urlConnectionValue;
+        public WeakReference<URL> urlUsed;
+        public WeakReference<Proxy> proxyUsed;
 
         public MockURLStreamHandlerFactory(URLConnection urlConnection) {
-            this.value = new WeakReference<URLConnection>(urlConnection);
+            this.urlConnectionValue = new WeakReference<>(urlConnection);
+            this.urlUsed = new WeakReference<>(null);
+            this.proxyUsed = new WeakReference<>(null);
         }
 
         public void clear() {
-            this.value.clear();
+            clearUsed();
+            this.urlConnectionValue.clear();
+        }
+
+        private void clearUsed() {
+            this.urlUsed.clear();
+            this.proxyUsed.clear();
+        }
+
+        private void setUsed(URL u, Proxy p) {
+            clearUsed();
+            urlUsed = new WeakReference<>(u);
+            proxyUsed = new WeakReference<>(p);
         }
 
         @Override
         public URLStreamHandler createURLStreamHandler(String protocol) {
             return "mock".equals(protocol) ? new URLStreamHandler() {
-                protected URLConnection openConnection(URL url) throws IOException {
-                    return value.get();
+                @Override
+                protected URLConnection openConnection(URL u, Proxy p) throws IOException {
+                    setUsed(u, p);
+                    return urlConnectionValue.get();
+                }
+
+                @Override
+                protected URLConnection openConnection(URL u) throws IOException {
+                    setUsed(u, null);
+                    return urlConnectionValue.get();
                 }
             } : null;
         }
@@ -224,32 +250,56 @@ public class UrlJwkProviderTest {
     @Test
     public void shouldConfigureURLConnection() throws Exception {
         URLConnection urlConnection = mock(URLConnection.class);
+        when(urlConnection.getInputStream()).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                return getClass().getResourceAsStream("/jwks.json");
+            }
+        });
 
         // Although somewhat of a hack, this approach gets the job done - this method can 
         // only be called once per virtual machine, but that is sufficient for now.
         MockURLStreamHandlerFactory mockFactory = new MockURLStreamHandlerFactory(urlConnection);
         URL.setURLStreamHandlerFactory(mockFactory);
-        when(urlConnection.getInputStream()).thenReturn(getClass().getResourceAsStream("/jwks.json"));
 
+        URL url = new URL("mock://localhost");
         int connectTimeout = 10000;
         int readTimeout = 15000;
 
-        UrlJwkProvider urlJwkProvider = new UrlJwkProvider(new URL("mock://localhost"), connectTimeout, readTimeout);
+        //Test creation: without Proxy
+        UrlJwkProvider urlJwkProvider = new UrlJwkProvider(url, connectTimeout, readTimeout);
+        assertThat(urlJwkProvider.proxy, is(nullValue()));
+
         Jwk jwk = urlJwkProvider.get("NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg");
         assertNotNull(jwk);
+        assertThat(mockFactory.urlUsed.get(), is(url));
+        assertThat(mockFactory.proxyUsed.get(), is(nullValue()));
+
+        //Test creation: with Proxy
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", 8080));
+        URL pUrl = new URL("mock://localhost");
+        UrlJwkProvider pUrlJwkProvider = new UrlJwkProvider(pUrl, connectTimeout, readTimeout, proxy);
+        assertThat(pUrlJwkProvider.proxy, is(proxy));
+
+        Jwk pJwk = pUrlJwkProvider.get("NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg");
+        assertNotNull(pJwk);
+        assertThat(mockFactory.urlUsed.get(), is(pUrl));
+        Proxy usedProxy = mockFactory.proxyUsed.get();
+        assertThat(usedProxy, is(notNullValue()));
+        assertThat(usedProxy.address(), is(proxy.address()));
 
         //Test 1: Configuration
         //Request Timeout assertions
         ArgumentCaptor<Integer> connectTimeoutCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(urlConnection).setConnectTimeout(connectTimeoutCaptor.capture());
+        verify(urlConnection, times(2)).setConnectTimeout(connectTimeoutCaptor.capture());
         assertThat(connectTimeoutCaptor.getValue(), is(connectTimeout));
 
         ArgumentCaptor<Integer> readTimeoutCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(urlConnection).setReadTimeout(readTimeoutCaptor.capture());
+        verify(urlConnection, times(2)).setReadTimeout(readTimeoutCaptor.capture());
         assertThat(readTimeoutCaptor.getValue(), is(readTimeout));
 
         //Request Headers assertions
-        verify(urlConnection).setRequestProperty("Accept", "application/json");
+        verify(urlConnection, times(2)).setRequestProperty("Accept", "application/json");
 
         //Test 2: Network errors
         Exception capturedException = null;
