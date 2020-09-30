@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.14.0](https://github.com/auth0/jwks-rsa-java/tree/0.14.0) (2020-09-29)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.13.0...0.14.0)
+
+**Added**
+- Add proxy [\#94](https://github.com/auth0/jwks-rsa-java/pull/94) ([JosephWitthuhnTR](https://github.com/JosephWitthuhnTR))
+
 ## [0.13.0](https://github.com/auth0/jwks-rsa-java/tree/0.13.0) (2020-08-26)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.12.0...0.13.0)
 
