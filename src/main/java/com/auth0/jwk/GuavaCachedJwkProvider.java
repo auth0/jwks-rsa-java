@@ -20,7 +20,7 @@ public class GuavaCachedJwkProvider implements JwkProvider {
     static final String NULL_KID_KEY = "null-kid";
 
     /**
-     * Creates a new provider that will cache up to 5 jwks for at most 10 hours
+     * Creates a new provider that will cache up to 5 jwks for at most 10 minutes
      *
      * @param provider fallback provider to use when jwk is not cached
      */
