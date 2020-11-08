@@ -3,8 +3,6 @@ package com.auth0.jwk.kyt;
 import com.auth0.jwk.AbstractJwk;
 import com.auth0.jwk.InvalidPublicKeyException;
 import org.apache.commons.codec.binary.Base64;
-import org.bouncycastle.jce.ECNamedCurveTable;
-import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 
 import java.math.BigInteger;
 import java.security.spec.*;
@@ -47,24 +45,23 @@ public class EllipticCurve extends AbstractJwk {
     @Override
     protected KeySpec getKeySpecification() throws InvalidPublicKeyException {
         Curve curve = Curve.findByName(crv);
-        ECNamedCurveParameterSpec curveParameterSpec = ECNamedCurveTable.getParameterSpec(curve.getStandardName());
         return new ECPublicKeySpec(
                 new ECPoint(
                         new BigInteger(1, Base64.decodeBase64(stringValue("x"))),
                         new BigInteger(1, Base64.decodeBase64(stringValue("y")))),
-                getParameterSpec(curveParameterSpec));
+                getParameterSpec(curve));
     }
 
-    private ECParameterSpec getParameterSpec(ECNamedCurveParameterSpec parameterSpec) {
+    private ECParameterSpec getParameterSpec(Curve curve) {
         return new ECParameterSpec(
                 new java.security.spec.EllipticCurve(
-                        new ECFieldFp(parameterSpec.getCurve().getField().getCharacteristic()),
-                        parameterSpec.getCurve().getA().toBigInteger(),
-                        parameterSpec.getCurve().getB().toBigInteger()),
+                        new ECFieldFp(curve.getP()),
+                        curve.getA(),
+                        curve.getB()),
                 new ECPoint(
-                        parameterSpec.getG().getAffineXCoord().toBigInteger(),
-                        parameterSpec.getG().getAffineYCoord().toBigInteger()),
-                parameterSpec.getN(),
+                        curve.getX(),
+                        curve.getY()),
+                curve.getN(),
                 1);
     }
 
