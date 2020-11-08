@@ -59,8 +59,8 @@ public class EllipticCurve extends AbstractJwk {
                         curve.getA(),
                         curve.getB()),
                 new ECPoint(
-                        curve.getX(),
-                        curve.getY()),
+                        curve.getGx(),
+                        curve.getGy()),
                 curve.getN(),
                 1);
     }
