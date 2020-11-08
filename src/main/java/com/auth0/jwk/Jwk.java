@@ -75,14 +75,14 @@ public class Jwk extends AbstractJwk {
     
     @Override
     protected String getKeyType() {
-    	return PUBLIC_KEY_RSA_ALGORITHM;
+        return PUBLIC_KEY_RSA_ALGORITHM;
     }
     
     @Override
     protected KeySpec getKeySpecification() throws InvalidPublicKeyException {
-    	BigInteger modulus = new BigInteger(1, Base64.decodeBase64(stringValue("n")));
+        BigInteger modulus = new BigInteger(1, Base64.decodeBase64(stringValue("n")));
         BigInteger exponent = new BigInteger(1, Base64.decodeBase64(stringValue("e")));
-    	return new RSAPublicKeySpec(modulus, exponent);
+        return new RSAPublicKeySpec(modulus, exponent);
     }
 
 }

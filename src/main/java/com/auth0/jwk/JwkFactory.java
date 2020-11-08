@@ -9,8 +9,8 @@ import com.google.common.collect.Maps;
 
 public class JwkFactory {
 
-	@SuppressWarnings("unchecked")
-	public static AbstractJwk fromValues(Map<String, Object> map) {
+    @SuppressWarnings("unchecked")
+    public static AbstractJwk fromValues(Map<String, Object> map) {
         Map<String, Object> values = Maps.newHashMap(map);
         // kid is optional - https://tools.ietf.org/html/rfc7517#section-4.5
         String kid = (String) values.remove("kid");
@@ -43,16 +43,16 @@ public class JwkFactory {
             return new Jwk(kid, kty, alg, use, keyOpsList, x5u, x5c, x5t, values);
         } else if (AbstractJwk.PUBLIC_KEY_EC_ALGORITHM.equals(kty)) {
             try {
-				return new EllipticCurve(kid, alg, use, keyOpsList, x5u, x5c, x5t, values);
-			} catch (InvalidPublicKeyException e) {
-				throw new IllegalArgumentException(e);
-			}
+                return new EllipticCurve(kid, alg, use, keyOpsList, x5u, x5c, x5t, values);
+            } catch (InvalidPublicKeyException e) {
+                throw new IllegalArgumentException(e);
+            }
         }
         throw new IllegalArgumentException(String.format("kty value must be either \"RSA\" or \"EC\". \"%s\" value found.", kty));
     }
-	
-	private JwkFactory() {
-		// This class must not be instantiated
-	}
-	
+    
+    private JwkFactory() {
+        // This class must not be instantiated
+    }
+    
 }

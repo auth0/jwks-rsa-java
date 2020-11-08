@@ -16,51 +16,51 @@ import com.auth0.jwk.kyt.JwkTests;
 
 public class AbstractJwkTest extends JwkTests{
 
-	@Rule
+    @Rule
     public ExpectedException expectedException = ExpectedException.none();
-	
-	@Test
+    
+    @Test
     public void shouldThrowNoSuchAlgorithmExceptionOnNonEsitingKeyType() throws InvalidPublicKeyException {
-    	final String kid = randomKeyId();
+        final String kid = randomKeyId();
         AbstractJwk jwk = new AbstractJwk(kid, "dummykeytype", null, null, null, null, null, null, null) {
-			
-			@Override
-			protected String getKeyType() {
-				return type;
-			}
-			
-			@Override
-			protected KeySpec getKeySpecification() throws InvalidPublicKeyException {
-				return null;
-			}
-		};
-		
-		expectedException.expect(InvalidPublicKeyException.class);
+            
+            @Override
+            protected String getKeyType() {
+                return type;
+            }
+            
+            @Override
+            protected KeySpec getKeySpecification() throws InvalidPublicKeyException {
+                return null;
+            }
+        };
+        
+        expectedException.expect(InvalidPublicKeyException.class);
         expectedException.expectMessage("Invalid algorithm to generate key");
         jwk.getPublicKey();
     }
-	
-	@Test
-	public void shouldThrowInvalidKeySpecExceptionOnWrongKeySpecification() throws InvalidPublicKeyException {
-		final String kid = randomKeyId();
-		Map<String, Object> values = new HashMap<>();
-		values.put("crv", P256);
-		values.put("x", ES256_P256_x);
+    
+    @Test
+    public void shouldThrowInvalidKeySpecExceptionOnWrongKeySpecification() throws InvalidPublicKeyException {
+        final String kid = randomKeyId();
+        Map<String, Object> values = new HashMap<>();
+        values.put("crv", P256);
+        values.put("x", ES256_P256_x);
         values.put("y", ES256_P256_Y);
-		values.put("n", MODULUS);
+        values.put("n", MODULUS);
         values.put("e", EXPONENT);
-		AbstractJwk jwk = new EllipticCurve(kid, ES256, SIG, null, null, null, null, values) {
-			@Override
-			protected KeySpec getKeySpecification() throws InvalidPublicKeyException {
-				BigInteger modulus = new BigInteger(1, Base64.decodeBase64(stringValue("n")));
-		        BigInteger exponent = new BigInteger(1, Base64.decodeBase64(stringValue("e")));
-		    	return new RSAPublicKeySpec(modulus, exponent);
-			}
-		};
-		
-		expectedException.expect(InvalidPublicKeyException.class);
+        AbstractJwk jwk = new EllipticCurve(kid, ES256, SIG, null, null, null, null, values) {
+            @Override
+            protected KeySpec getKeySpecification() throws InvalidPublicKeyException {
+                BigInteger modulus = new BigInteger(1, Base64.decodeBase64(stringValue("n")));
+                BigInteger exponent = new BigInteger(1, Base64.decodeBase64(stringValue("e")));
+                return new RSAPublicKeySpec(modulus, exponent);
+            }
+        };
+        
+        expectedException.expect(InvalidPublicKeyException.class);
         expectedException.expectMessage("Invalid public key");
         jwk.getPublicKey();
-	}
-	
+    }
+    
 }

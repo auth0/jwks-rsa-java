@@ -14,9 +14,9 @@ import java.util.Map;
  */
 public class EllipticCurve extends AbstractJwk {
 
-	private String crv;
-	
-	/**
+    private String crv;
+    
+    /**
      * Creates a new EllipticCurve
      *
      * @param id                    kid
@@ -27,13 +27,13 @@ public class EllipticCurve extends AbstractJwk {
      * @param certificateChain      x5c
      * @param certificateThumbprint x5t
      * @param additionalAttributes  additional attributes not part of the standard ones
-	 * @throws InvalidPublicKeyException 
+     * @throws InvalidPublicKeyException 
      */
-	public EllipticCurve(String id, String algorithm, String usage, List<String> operations, String certificateUrl, List<String> certificateChain, String certificateThumbprint, Map<String, Object> additionalAttributes) throws InvalidPublicKeyException {
+    public EllipticCurve(String id, String algorithm, String usage, List<String> operations, String certificateUrl, List<String> certificateChain, String certificateThumbprint, Map<String, Object> additionalAttributes) throws InvalidPublicKeyException {
         super(id, PUBLIC_KEY_EC_ALGORITHM, algorithm, usage, operations, certificateUrl, certificateChain, certificateThumbprint, additionalAttributes);
         crv = stringValue("crv");
         if (null == crv || null == stringValue("x") || null == stringValue("y")) {
-        	throw new InvalidPublicKeyException("The key has no curve specification");
+            throw new InvalidPublicKeyException("The key has no curve specification");
         }
     }
 

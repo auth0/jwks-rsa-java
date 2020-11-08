@@ -12,13 +12,13 @@ import com.google.common.base.MoreObjects;
 
 public abstract class AbstractJwk {
 
-	public static final String PUBLIC_KEY_RSA_ALGORITHM = "RSA";
-	public static final String PUBLIC_KEY_EC_ALGORITHM = "EC";
-	
-	protected final String id;
-	protected final String type;
-	protected final String algorithm;
-	protected final String usage;
+    public static final String PUBLIC_KEY_RSA_ALGORITHM = "RSA";
+    public static final String PUBLIC_KEY_EC_ALGORITHM = "EC";
+    
+    protected final String id;
+    protected final String type;
+    protected final String algorithm;
+    protected final String usage;
     protected final List<String> operations;
     protected final String certificateUrl;
     protected final List<String> certificateChain;

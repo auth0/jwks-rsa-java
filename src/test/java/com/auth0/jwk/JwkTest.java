@@ -50,11 +50,11 @@ public class JwkTest {
     
     @Test
     public void shouldBuildWithConstructor() {
-    	final String kid = randomKeyId();
-    	
-    	Jwk jwk = new Jwk(kid, RSA, RS_256, SIG, KEY_OPS_LIST.get(0), null, Arrays.asList(CERT_CHAIN), THUMBPRINT, new HashMap<>());
-    	
-    	assertThat(jwk.getId(), equalTo(kid));
+        final String kid = randomKeyId();
+        
+        Jwk jwk = new Jwk(kid, RSA, RS_256, SIG, KEY_OPS_LIST.get(0), null, Arrays.asList(CERT_CHAIN), THUMBPRINT, new HashMap<>());
+        
+        assertThat(jwk.getId(), equalTo(kid));
         assertThat(jwk.getAlgorithm(), equalTo(RS_256));
         assertThat(jwk.getType(), equalTo(RSA));
         assertThat(jwk.getUsage(), equalTo(SIG));

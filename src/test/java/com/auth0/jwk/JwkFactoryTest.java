@@ -14,12 +14,12 @@ import com.auth0.jwk.kyt.JwkTests;
 
 public class JwkFactoryTest extends JwkTests {
 
-	@Rule
+    @Rule
     public ExpectedException expectedException = ExpectedException.none();
-	
-	@Test
-	public void shouldProduceRSAJwtWithAllFields() {
-		final String kid = randomKeyId();
+    
+    @Test
+    public void shouldProduceRSAJwtWithAllFields() {
+        final String kid = randomKeyId();
         Map<String, Object> values = publicKeyValues(kid, KEY_OPS_LIST);
         AbstractJwk jwk = JwkFactory.fromValues(values);
 
@@ -31,11 +31,11 @@ public class JwkFactoryTest extends JwkTests {
         assertThat(jwk.getOperations(), is(KEY_OPS_STRING));
         assertThat(jwk.getCertificateThumbprint(), equalTo(THUMBPRINT));
         assertThat(jwk.getCertificateChain(), contains(CERT_CHAIN));
-	}
-	
-	@Test
-	public void shouldProduceRSAJwtWithMandatoryFields() {
-		final String kid = randomKeyId();
+    }
+    
+    @Test
+    public void shouldProduceRSAJwtWithMandatoryFields() {
+        final String kid = randomKeyId();
         Map<String, Object> values = new HashMap<>();
         values.put("kid", kid);
         values.put("kty", RSA);
@@ -50,11 +50,11 @@ public class JwkFactoryTest extends JwkTests {
         assertThat(jwk.getOperations(), nullValue());
         assertThat(jwk.getCertificateThumbprint(), nullValue());
         assertThat(jwk.getCertificateChain(), nullValue());
-	}
-	
-	@Test
-	public void shouldProduceECJwtWithAllFields() {
-		final String kid = randomKeyId();
+    }
+    
+    @Test
+    public void shouldProduceECJwtWithAllFields() {
+        final String kid = randomKeyId();
         Map<String, Object> values = publicECKeyValues(kid, KEY_OPS_STRING);
         AbstractJwk jwk = JwkFactory.fromValues(values);
 
@@ -66,11 +66,11 @@ public class JwkFactoryTest extends JwkTests {
         assertThat(jwk.getOperations(), is(KEY_OPS_STRING));
         assertThat(jwk.getCertificateThumbprint(), equalTo(THUMBPRINT));
         assertThat(jwk.getCertificateChain(), contains(CERT_CHAIN));
-	}
-	
-	@Test
-	public void shouldProduceECJwtWithMandatoryFields() {
-		final String kid = randomKeyId();
+    }
+    
+    @Test
+    public void shouldProduceECJwtWithMandatoryFields() {
+        final String kid = randomKeyId();
         Map<String, Object> values = new HashMap<>();
         values.put("kid", kid);
         values.put("kty", EC);
@@ -88,11 +88,11 @@ public class JwkFactoryTest extends JwkTests {
         assertThat(jwk.getOperations(), nullValue());
         assertThat(jwk.getCertificateThumbprint(), nullValue());
         assertThat(jwk.getCertificateChain(), nullValue());
-	}
-	
-	@Test
-	public void shouldThrowIllegalArgumentExceptionOnUnknownKeyType() {
-		final String kid = randomKeyId();
+    }
+    
+    @Test
+    public void shouldThrowIllegalArgumentExceptionOnUnknownKeyType() {
+        final String kid = randomKeyId();
         Map<String, Object> values = new HashMap<>();
         values.put("kid", kid);
         values.put("kty", "dummykeytype");
@@ -101,11 +101,11 @@ public class JwkFactoryTest extends JwkTests {
         expectedException.expectMessage("kty value must be either \"RSA\" or \"EC\". \"dummykeytype\" value found.");
         
         JwkFactory.fromValues(values);
-	}
-	
-	@Test
-	public void shouldThrowIllegalArgumentExceptionOnMissingCrv() {
-		final String kid = randomKeyId();
+    }
+    
+    @Test
+    public void shouldThrowIllegalArgumentExceptionOnMissingCrv() {
+        final String kid = randomKeyId();
         Map<String, Object> values = new HashMap<>();
         values.put("kid", kid);
         values.put("kty", EC);
@@ -116,11 +116,11 @@ public class JwkFactoryTest extends JwkTests {
         expectedException.expectMessage("The key has no curve specification");
         
         JwkFactory.fromValues(values);
-	}
-	
-	@Test
-	public void shouldThrowIllegalArgumentExceptionOnMissingX() {
-		final String kid = randomKeyId();
+    }
+    
+    @Test
+    public void shouldThrowIllegalArgumentExceptionOnMissingX() {
+        final String kid = randomKeyId();
         Map<String, Object> values = new HashMap<>();
         values.put("kid", kid);
         values.put("kty", EC);
@@ -131,11 +131,11 @@ public class JwkFactoryTest extends JwkTests {
         expectedException.expectMessage("The key has no curve specification");
         
         JwkFactory.fromValues(values);
-	}
-	
-	@Test
-	public void shouldThrowIllegalArgumentExceptionOnMissingY() {
-		final String kid = randomKeyId();
+    }
+    
+    @Test
+    public void shouldThrowIllegalArgumentExceptionOnMissingY() {
+        final String kid = randomKeyId();
         Map<String, Object> values = new HashMap<>();
         values.put("kid", kid);
         values.put("kty", EC);
@@ -146,6 +146,6 @@ public class JwkFactoryTest extends JwkTests {
         expectedException.expectMessage("The key has no curve specification");
         
         JwkFactory.fromValues(values);
-	}
-	
+    }
+    
 }
