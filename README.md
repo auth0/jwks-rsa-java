@@ -2,6 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/auth0/jwks-rsa-java.svg?style=svg)](https://circleci.com/gh/auth0/jwks-rsa-java)
 [![Maven Central](https://img.shields.io/maven-central/v/com.auth0/jwks-rsa.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%20com.auth0%20a%3Ajwks-rsa)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fauth0%2Fjwks-rsa-java.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fauth0%2Fjwks-rsa-java?ref=badge_shield)
 
 ## Install
 
@@ -11,14 +12,14 @@
 <dependency>
     <groupId>com.auth0</groupId>
     <artifactId>jwks-rsa</artifactId>
-    <version>0.12.0</version>
+    <version>0.14.1</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```gradle
-implementation 'com.auth0:jwks-rsa:0.12.0'
+implementation 'com.auth0:jwks-rsa:0.14.1'
 ```
 
 ## Usage
@@ -169,3 +170,6 @@ If you have found a bug or if you have a feature request, please report them at 
 ## License
 
 This project is licensed under the MIT license. See the [LICENSE](LICENSE) file for more info.
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fauth0%2Fjwks-rsa-java.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fauth0%2Fjwks-rsa-java?ref=badge_large)

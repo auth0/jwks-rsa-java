@@ -4,13 +4,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 import static com.auth0.jwk.UrlJwkProvider.WELL_KNOWN_JWKS_PATH;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class JwkProviderBuilderTest {
@@ -143,5 +143,19 @@ public class JwkProviderBuilderTest {
         assertThat(provider, instanceOf(UrlJwkProvider.class));
         UrlJwkProvider urlJwkProvider = (UrlJwkProvider) provider;
         assertThat(urlJwkProvider.url.toString(), equalTo(urlToJwksWithSubPath));
+    }
+
+    @Test
+    public void shouldCreateForUrlAndProxy() throws Exception {
+        URL url = new URL(normalizedDomain + WELL_KNOWN_JWKS_PATH);
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.hostname", 8080));
+        JwkProvider provider = new JwkProviderBuilder(url)
+                .proxied(proxy)
+                .rateLimited(false)
+                .cached(false)
+                .build();
+        assertThat(provider, notNullValue());
+        UrlJwkProvider urlJwkProvider = (UrlJwkProvider) provider;
+        assertThat(urlJwkProvider.proxy, equalTo(proxy));
     }
 }
