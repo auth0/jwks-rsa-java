@@ -1,5 +1,6 @@
 package com.auth0.jwk.kyt;
 
+import com.auth0.jwk.AbstractJwk;
 import com.auth0.jwk.InvalidPublicKeyException;
 import com.auth0.jwk.Jwk;
 import org.junit.Rule;
@@ -22,60 +23,46 @@ public class EllipticCurveTest extends JwkTests {
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
-    public void shouldBuildWithMap() throws Exception {
-        final String kid = randomKeyId();
-        Map<String, Object> values = publicEcKeyValues(kid);
-        Jwk jwk = Jwk.fromValues(values);
-
-        assertThat(jwk.getId(), equalTo(kid));
-        assertThat(jwk.getAlgorithm(), equalTo(ES256));
-        assertThat(jwk.getType(), equalTo(EC));
-        assertThat(jwk.getUsage(), equalTo(SIG));
-    }
-
-    @Test
-    public void shouldThrowForNonRSAKey() throws Exception {
-        final String kid = randomKeyId();
-        Jwk jwk = new EllipticCurve(kid, "AES", "AES_256", SIG, null, null, null, null, new HashMap<>());
-        expectedException.expect(InvalidPublicKeyException.class);
-        expectedException.expectMessage("The key is not of type EC");
-        jwk.getPublicKey();
-    }
-
-    @Test
-    public void shouldNotThrowInvalidArgumentExceptionOnMissingKidParam() throws Exception {
-        //kid is optional - https://tools.ietf.org/html/rfc7517#section-4.5
-        final String kid = randomKeyId();
-        Map<String, Object> values = publicEcKeyValues(kid);
-        values.remove("kid");
-        Jwk.fromValues(values);
-    }
-
-    @Test
-    public void shouldThrowInvalidArgumentExceptionOnMissingKtyParam() throws Exception {
-        final String kid = randomKeyId();
-        Map<String, Object> values = publicEcKeyValues(kid);
-        values.remove("kty");
-        expectedException.expect(IllegalArgumentException.class);
-        Jwk.fromValues(values);
-    }
-
-    @Test
     public void shouldThrowInvalidArgumentExceptionOnMissingCrvParam() throws Exception {
         final String kid = randomKeyId();
-        Map<String, Object> values = publicEcKeyValues(kid);
-        values.remove("crv");
-        Jwk jwk = Jwk.fromValues(values);
+        Map<String, Object> values = new HashMap<>();
+        values.put("x", ES256_P256_x);
+        values.put("y", ES256_P256_Y);
         expectedException.expect(InvalidPublicKeyException.class);
         expectedException.expectMessage("The key has no curve specification");
-        jwk.getPublicKey();
+        new EllipticCurve(kid, ES256, SIG, null, null, null, null, values);
+    }
+    
+    @Test
+    public void shouldThrowInvalidArgumentExceptionOnMissingXParam() throws Exception {
+        final String kid = randomKeyId();
+        Map<String, Object> values = new HashMap<>();
+        values.put("crv", EC);
+        values.put("y", ES256_P256_Y);
+        expectedException.expect(InvalidPublicKeyException.class);
+        expectedException.expectMessage("The key has no curve specification");
+        new EllipticCurve(kid, ES256, SIG, null, null, null, null, values);
+    }
+    
+    @Test
+    public void shouldThrowInvalidArgumentExceptionOnMissingYParam() throws Exception {
+        final String kid = randomKeyId();
+        Map<String, Object> values = new HashMap<>();
+        values.put("crv", EC);
+        values.put("x", ES256_P256_x);
+        expectedException.expect(InvalidPublicKeyException.class);
+        expectedException.expectMessage("The key has no curve specification");
+        new EllipticCurve(kid, ES256, SIG, null, null, null, null, values);
     }
 
     @Test
     public void shouldReturnP256PublicKey() throws Exception {
         final String kid = randomKeyId();
-        Map<String, Object> values = publicEcKeyValues(kid);
-        Jwk jwk = Jwk.fromValues(values);
+        Map<String, Object> values = new HashMap<>();
+        values.put("crv", P256);
+        values.put("x", ES256_P256_x);
+        values.put("y", ES256_P256_Y);
+        AbstractJwk jwk = new EllipticCurve(kid, ES256, SIG, null, null, null, null, values);
 
         PublicKey publicKey = jwk.getPublicKey();
         assertThat(publicKey, notNullValue());
@@ -95,9 +82,11 @@ public class EllipticCurveTest extends JwkTests {
     @Test
     public void shouldReturnP384PublicKey() throws Exception {
         final String kid = randomKeyId();
-        Map<String, Object> values = publicEcKeyValues(kid);
+        Map<String, Object> values = new HashMap<>();
         values.put("crv", P384);
-        Jwk jwk = Jwk.fromValues(values);
+        values.put("x", ES256_P256_x);
+        values.put("y", ES256_P256_Y);
+        AbstractJwk jwk = new EllipticCurve(kid, ES256, SIG, null, null, null, null, values);
 
         PublicKey publicKey = jwk.getPublicKey();
         assertThat(publicKey, notNullValue());
@@ -117,9 +106,11 @@ public class EllipticCurveTest extends JwkTests {
     @Test
     public void shouldReturnP521PublicKey() throws Exception {
         final String kid = randomKeyId();
-        Map<String, Object> values = publicEcKeyValues(kid);
+        Map<String, Object> values = new HashMap<>();
         values.put("crv", P521);
-        Jwk jwk = Jwk.fromValues(values);
+        values.put("x", ES256_P256_x);
+        values.put("y", ES256_P256_Y);
+        AbstractJwk jwk = new EllipticCurve(kid, ES256, SIG, null, null, null, null, values);
 
         PublicKey publicKey = jwk.getPublicKey();
         assertThat(publicKey, notNullValue());

@@ -48,24 +48,41 @@ public class JwkTests {
         return values;
     }
 
-    protected static Map<String, Object> publicEcKeyValues(String kid) {
-        Map<String, Object> values = Maps.newHashMap();
-        values.put("alg", ES256);
-        values.put("kty", EC);
-        values.put("use", SIG);
-        values.put("kid", kid);
-        values.put("crv", P256);
-        values.put("x", ES256_P256_x);
-        values.put("y", ES256_P256_Y);
-        return values;
-    }
-
     protected static Map<String, Object> unkownKeyValues(String kid) {
         Map<String, Object> values = Maps.newHashMap();
         values.put("alg", "AES_256");
         values.put("kty", "AES");
         values.put("use", SIG);
         values.put("kid", kid);
+        return values;
+    }
+    
+    protected static Map<String, Object> publicKeyValues(String kid, Object keyOps) {
+        Map<String, Object> values = Maps.newHashMap();
+        values.put("alg", RS_256);
+        values.put("kty", RSA);
+        values.put("use", SIG);
+        values.put("key_ops", keyOps);
+        values.put("x5c", Lists.newArrayList(CERT_CHAIN));
+        values.put("x5t", THUMBPRINT);
+        values.put("kid", kid);
+        values.put("n", MODULUS);
+        values.put("e", EXPONENT);
+        return values;
+    }
+    
+    protected static Map<String, Object> publicECKeyValues(String kid, Object keyOps) {
+        Map<String, Object> values = Maps.newHashMap();
+        values.put("alg", ES256);
+        values.put("kty", EC);
+        values.put("use", SIG);
+        values.put("key_ops", keyOps);
+        values.put("x5c", Lists.newArrayList(CERT_CHAIN));
+        values.put("x5t", THUMBPRINT);
+        values.put("kid", kid);
+        values.put("crv", P256);
+        values.put("x", ES256_P256_x);
+        values.put("y", ES256_P256_Y);
         return values;
     }
 
