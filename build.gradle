@@ -1,10 +1,12 @@
+plugins {
+    id 'java'
+    id 'jacoco'
+    id 'com.jfrog.bintray'
+    id 'com.auth0.gradle.oss-library.java'
+}
 group = 'com.auth0'
 
-apply plugin: 'com.auth0.gradle.oss-library.java'
-apply plugin: 'jacoco'
-
 logger.lifecycle("Using version ${version} for ${name}")
-
 
 oss {
     name 'jwks-rsa'
@@ -35,26 +37,15 @@ jacocoTestReport {
     }
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+}
+
 compileJava {
-    sourceCompatibility '1.7'
-    targetCompatibility '1.7'
-}
-
-buildscript {
-    repositories {
-        jcenter()
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
-    }
-    dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5'
-        classpath 'gradle.plugin.com.auth0.gradle:oss-library:0.12.1'
-    }
-}
-
-repositories {
-    mavenCentral()
+    sourceCompatibility '1.8'
+    targetCompatibility '1.8'
 }
 
 test {
@@ -62,6 +53,10 @@ test {
         events "skipped", "failed"
         exceptionFormat "short"
     }
+}
+
+repositories {
+    mavenCentral()
 }
 
 dependencies {
