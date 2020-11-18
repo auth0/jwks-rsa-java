@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.15.0](https://github.com/auth0/jwks-rsa-java/tree/0.15.0) (2020-11-16)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.14.1...0.15.0)
+
+**Changed**
+- Target Java 8 [\#105](https://github.com/auth0/jwks-rsa-java/pull/105) ([lbalmaceda](https://github.com/lbalmaceda))
+
 ## [0.14.1](https://github.com/auth0/jwks-rsa-java/tree/0.14.1) (2020-11-05)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.14.0...0.14.1)
 
