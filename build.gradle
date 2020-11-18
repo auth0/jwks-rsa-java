@@ -6,7 +6,7 @@ plugins {
 }
 group = 'com.auth0'
 
-logger.lifecycle("Using version ${version} for ${name}")
+logger.lifecycle("Using version ${version} for ${name} group $group")
 
 oss {
     name 'jwks-rsa'
