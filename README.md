@@ -129,7 +129,13 @@ try {
 ```
 
 ### Unsupported JSON Web Key
-When the received key is not of type **RSA** or the exponent and modulus values representing it are wrong, an `InvalidPublicKeyException` will be raised.
+When the received key is not of a supported type, or the attribute values representing it are wrong, an `InvalidPublicKeyException` will be raised.
+The following key types are supported:
+- RSA
+- Elliptic Curve
+    - P-256
+    - P-384
+    - P-521
 
 ### Rate limits
 When using a rate-limited provider, a `RateLimitReachedException` error might be raised when the limit is breached. The instance can help determine how long to wait until the next call would be available. 
