@@ -169,10 +169,10 @@ public class Jwk {
     }
 
     /**
-     * Returns a {@link PublicKey} if the {@code 'alg'} is {@code 'RSA'}
+     * Returns a {@link PublicKey} if the {@code 'alg'} is {@code 'RSA'} or {@code 'EC'}
      *
      * @return a public key
-     * @throws InvalidPublicKeyException if the key cannot be built or the key type is not RSA
+     * @throws InvalidPublicKeyException if the key cannot be built or the key type is not a supported type of RSA or EC
      */
     @SuppressWarnings("WeakerAccess")
     public PublicKey getPublicKey() throws InvalidPublicKeyException {
