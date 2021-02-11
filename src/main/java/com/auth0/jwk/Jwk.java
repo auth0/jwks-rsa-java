@@ -198,7 +198,9 @@ public class Jwk {
                     ECPoint ecPoint = new ECPoint(new BigInteger(Base64.decodeBase64(stringValue("x"))),
                             new BigInteger(Base64.decodeBase64(stringValue("y"))));
                     AlgorithmParameters algorithmParameters = AlgorithmParameters.getInstance(ALGORITHM_ELLIPTIC_CURVE);
-                    switch (stringValue("crv")) {
+
+                    String curve = stringValue("crv");
+                    switch (curve) {
                         case ELLIPTIC_CURVE_TYPE_P256:
                             algorithmParameters.init(new ECGenParameterSpec("secp256r1"));
                             break;
@@ -209,22 +211,20 @@ public class Jwk {
                             algorithmParameters.init(new ECGenParameterSpec("secp521r1"));
                             break;
                         default:
-                            throw new InvalidPublicKeyException("Invalid or unsupported curve type " + stringValue("crv"));
+                            throw new InvalidPublicKeyException("Invalid or unsupported curve type " + curve);
                     }
                     ECParameterSpec ecParameterSpec = algorithmParameters.getParameterSpec(ECParameterSpec.class);
                     ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(ecPoint, ecParameterSpec);
                     publicKey = keyFactory.generatePublic(ecPublicKeySpec);
-                } catch (InvalidParameterSpecException e) {
-                    throw new InvalidPublicKeyException("Invalid public key", e);
                 } catch (NoSuchAlgorithmException e) {
                     throw new InvalidPublicKeyException("Invalid algorithm to generate key", e);
-                } catch (InvalidKeySpecException e) {
+                } catch (InvalidKeySpecException | InvalidParameterSpecException e) {
                     throw new InvalidPublicKeyException("Invalid public key", e);
                 }
                 break;
 
             default:
-                throw new InvalidPublicKeyException("The key type of " + type + " is not supported", null);
+                throw new InvalidPublicKeyException("The key type of " + type + " is not supported");
         }
 
         return publicKey;

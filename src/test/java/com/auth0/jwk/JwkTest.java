@@ -22,6 +22,9 @@ public class JwkTest {
     private static final String RSA = "RSA";
 
     private static final String ES_256 = "ES256";
+    private static final String ES_384 = "ES384";
+    private static final String ES_521 = "ES521";
+    private static final String ES_UNSUPPORTED = "ES999";
     private static final String EC = "EC";
     private static final String CRV_P_256 = "P-256";
     private static final String CRV_P_384 = "P-384";
@@ -65,7 +68,7 @@ public class JwkTest {
     @Test
     public void shouldBuildEllipticCurveWithMap() throws Exception {
         final String kid = randomKeyId();
-        Map<String, Object> values = publicKeyEllipticCurveValues(kid, KEY_OPS_LIST, CRV_P_256, EC_P_256_X, EC_P_256_Y);
+        Map<String, Object> values = publicKeyEllipticCurveValues(kid, ES_256, KEY_OPS_LIST, CRV_P_256, EC_P_256_X, EC_P_256_Y);
         Jwk jwk = Jwk.fromValues(values);
 
         assertThat(jwk.getId(), equalTo(kid));
@@ -93,7 +96,7 @@ public class JwkTest {
     @Test
     public void shouldReturnEllipticCurveP256PublicKey() throws Exception {
         final String kid = randomKeyId();
-        Map<String, Object> values = publicKeyEllipticCurveValues(kid, KEY_OPS_LIST, CRV_P_256, EC_P_256_X, EC_P_256_Y);
+        Map<String, Object> values = publicKeyEllipticCurveValues(kid, ES_256, KEY_OPS_LIST, CRV_P_256, EC_P_256_X, EC_P_256_Y);
         Jwk jwk = Jwk.fromValues(values);
 
         assertThat(jwk.getPublicKey(), notNullValue());
@@ -105,7 +108,7 @@ public class JwkTest {
     @Test
     public void shouldReturnEllipticCurveP384PublicKey() throws Exception {
         final String kid = randomKeyId();
-        Map<String, Object> values = publicKeyEllipticCurveValues(kid, KEY_OPS_LIST, CRV_P_384, EC_P_384_X, EC_P_384_Y);
+        Map<String, Object> values = publicKeyEllipticCurveValues(kid, ES_384, KEY_OPS_LIST, CRV_P_384, EC_P_384_X, EC_P_384_Y);
         Jwk jwk = Jwk.fromValues(values);
 
         assertThat(jwk.getPublicKey(), notNullValue());
@@ -117,7 +120,7 @@ public class JwkTest {
     @Test
     public void shouldReturnEllipticCurveP521PublicKey() throws Exception {
         final String kid = randomKeyId();
-        Map<String, Object> values = publicKeyEllipticCurveValues(kid, KEY_OPS_LIST, CRV_P_521, EC_P_521_X, EC_P_521_Y);
+        Map<String, Object> values = publicKeyEllipticCurveValues(kid, ES_521, KEY_OPS_LIST, CRV_P_521, EC_P_521_X, EC_P_521_Y);
         Jwk jwk = Jwk.fromValues(values);
 
         assertThat(jwk.getPublicKey(), notNullValue());
@@ -129,7 +132,7 @@ public class JwkTest {
     @Test
     public void shouldThrowForUnsupportedEllipticCurvePublicKey() throws Exception {
         final String kid = randomKeyId();
-        Map<String, Object> values = publicKeyEllipticCurveValues(kid, KEY_OPS_LIST, CRV_UNSUPPORTED, EC_P_521_X, EC_P_521_Y);
+        Map<String, Object> values = publicKeyEllipticCurveValues(kid, ES_UNSUPPORTED, KEY_OPS_LIST, CRV_UNSUPPORTED, EC_P_521_X, EC_P_521_Y);
         Jwk jwk = Jwk.fromValues(values);
         expectedException.expect(InvalidPublicKeyException.class);
         expectedException.expectMessage("Invalid or unsupported curve type " + CRV_UNSUPPORTED);
@@ -236,9 +239,9 @@ public class JwkTest {
         return values;
     }
 
-    private static Map<String, Object> publicKeyEllipticCurveValues(String kid, Object keyOps, String crv, String x, String y) {
+    private static Map<String, Object> publicKeyEllipticCurveValues(String kid, String alg, Object keyOps, String crv, String x, String y) {
         Map<String, Object> values = Maps.newHashMap();
-        values.put("alg", ES_256);
+        values.put("alg", alg);
         values.put("kty", EC);
         values.put("use", SIG);
         values.put("key_ops", keyOps);
