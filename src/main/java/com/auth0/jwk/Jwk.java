@@ -35,7 +35,7 @@ public class Jwk {
      * Creates a new Jwk
      *
      * @param id                    kid
-     * @param type                  kyt
+     * @param type                  kty
      * @param algorithm             alg
      * @param usage                 use
      * @param operations            key_ops
@@ -189,7 +189,7 @@ public class Jwk {
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("kid", id)
-                .add("kyt", type)
+                .add("kty", type)
                 .add("alg", algorithm)
                 .add("use", usage)
                 .add("extras", additionalAttributes)
