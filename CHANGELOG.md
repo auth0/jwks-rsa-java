@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.16.0](https://github.com/auth0/jwks-rsa-java/tree/0.16.0) (2021-02-22)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.15.0...0.16.0)
+
+**Added**
+- Support Elliptic Curve public keys [\#110](https://github.com/auth0/jwks-rsa-java/pull/110) ([JesseEstum](https://github.com/JesseEstum))
+
+**Fixed**
+- toString should return kty instead of kyt [\#108](https://github.com/auth0/jwks-rsa-java/pull/108) ([pevers](https://github.com/pevers))
+
 ## [0.15.0](https://github.com/auth0/jwks-rsa-java/tree/0.15.0) (2020-11-16)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.14.1...0.15.0)
 
