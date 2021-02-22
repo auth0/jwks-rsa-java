@@ -5,10 +5,16 @@ import com.google.common.collect.Maps;
 import org.apache.commons.codec.binary.Base64;
 
 import java.math.BigInteger;
+import java.security.AlgorithmParameters;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.spec.ECGenParameterSpec;
+import java.security.spec.ECParameterSpec;
+import java.security.spec.ECPoint;
+import java.security.spec.ECPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +25,11 @@ import java.util.Map;
  */
 @SuppressWarnings("WeakerAccess")
 public class Jwk {
-    private static final String PUBLIC_KEY_ALGORITHM = "RSA";
+    private static final String ALGORITHM_RSA = "RSA";
+    private static final String ALGORITHM_ELLIPTIC_CURVE = "EC";
+    private static final String ELLIPTIC_CURVE_TYPE_P256 = "P-256";
+    private static final String ELLIPTIC_CURVE_TYPE_P384 = "P-384";
+    private static final String ELLIPTIC_CURVE_TYPE_P521 = "P-521";
 
     private final String id;
     private final String type;
@@ -159,26 +169,65 @@ public class Jwk {
     }
 
     /**
-     * Returns a {@link PublicKey} if the {@code 'alg'} is {@code 'RSA'}
+     * Returns a {@link PublicKey} if the {@code 'alg'} is {@code 'RSA'} or {@code 'EC'}
      *
      * @return a public key
-     * @throws InvalidPublicKeyException if the key cannot be built or the key type is not RSA
+     * @throws InvalidPublicKeyException if the key cannot be built or the key type is not a supported type of RSA or EC
      */
     @SuppressWarnings("WeakerAccess")
     public PublicKey getPublicKey() throws InvalidPublicKeyException {
-        if (!PUBLIC_KEY_ALGORITHM.equalsIgnoreCase(type)) {
-            throw new InvalidPublicKeyException("The key is not of type RSA", null);
+        PublicKey publicKey = null;
+
+        switch (type) {
+            case ALGORITHM_RSA:
+                try {
+                    KeyFactory kf = KeyFactory.getInstance(ALGORITHM_RSA);
+                    BigInteger modulus = new BigInteger(1, Base64.decodeBase64(stringValue("n")));
+                    BigInteger exponent = new BigInteger(1, Base64.decodeBase64(stringValue("e")));
+                    publicKey = kf.generatePublic(new RSAPublicKeySpec(modulus, exponent));
+                } catch (InvalidKeySpecException e) {
+                    throw new InvalidPublicKeyException("Invalid public key", e);
+                } catch (NoSuchAlgorithmException e) {
+                    throw new InvalidPublicKeyException("Invalid algorithm to generate key", e);
+                }
+                break;
+
+            case ALGORITHM_ELLIPTIC_CURVE:
+                try {
+                    KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM_ELLIPTIC_CURVE);
+                    ECPoint ecPoint = new ECPoint(new BigInteger(Base64.decodeBase64(stringValue("x"))),
+                            new BigInteger(Base64.decodeBase64(stringValue("y"))));
+                    AlgorithmParameters algorithmParameters = AlgorithmParameters.getInstance(ALGORITHM_ELLIPTIC_CURVE);
+
+                    String curve = stringValue("crv");
+                    switch (curve) {
+                        case ELLIPTIC_CURVE_TYPE_P256:
+                            algorithmParameters.init(new ECGenParameterSpec("secp256r1"));
+                            break;
+                        case ELLIPTIC_CURVE_TYPE_P384:
+                            algorithmParameters.init(new ECGenParameterSpec("secp384r1"));
+                            break;
+                        case ELLIPTIC_CURVE_TYPE_P521:
+                            algorithmParameters.init(new ECGenParameterSpec("secp521r1"));
+                            break;
+                        default:
+                            throw new InvalidPublicKeyException("Invalid or unsupported curve type " + curve);
+                    }
+                    ECParameterSpec ecParameterSpec = algorithmParameters.getParameterSpec(ECParameterSpec.class);
+                    ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(ecPoint, ecParameterSpec);
+                    publicKey = keyFactory.generatePublic(ecPublicKeySpec);
+                } catch (NoSuchAlgorithmException e) {
+                    throw new InvalidPublicKeyException("Invalid algorithm to generate key", e);
+                } catch (InvalidKeySpecException | InvalidParameterSpecException e) {
+                    throw new InvalidPublicKeyException("Invalid public key", e);
+                }
+                break;
+
+            default:
+                throw new InvalidPublicKeyException("The key type of " + type + " is not supported");
         }
-        try {
-            KeyFactory kf = KeyFactory.getInstance(PUBLIC_KEY_ALGORITHM);
-            BigInteger modulus = new BigInteger(1, Base64.decodeBase64(stringValue("n")));
-            BigInteger exponent = new BigInteger(1, Base64.decodeBase64(stringValue("e")));
-            return kf.generatePublic(new RSAPublicKeySpec(modulus, exponent));
-        } catch (InvalidKeySpecException e) {
-            throw new InvalidPublicKeyException("Invalid public key", e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new InvalidPublicKeyException("Invalid algorithm to generate key", e);
-        }
+
+        return publicKey;
     }
 
     private String stringValue(String key) {
