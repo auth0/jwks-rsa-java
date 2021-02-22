@@ -13,6 +13,7 @@ oss {
     repository 'jwks-rsa-java'
     organization 'auth0'
     description 'JSON Web Key Set parser library'
+    baselineCompareVersion '0.15.0'
 
     developers {
         auth0 {
