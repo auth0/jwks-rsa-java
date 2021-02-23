@@ -7,6 +7,8 @@ import org.junit.rules.ExpectedException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.auth0.jwk.UrlJwkProvider.WELL_KNOWN_JWKS_PATH;
@@ -157,5 +159,19 @@ public class JwkProviderBuilderTest {
         assertThat(provider, notNullValue());
         UrlJwkProvider urlJwkProvider = (UrlJwkProvider) provider;
         assertThat(urlJwkProvider.proxy, equalTo(proxy));
+    }
+
+    @Test
+    public void shouldCreateForUrlWithCustomHeaders() throws Exception {
+        URL url = new URL(normalizedDomain + WELL_KNOWN_JWKS_PATH);
+        Map<String, String> headers = Collections.singletonMap("header", "value");
+        JwkProvider provider = new JwkProviderBuilder(url)
+                .rateLimited(false)
+                .cached(false)
+                .headers(headers)
+                .build();
+        assertThat(provider, notNullValue());
+        UrlJwkProvider urlJwkProvider = (UrlJwkProvider) provider;
+        assertThat(urlJwkProvider.headers, equalTo(headers));
     }
 }

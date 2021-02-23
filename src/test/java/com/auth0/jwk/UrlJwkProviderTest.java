@@ -11,6 +11,8 @@ import org.mockito.stubbing.Answer;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.*;
+import java.util.Collections;
+import java.util.List;
 
 import static com.auth0.jwk.UrlJwkProvider.WELL_KNOWN_JWKS_PATH;
 import static org.hamcrest.Matchers.*;
@@ -275,6 +277,14 @@ public class UrlJwkProviderTest {
         assertThat(mockFactory.urlUsed.get(), is(url));
         assertThat(mockFactory.proxyUsed.get(), is(nullValue()));
 
+        // Test creation: custom headers
+        UrlJwkProvider urlJwkProviderWithHeaders = new UrlJwkProvider(url, connectTimeout, readTimeout, null,
+            Collections.singletonMap("Accept", "application/jwks-set+json"));
+        Jwk hJwk = urlJwkProviderWithHeaders.get("NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg");
+        assertNotNull(hJwk);
+        assertThat(mockFactory.urlUsed.get(), is(url));
+        assertThat(mockFactory.proxyUsed.get(), is(nullValue()));
+
         //Test creation: with Proxy
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", 8080));
         URL pUrl = new URL("mock://localhost");
@@ -291,15 +301,16 @@ public class UrlJwkProviderTest {
         //Test 1: Configuration
         //Request Timeout assertions
         ArgumentCaptor<Integer> connectTimeoutCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(urlConnection, times(2)).setConnectTimeout(connectTimeoutCaptor.capture());
+        verify(urlConnection, times(3)).setConnectTimeout(connectTimeoutCaptor.capture());
         assertThat(connectTimeoutCaptor.getValue(), is(connectTimeout));
 
         ArgumentCaptor<Integer> readTimeoutCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(urlConnection, times(2)).setReadTimeout(readTimeoutCaptor.capture());
+        verify(urlConnection, times(3)).setReadTimeout(readTimeoutCaptor.capture());
         assertThat(readTimeoutCaptor.getValue(), is(readTimeout));
 
         //Request Headers assertions
         verify(urlConnection, times(2)).setRequestProperty("Accept", "application/json");
+        verify(urlConnection, times(1)).setRequestProperty("Accept", "application/jwks-set+json");
 
         //Test 2: Network errors
         Exception capturedException = null;
