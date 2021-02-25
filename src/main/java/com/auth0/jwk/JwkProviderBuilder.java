@@ -2,6 +2,7 @@ package com.auth0.jwk;
 
 import java.net.Proxy;
 import java.net.URL;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.auth0.jwk.UrlJwkProvider.urlForDomain;
@@ -20,6 +21,7 @@ public class JwkProviderBuilder {
     private boolean cached;
     private BucketImpl bucket;
     private boolean rateLimited;
+    private Map<String, String> headers;
 
     /**
      * Creates a new Builder with the given URL where to load the jwks from.
@@ -127,12 +129,23 @@ public class JwkProviderBuilder {
     }
 
     /**
+     * Sets the headers to send on the request. Any headers set here will override the default headers ("accept" -> "application/json")
+     *
+     * @param headers a map of header keys to values to send on the request.
+     * @return this builder instance
+     */
+    public JwkProviderBuilder headers(Map<String, String> headers) {
+        this.headers = headers;
+        return this;
+    }
+
+    /**
      * Creates a {@link JwkProvider}
      *
      * @return a newly created {@link JwkProvider}
      */
     public JwkProvider build() {
-        JwkProvider urlProvider = new UrlJwkProvider(url, null, null, proxy);
+        JwkProvider urlProvider = new UrlJwkProvider(url, null, null, proxy, headers);
         if (this.rateLimited) {
             urlProvider = new RateLimitedJwkProvider(urlProvider, bucket);
         }

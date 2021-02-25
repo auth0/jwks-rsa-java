@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import com.google.common.io.ByteStreams;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +14,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +33,7 @@ public class UrlJwkProvider implements JwkProvider {
 
     final URL url;
     final Proxy proxy;
+    final Map<String, String> headers;
     private final Integer connectTimeout;
     private final Integer readTimeout;
 
@@ -40,7 +44,7 @@ public class UrlJwkProvider implements JwkProvider {
      * @param url to load the jwks
      */
     public UrlJwkProvider(URL url) {
-        this(url, null, null, null);
+        this(url, null, null, null, null);
     }
 
     /**
@@ -52,6 +56,19 @@ public class UrlJwkProvider implements JwkProvider {
      * @param proxy          proxy server to use when making the connection
      */
     public UrlJwkProvider(URL url, Integer connectTimeout, Integer readTimeout, Proxy proxy) {
+        this(url, connectTimeout, readTimeout, proxy, null);
+    }
+
+    /**
+     * Creates a provider that loads from the given URL using custom request headers.
+     *
+     * @param url            to load the jwks
+     * @param connectTimeout connection timeout in milliseconds (default is null)
+     * @param readTimeout    read timeout in milliseconds (default is null)
+     * @param proxy          proxy server to use when making the connection (default is null)
+     * @param headers        a map of request header keys to values to send on the request. Default is "accept -> application/json".
+     */
+    public UrlJwkProvider(URL url, Integer connectTimeout, Integer readTimeout, Proxy proxy, Map<String, String> headers) {
         checkArgument(url != null, "A non-null url is required");
         checkArgument(connectTimeout == null || connectTimeout >= 0, "Invalid connect timeout value '" + connectTimeout + "'. Must be a non-negative integer.");
         checkArgument(readTimeout == null || readTimeout >= 0, "Invalid read timeout value '" + readTimeout + "'. Must be a non-negative integer.");
@@ -60,8 +77,10 @@ public class UrlJwkProvider implements JwkProvider {
         this.proxy = proxy;
         this.connectTimeout = connectTimeout;
         this.readTimeout = readTimeout;
-        
         this.reader = new ObjectMapper().readerFor(Map.class);
+
+        this.headers = (headers == null) ?
+            Collections.singletonMap("Accept", "application/json") : headers;
     }
 
     /**
@@ -72,7 +91,7 @@ public class UrlJwkProvider implements JwkProvider {
      * @param readTimeout    read timeout in milliseconds (null for default)
      */
     public UrlJwkProvider(URL url, Integer connectTimeout, Integer readTimeout) {
-        this(url, connectTimeout, readTimeout, null);
+        this(url, connectTimeout, readTimeout, null, null);
     }
 
     /**
@@ -118,8 +137,11 @@ public class UrlJwkProvider implements JwkProvider {
             if (readTimeout != null) {
                 c.setReadTimeout(readTimeout);
             }
-            c.setRequestProperty("Accept", "application/json");
-            
+
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                c.setRequestProperty(entry.getKey(), entry.getValue());
+            }
+
             try (InputStream inputStream = c.getInputStream()) {
                 return reader.readValue(inputStream);
             }
