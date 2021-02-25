@@ -129,7 +129,7 @@ public class JwkProviderBuilder {
     }
 
     /**
-     * Sets the headers to send on the request. Any headers set here will override the default headers ("accept" -> "application/json")
+     * Sets the headers to send on the request. Any headers set here will override the default headers ("Accept": "application/json")
      *
      * @param headers a map of header keys to values to send on the request.
      * @return this builder instance

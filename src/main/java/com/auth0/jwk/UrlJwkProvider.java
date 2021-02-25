@@ -66,7 +66,7 @@ public class UrlJwkProvider implements JwkProvider {
      * @param connectTimeout connection timeout in milliseconds (default is null)
      * @param readTimeout    read timeout in milliseconds (default is null)
      * @param proxy          proxy server to use when making the connection (default is null)
-     * @param headers        a map of request header keys to values to send on the request. Default is "accept -> application/json".
+     * @param headers        a map of request header keys to values to send on the request. Default is "Accept: application/json".
      */
     public UrlJwkProvider(URL url, Integer connectTimeout, Integer readTimeout, Proxy proxy, Map<String, String> headers) {
         checkArgument(url != null, "A non-null url is required");
