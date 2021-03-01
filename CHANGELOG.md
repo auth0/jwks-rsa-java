@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.17.0](https://github.com/auth0/jwks-rsa-java/tree/0.17.0) (2021-02-26)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.16.0...0.17.0)
+
+**Added**
+- Allow setting of custom headers [\#115](https://github.com/auth0/jwks-rsa-java/pull/115) ([jimmyjames](https://github.com/jimmyjames))
+
 ## [0.16.0](https://github.com/auth0/jwks-rsa-java/tree/0.16.0) (2021-02-22)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.15.0...0.16.0)
 
