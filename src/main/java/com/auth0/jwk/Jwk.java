@@ -2,7 +2,6 @@ package com.auth0.jwk;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
-import org.apache.commons.codec.binary.Base64;
 
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
@@ -16,6 +15,7 @@ import java.security.spec.ECPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -182,8 +182,8 @@ public class Jwk {
             case ALGORITHM_RSA:
                 try {
                     KeyFactory kf = KeyFactory.getInstance(ALGORITHM_RSA);
-                    BigInteger modulus = new BigInteger(1, Base64.decodeBase64(stringValue("n")));
-                    BigInteger exponent = new BigInteger(1, Base64.decodeBase64(stringValue("e")));
+                    BigInteger modulus = new BigInteger(1, Base64.getUrlDecoder().decode(stringValue("n")));
+                    BigInteger exponent = new BigInteger(1, Base64.getUrlDecoder().decode(stringValue("e")));
                     publicKey = kf.generatePublic(new RSAPublicKeySpec(modulus, exponent));
                 } catch (InvalidKeySpecException e) {
                     throw new InvalidPublicKeyException("Invalid public key", e);
@@ -195,8 +195,8 @@ public class Jwk {
             case ALGORITHM_ELLIPTIC_CURVE:
                 try {
                     KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM_ELLIPTIC_CURVE);
-                    ECPoint ecPoint = new ECPoint(new BigInteger(Base64.decodeBase64(stringValue("x"))),
-                            new BigInteger(Base64.decodeBase64(stringValue("y"))));
+                    ECPoint ecPoint = new ECPoint(new BigInteger(Base64.getUrlDecoder().decode(stringValue("x"))),
+                            new BigInteger(Base64.getUrlDecoder().decode(stringValue("y"))));
                     AlgorithmParameters algorithmParameters = AlgorithmParameters.getInstance(ALGORITHM_ELLIPTIC_CURVE);
 
                     String curve = stringValue("crv");
