@@ -1,6 +1,5 @@
 package com.auth0.jwk;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 

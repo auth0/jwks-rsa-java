@@ -2,9 +2,6 @@ package com.auth0.jwk;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
-import com.google.common.io.ByteStreams;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,13 +11,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.isNullOrEmpty;
 
 /**
  * Jwk provider that loads them from a {@link URL}
@@ -69,9 +63,9 @@ public class UrlJwkProvider implements JwkProvider {
      * @param headers        a map of request header keys to values to send on the request. Default is "Accept: application/json".
      */
     public UrlJwkProvider(URL url, Integer connectTimeout, Integer readTimeout, Proxy proxy, Map<String, String> headers) {
-        checkArgument(url != null, "A non-null url is required");
-        checkArgument(connectTimeout == null || connectTimeout >= 0, "Invalid connect timeout value '" + connectTimeout + "'. Must be a non-negative integer.");
-        checkArgument(readTimeout == null || readTimeout >= 0, "Invalid read timeout value '" + readTimeout + "'. Must be a non-negative integer.");
+        Util.checkArgument(url != null, "A non-null url is required");
+        Util.checkArgument(connectTimeout == null || connectTimeout >= 0, "Invalid connect timeout value '" + connectTimeout + "'. Must be a non-negative integer.");
+        Util.checkArgument(readTimeout == null || readTimeout >= 0, "Invalid read timeout value '" + readTimeout + "'. Must be a non-negative integer.");
 
         this.url = url;
         this.proxy = proxy;
@@ -114,7 +108,7 @@ public class UrlJwkProvider implements JwkProvider {
     }
 
     static URL urlForDomain(String domain) {
-        checkArgument(!isNullOrEmpty(domain), "A domain is required");
+        Util.checkArgument(!Util.isNullOrEmpty(domain), "A domain is required");
 
         if (!domain.startsWith("http")) {
             domain = "https://" + domain;
@@ -151,7 +145,7 @@ public class UrlJwkProvider implements JwkProvider {
     }
 
     public List<Jwk> getAll() throws SigningKeyNotFoundException {
-        List<Jwk> jwks = Lists.newArrayList();
+        List<Jwk> jwks = new ArrayList<>();
         @SuppressWarnings("unchecked") final List<Map<String, Object>> keys = (List<Map<String, Object>>) getJwks().get("keys");
 
         if (keys == null || keys.isEmpty()) {

@@ -1,7 +1,5 @@
 package com.auth0.jwk;
 
-import com.google.common.annotations.VisibleForTesting;
-
 /**
  * Jwk provider that limits the amount of Jwks to deliver in a given rate.
  */
