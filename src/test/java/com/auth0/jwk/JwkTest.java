@@ -2,7 +2,6 @@ package com.auth0.jwk;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.commons.codec.binary.Base64;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -10,6 +9,7 @@ import org.junit.rules.ExpectedException;
 import java.security.SecureRandom;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -213,7 +213,7 @@ public class JwkTest {
     private static String randomKeyId() {
         byte[] bytes = new byte[50];
         new SecureRandom().nextBytes(bytes);
-        return Base64.encodeBase64String(bytes);
+        return Base64.getEncoder().encodeToString(bytes);
     }
 
     private static Map<String, Object> unsupportedValues(String kid) {
