@@ -1,7 +1,7 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        jcenter()
+        mavenCentral()
     }
     plugins {
         id 'com.jfrog.bintray' version '1.8.5'
