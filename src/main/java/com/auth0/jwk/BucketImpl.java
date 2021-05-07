@@ -1,7 +1,5 @@
 package com.auth0.jwk;
 
-import com.google.common.base.Stopwatch;
-
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -9,21 +7,21 @@ import java.util.concurrent.TimeUnit;
  */
 class BucketImpl implements Bucket {
 
-    private final Stopwatch stopwatch;
     private final long size;
     private final long rate;
     private final TimeUnit rateUnit;
     private long available;
     private long accumDelta;
+    private long startTime;
 
     BucketImpl(long size, long rate, TimeUnit rateUnit) {
         assertPositiveValue(size, "Invalid bucket size.");
         assertPositiveValue(rate, "Invalid bucket refill rate.");
-        this.stopwatch = Stopwatch.createStarted();
         this.size = size;
         this.available = size;
         this.rate = rate;
         this.rateUnit = rateUnit;
+        this.startTime = System.nanoTime();
     }
 
     private void assertPositiveValue(long value, long maxValue, String exceptionMessage) {
@@ -96,12 +94,12 @@ class BucketImpl implements Bucket {
     }
 
     private void restartStopWatch() {
-        stopwatch.reset();
-        stopwatch.start();
+        startTime = System.nanoTime();
     }
 
     private long getTimeSinceLastTokenAddition() {
-        return stopwatch.elapsed(TimeUnit.MILLISECONDS) + accumDelta;
+        long elapsedTime = System.nanoTime() - startTime;
+        return TimeUnit.MILLISECONDS.convert(elapsedTime, TimeUnit.NANOSECONDS) + accumDelta;
     }
 
     private long getRatePerToken() {

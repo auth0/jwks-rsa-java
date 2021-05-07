@@ -1,8 +1,5 @@
 package com.auth0.jwk;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.collect.Maps;
-
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.KeyFactory;
@@ -19,6 +16,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Represents a JSON Web Key (JWK) used to verify the signature of JWTs
@@ -90,7 +88,7 @@ public class Jwk {
 
     @SuppressWarnings("unchecked")
     public static Jwk fromValues(Map<String, Object> map) {
-        Map<String, Object> values = Maps.newHashMap(map);
+        Map<String, Object> values = new HashMap<>(map);
         String kid = (String) values.remove("kid");
         String kty = (String) values.remove("kty");
         String alg = (String) values.remove("alg");
@@ -236,12 +234,12 @@ public class Jwk {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("kid", id)
-                .add("kty", type)
-                .add("alg", algorithm)
-                .add("use", usage)
-                .add("extras", additionalAttributes)
-                .toString();
+        return "Jwk{" +
+                "id='" + id + '\'' +
+                ", type='" + type + '\'' +
+                ", algorithm='" + algorithm + '\'' +
+                ", usage='" + usage + '\'' +
+                ", additionalAttributes=" + additionalAttributes +
+                '}';
     }
 }
