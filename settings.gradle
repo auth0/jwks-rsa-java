@@ -1,11 +1,10 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        jcenter()
+        mavenCentral()
     }
     plugins {
-        id 'com.jfrog.bintray' version '1.8.5'
-        id 'com.auth0.gradle.oss-library.java' version '0.14.0'
+        id 'com.auth0.gradle.oss-library.java' version '0.15.1'
     }
 }
 rootProject.name = 'jwks-rsa'

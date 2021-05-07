@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.17.1](https://github.com/auth0/jwks-rsa-java/tree/0.17.1) (2021-04-19)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.17.0...0.17.1)
+**Closed issues**
+- Remove commons-codec dependency [\#118](https://github.com/auth0/jwks-rsa-java/issues/118)
+
+**Changed**
+- Update OSS publishing plugin [\#122](https://github.com/auth0/jwks-rsa-java/pull/122) ([jimmyjames](https://github.com/jimmyjames))
+
 ## [0.17.0](https://github.com/auth0/jwks-rsa-java/tree/0.17.0) (2021-02-26)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.16.0...0.17.0)
 
