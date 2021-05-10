@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.18.0](https://github.com/auth0/jwks-rsa-java/tree/0.18.0) (2021-05-10)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.17.1...0.18.0)
+
+**Changed**
+- Remove bintray gradle plugin [\#124](https://github.com/auth0/jwks-rsa-java/pull/124) ([lbalmaceda](https://github.com/lbalmaceda))
+- Remove Guava usage where possible [\#121](https://github.com/auth0/jwks-rsa-java/pull/121) ([XakepSDK](https://github.com/XakepSDK))
+
 ## [0.17.1](https://github.com/auth0/jwks-rsa-java/tree/0.17.1) (2021-04-19)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.17.0...0.17.1)
 **Closed issues**
