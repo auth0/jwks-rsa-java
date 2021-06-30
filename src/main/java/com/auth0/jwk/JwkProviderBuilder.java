@@ -2,6 +2,7 @@ package com.auth0.jwk;
 
 import java.net.Proxy;
 import java.net.URL;
+import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -15,8 +16,7 @@ public class JwkProviderBuilder {
 
     private final URL url;
     private Proxy proxy;
-    private TimeUnit expiresUnit;
-    private long expiresIn;
+    private Duration expiresIn;
     private long cacheSize;
     private boolean cached;
     private BucketImpl bucket;
@@ -35,8 +35,7 @@ public class JwkProviderBuilder {
         }
         this.url = url;
         this.cached = true;
-        this.expiresIn = 10;
-        this.expiresUnit = TimeUnit.HOURS;
+        this.expiresIn = Duration.ofHours(10);
         this.cacheSize = 5;
         this.rateLimited = true;
         this.bucket = new BucketImpl(10, 1, TimeUnit.MINUTES);
@@ -82,15 +81,26 @@ public class JwkProviderBuilder {
      *
      * @param cacheSize number of jwk to cache
      * @param expiresIn amount of time the jwk will be cached
-     * @param unit      unit of time for the expire of jwk
      * @return the builder
      */
-    public JwkProviderBuilder cached(long cacheSize, long expiresIn, TimeUnit unit) {
+    public JwkProviderBuilder cached(long cacheSize, Duration expiresIn) {
         this.cached = true;
         this.cacheSize = cacheSize;
         this.expiresIn = expiresIn;
-        this.expiresUnit = unit;
         return this;
+    }
+
+    /**
+     * Enable the cache specifying size and expire time.
+     *
+     * @param cacheSize number of jwk to cache
+     * @param expiresIn amount of time the jwk will be cached
+     * @param unit      unit of time for the expire of jwk
+     * @return the builder
+     * @deprecated prefer the use of {@link JwkProviderBuilder#cached(long, Duration)}
+     */
+    public JwkProviderBuilder cached(long cacheSize, long expiresIn, TimeUnit unit) {
+        return this.cached(cacheSize, Duration.of(expiresIn, Util.toChronoUnit(unit)));
     }
 
     /**
@@ -150,7 +160,7 @@ public class JwkProviderBuilder {
             urlProvider = new RateLimitedJwkProvider(urlProvider, bucket);
         }
         if (this.cached) {
-            urlProvider = new GuavaCachedJwkProvider(urlProvider, cacheSize, expiresIn, expiresUnit);
+            urlProvider = new GuavaCachedJwkProvider(urlProvider, cacheSize, expiresIn);
         }
         return urlProvider;
     }
