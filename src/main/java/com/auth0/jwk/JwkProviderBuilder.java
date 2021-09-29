@@ -16,6 +16,8 @@ public class JwkProviderBuilder {
     private final URL url;
     private Proxy proxy;
     private TimeUnit expiresUnit;
+    private Integer connectTimeout;
+    private Integer readTimeout;
     private long expiresIn;
     private long cacheSize;
     private boolean cached;
@@ -129,6 +131,22 @@ public class JwkProviderBuilder {
     }
 
     /**
+     * Sets a custom connect and read timeout values.
+     * When this method is not called, the default timeout values
+     * will be those defined by the {@link UrlJwkProvider} implementation.
+     *
+     * @param connectTimeout connection timeout in milliseconds.
+     * @param readTimeout read timeout in milliseconds.
+     * @see UrlJwkProvider
+     * @return the builder
+     */
+    public JwkProviderBuilder timeouts(int connectTimeout, int readTimeout) {
+        this.connectTimeout = connectTimeout;
+        this.readTimeout = readTimeout;
+        return this;
+    }
+
+    /**
      * Sets the headers to send on the request. Any headers set here will override the default headers ("Accept": "application/json")
      *
      * @param headers a map of header keys to values to send on the request.
@@ -145,7 +163,7 @@ public class JwkProviderBuilder {
      * @return a newly created {@link JwkProvider}
      */
     public JwkProvider build() {
-        JwkProvider urlProvider = new UrlJwkProvider(url, null, null, proxy, headers);
+        JwkProvider urlProvider = new UrlJwkProvider(url, connectTimeout, readTimeout, proxy, headers);
         if (this.rateLimited) {
             urlProvider = new RateLimitedJwkProvider(urlProvider, bucket);
         }
