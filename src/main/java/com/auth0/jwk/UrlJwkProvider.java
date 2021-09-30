@@ -5,12 +5,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.Proxy;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,10 +23,11 @@ public class UrlJwkProvider implements JwkProvider {
     final URL url;
     final Proxy proxy;
     final Map<String, String> headers;
-    private final Integer connectTimeout;
-    private final Integer readTimeout;
+    final Integer connectTimeout;
+    final Integer readTimeout;
 
     private final ObjectReader reader;
+
     /**
      * Creates a provider that loads from the given URL
      *
@@ -74,7 +70,7 @@ public class UrlJwkProvider implements JwkProvider {
         this.reader = new ObjectMapper().readerFor(Map.class);
 
         this.headers = (headers == null) ?
-            Collections.singletonMap("Accept", "application/json") : headers;
+                Collections.singletonMap("Accept", "application/json") : headers;
     }
 
     /**
