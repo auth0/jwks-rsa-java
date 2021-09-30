@@ -31,7 +31,7 @@ public class GuavaCachedJwkProvider implements JwkProvider {
      * Creates a new cached provider specifying cache size and ttl
      *
      * @param provider    fallback provider to use when jwk is not cached
-     * @param size        number of jwt to cache
+     * @param size        number of jwk to cache
      * @param expiresIn   amount of time a jwk will live in the cache
      * @param expiresUnit unit of the expiresIn parameter
      */
