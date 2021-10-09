@@ -35,10 +35,9 @@ public class GuavaCachedJwkProvider implements JwkProvider {
      * @param size        number of jwt to cache
      * @param expiresIn   amount of time a jwk will live in the cache
      * @param expiresUnit unit of the expiresIn parameter
-     * @deprecated prefer the use of {@link GuavaCachedJwkProvider#GuavaCachedJwkProvider(JwkProvider, long, Duration)}
      */
     public GuavaCachedJwkProvider(final JwkProvider provider, long size, long expiresIn, TimeUnit expiresUnit) {
-        this(provider, size, Duration.of(expiresIn, Util.toChronoUnit(expiresUnit)));
+        this(provider, size, Duration.ofSeconds(expiresUnit.toSeconds(expiresIn)));
     }
 
     /**

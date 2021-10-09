@@ -97,10 +97,9 @@ public class JwkProviderBuilder {
      * @param expiresIn amount of time the jwk will be cached
      * @param unit      unit of time for the expire of jwk
      * @return the builder
-     * @deprecated prefer the use of {@link JwkProviderBuilder#cached(long, Duration)}
      */
     public JwkProviderBuilder cached(long cacheSize, long expiresIn, TimeUnit unit) {
-        return this.cached(cacheSize, Duration.of(expiresIn, Util.toChronoUnit(unit)));
+        return this.cached(cacheSize, Duration.ofSeconds(unit.toSeconds(expiresIn)));
     }
 
     /**
