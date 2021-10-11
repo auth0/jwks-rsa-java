@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.20.0](https://github.com/auth0/jwks-rsa-java/tree/0.20.0) (2021-10-11)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.19.0...0.20.0)
+
+**Added**
+- Expose read/connect timeouts in the JwkProviderBuilder class [\#133](https://github.com/auth0/jwks-rsa-java/pull/133) ([lbalmaceda](https://github.com/lbalmaceda))
+
+**Changed**
+- Use Duration in JwkProviderBuilder [\#130](https://github.com/auth0/jwks-rsa-java/pull/130) ([ghostd](https://github.com/ghostd))
+
 ## [0.19.0](https://github.com/auth0/jwks-rsa-java/tree/0.19.0) (2021-07-05)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.18.0...0.19.0)
 
