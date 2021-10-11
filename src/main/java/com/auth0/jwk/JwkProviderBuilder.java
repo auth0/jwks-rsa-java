@@ -16,7 +16,7 @@ public class JwkProviderBuilder {
 
     private final URL url;
     private Proxy proxy;
-    private Duration expiresIn
+    private Duration expiresIn;
     private Integer connectTimeout;
     private Integer readTimeout;
     private long cacheSize;
