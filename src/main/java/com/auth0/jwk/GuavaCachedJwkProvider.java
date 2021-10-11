@@ -3,6 +3,7 @@ package com.auth0.jwk;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import java.time.Duration;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -24,7 +25,7 @@ public class GuavaCachedJwkProvider implements JwkProvider {
      * @param provider fallback provider to use when jwk is not cached
      */
     public GuavaCachedJwkProvider(final JwkProvider provider) {
-        this(provider, 5, 10, TimeUnit.MINUTES);
+        this(provider, 5, Duration.ofMinutes(10));
     }
 
     /**
@@ -36,10 +37,21 @@ public class GuavaCachedJwkProvider implements JwkProvider {
      * @param expiresUnit unit of the expiresIn parameter
      */
     public GuavaCachedJwkProvider(final JwkProvider provider, long size, long expiresIn, TimeUnit expiresUnit) {
+        this(provider, size, Duration.ofSeconds(expiresUnit.toSeconds(expiresIn)));
+    }
+
+    /**
+     * Creates a new cached provider specifying cache size and ttl
+     *
+     * @param provider    fallback provider to use when jwk is not cached
+     * @param size        number of jwt to cache
+     * @param expiresIn   amount of time a jwk will live in the cache
+     */
+    public GuavaCachedJwkProvider(final JwkProvider provider, long size, Duration expiresIn) {
         this.provider = provider;
         this.cache = CacheBuilder.newBuilder()
                 .maximumSize(size)
-                .expireAfterWrite(expiresIn, expiresUnit)
+                .expireAfterWrite(expiresIn)
                 .build();
     }
 
