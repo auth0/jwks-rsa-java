@@ -12,8 +12,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.auth0.jwk.UrlJwkProvider.WELL_KNOWN_JWKS_PATH;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 
 public class JwkProviderBuilderTest {
 
@@ -128,9 +128,16 @@ public class JwkProviderBuilderTest {
         JwkProvider provider = new JwkProviderBuilder(domain).build();
         assertThat(provider, notNullValue());
         assertThat(provider, instanceOf(GuavaCachedJwkProvider.class));
-        JwkProvider baseProvider = ((GuavaCachedJwkProvider) provider).getBaseProvider();
-        assertThat(baseProvider, instanceOf(RateLimitedJwkProvider.class));
-        assertThat(((RateLimitedJwkProvider) baseProvider).getBaseProvider(), instanceOf(UrlJwkProvider.class));
+
+        JwkProvider wrappedCachedProvider = ((GuavaCachedJwkProvider) provider).getBaseProvider();
+        assertThat(wrappedCachedProvider, instanceOf(RateLimitedJwkProvider.class));
+
+        JwkProvider wrappedRateLimitedProvider = ((RateLimitedJwkProvider) wrappedCachedProvider).getBaseProvider();
+        assertThat(wrappedRateLimitedProvider, instanceOf(UrlJwkProvider.class));
+
+        UrlJwkProvider wrappedUrlProvider = ((UrlJwkProvider) wrappedRateLimitedProvider);
+        assertThat(wrappedUrlProvider.connectTimeout, is(nullValue()));
+        assertThat(wrappedUrlProvider.readTimeout, is(nullValue()));
     }
 
     @Test
@@ -159,6 +166,20 @@ public class JwkProviderBuilderTest {
         assertThat(provider, notNullValue());
         UrlJwkProvider urlJwkProvider = (UrlJwkProvider) provider;
         assertThat(urlJwkProvider.proxy, equalTo(proxy));
+    }
+
+    @Test
+    public void shouldCreateForUrlAndTimeouts() throws Exception {
+        URL url = new URL(normalizedDomain + WELL_KNOWN_JWKS_PATH);
+        JwkProvider provider = new JwkProviderBuilder(url)
+                .timeouts(9999, 1111)
+                .rateLimited(false)
+                .cached(false)
+                .build();
+        assertThat(provider, notNullValue());
+        UrlJwkProvider urlJwkProvider = (UrlJwkProvider) provider;
+        assertThat(urlJwkProvider.connectTimeout, equalTo(9999));
+        assertThat(urlJwkProvider.readTimeout, equalTo(1111));
     }
 
     @Test
