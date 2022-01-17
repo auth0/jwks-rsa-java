@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.20.1](https://github.com/auth0/jwks-rsa-java/tree/0.20.1) (2022-01-17)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.20.0...0.20.1)
+
+**Security**
+- Update jackson dependency [\#138](https://github.com/auth0/jwks-rsa-java/pull/138) ([poovamraj](https://github.com/poovamraj))
+
 ## [0.20.0](https://github.com/auth0/jwks-rsa-java/tree/0.20.0) (2021-10-11)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.19.0...0.20.0)
 
