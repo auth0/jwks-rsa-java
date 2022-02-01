@@ -37,7 +37,12 @@ public class GuavaCachedJwkProvider implements JwkProvider {
      * @param expiresUnit unit of the expiresIn parameter
      */
     public GuavaCachedJwkProvider(final JwkProvider provider, long size, long expiresIn, TimeUnit expiresUnit) {
-        this(provider, size, Duration.ofSeconds(expiresUnit.toSeconds(expiresIn)));
+        this.provider = provider;
+        this.cache = CacheBuilder.newBuilder()
+                .maximumSize(size)
+                // configure using timeunit; see https://github.com/auth0/jwks-rsa-java/issues/136
+                .expireAfterWrite(expiresIn, expiresUnit)
+                .build();
     }
 
     /**
@@ -48,11 +53,7 @@ public class GuavaCachedJwkProvider implements JwkProvider {
      * @param expiresIn   amount of time a jwk will live in the cache
      */
     public GuavaCachedJwkProvider(final JwkProvider provider, long size, Duration expiresIn) {
-        this.provider = provider;
-        this.cache = CacheBuilder.newBuilder()
-                .maximumSize(size)
-                .expireAfterWrite(expiresIn)
-                .build();
+        this(provider, size, expiresIn.toMillis(), TimeUnit.MILLISECONDS);
     }
 
     @Override
