@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.20.2](https://github.com/auth0/jwks-rsa-java/tree/0.20.2) (2022-02-01)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.20.1...0.20.2)
+
+**Changed**
+- Configure cache with TimeUnit instead of Duration [\#140](https://github.com/auth0/jwks-rsa-java/pull/140) ([jimmyjames](https://github.com/jimmyjames))
+
 ## [0.20.1](https://github.com/auth0/jwks-rsa-java/tree/0.20.1) (2022-01-17)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.20.0...0.20.1)
 
