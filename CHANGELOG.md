@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.21.0](https://github.com/auth0/jwks-rsa-java/tree/0.21.0) (2022-03-14)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.20.2...0.21.0)
+
+**Security**
+- Bump `jackson-databind` dependency to 2.13.2 [\#142](https://github.com/auth0/jwks-rsa-java/pull/142) ([evansims](https://github.com/evansims))
+
 ## [0.20.2](https://github.com/auth0/jwks-rsa-java/tree/0.20.2) (2022-02-01)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.20.1...0.20.2)
 
