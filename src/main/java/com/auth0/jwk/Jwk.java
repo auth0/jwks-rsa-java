@@ -193,8 +193,8 @@ public class Jwk {
             case ALGORITHM_ELLIPTIC_CURVE:
                 try {
                     KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM_ELLIPTIC_CURVE);
-                    ECPoint ecPoint = new ECPoint(new BigInteger(Base64.getUrlDecoder().decode(stringValue("x"))),
-                            new BigInteger(Base64.getUrlDecoder().decode(stringValue("y"))));
+                    ECPoint ecPoint = new ECPoint(new BigInteger(1, Base64.getUrlDecoder().decode(stringValue("x"))),
+                            new BigInteger(1, Base64.getUrlDecoder().decode(stringValue("y"))));
                     AlgorithmParameters algorithmParameters = AlgorithmParameters.getInstance(ALGORITHM_ELLIPTIC_CURVE);
 
                     String curve = stringValue("crv");
