@@ -1,20 +1,9 @@
-buildscript {
-    version = "0.21.0"
-}
-
 plugins {
     id 'java'
     id 'jacoco'
     id 'com.auth0.gradle.oss-library.java'
 }
 group = 'com.auth0'
-
-def signingKey = findProperty('SIGNING_KEY')
-def signingKeyPwd = findProperty('SIGNING_PASSWORD')
-
-signing {
-    useInMemoryPgpKeys(signingKey, signingKeyPwd)
-}
 
 logger.lifecycle("Using version ${version} for ${name} group $group")
 
