@@ -4,7 +4,7 @@ pluginManagement {
         mavenCentral()
     }
     plugins {
-        id 'com.auth0.gradle.oss-library.java' version '0.16.0'
+        id 'com.auth0.gradle.oss-library.java' version '0.17.2'
     }
 }
 rootProject.name = 'jwks-rsa'
