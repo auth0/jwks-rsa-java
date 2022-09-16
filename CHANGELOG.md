@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.21.2](https://github.com/auth0/jwks-rsa-java/tree/0.21.2) (2022-09-15)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.21.1...0.21.2)
+
+**Changed**
+- Update Gradle OSS plugin [\#154](https://github.com/auth0/jwks-rsa-java/pull/154) ([jimmyjames](https://github.com/jimmyjames))
+
+**Fixed**
+- Clarify that getting a JWK is a synchronous operation [\#151](https://github.com/auth0/jwks-rsa-java/pull/151) ([jimmyjames](https://github.com/jimmyjames))
+- [SDK-3623] Fix ECPoint construction for getting public key [\#153](https://github.com/auth0/jwks-rsa-java/pull/153) ([jimmyjames](https://github.com/jimmyjames))
+
 ## [0.21.1](https://github.com/auth0/jwks-rsa-java/tree/0.21.1) (2022-03-30)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.21.0...0.21.1)
 
