@@ -1,6 +1,4 @@
-# Java JWKS
-
-A Java library for obtaining [JSON Web Keys](https://www.rfc-editor.org/rfc/rfc7517) from a JWKS (JSON Web Key Set) endpoint.
+![A Java library for obtaining JSON Web Keys from a JWKS (JSON Web Key Set) endpoint.](https://cdn.auth0.com/website/sdks/banners/jwks-rsa-java-banner.png)
 
 [![CircleCI](https://img.shields.io/circleci/project/github/auth0/jwks-rsa-java.svg?style=flat-square)](https://circleci.com/gh/auth0/jwks-rsa-java/tree/master)
 [![Coverage Status](https://codecov.io/gh/auth0/jwks-rsa-java/branch/master/graph/badge.svg?style=flat-square)](https://codecov.io/github/auth0/jwks-rsa-java)
