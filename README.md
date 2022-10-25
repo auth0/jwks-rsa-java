@@ -3,7 +3,7 @@
 [![CircleCI](https://img.shields.io/circleci/project/github/auth0/jwks-rsa-java.svg?style=flat-square)](https://circleci.com/gh/auth0/jwks-rsa-java/tree/master)
 [![Coverage Status](https://codecov.io/gh/auth0/jwks-rsa-java/branch/master/graph/badge.svg?style=flat-square)](https://codecov.io/github/auth0/jwks-rsa-java)
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat)](https://doge.mit-license.org/)
-[![Maven Central](https://img.shields.io/maven-central/v/com.auth0/jwks-rsa-java.svg?style=flat-square)](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%20com.auth0%20a%3Ajwks-rsa)
+[![Maven Central](https://img.shields.io/maven-central/v/com.auth0/jwks-rsa.svg?style=flat-square)](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%20com.auth0%20a%3Ajwks-rsa)
 [![javadoc](https://javadoc.io/badge2/com.auth0/jwks-rsa-java/javadoc.svg)](https://javadoc.io/doc/com.auth0/jwks-rsa)
 
 :books: [Documentation](#documentation) - :rocket: [Getting Started](#getting-started) - :computer: [API Reference](#api-reference) :speech_balloon: [Feedback](#feedback)
