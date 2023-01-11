@@ -1,18 +1,7 @@
-buildscript {
-    version = "0.21.2"
-}
-
 plugins {
     id 'java'
     id 'jacoco'
     id 'com.auth0.gradle.oss-library.java'
-}
-
-def signingKey = findProperty('signingKey')
-def signingKeyPwd = findProperty('signingPassword')
-
-signing {
-    useInMemoryPgpKeys(signingKey, signingKeyPwd)
 }
 
 group = 'com.auth0'
@@ -25,7 +14,6 @@ oss {
     organization 'auth0'
     description 'JSON Web Key Set parser library'
     baselineCompareVersion '0.15.0'
-    skipAssertSigningConfiguration true
 
     developers {
         auth0 {
