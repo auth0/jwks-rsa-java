@@ -1,5 +1,17 @@
 # Change Log
 
+## [0.21.3](https://github.com/auth0/jwks-rsa-java/tree/0.21.3) (2023-01-11)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.21.2...0.21.3)
+
+This patch release uses an updated signing key for verification as part of our commitment to best security practices.
+Please review [the README note for additional details.](https://github.com/auth0/jwks-rsa-java/blob/master/README.md)
+
+**Security**
+- Bump `jackson-databind` dependency to 2.13.4.2 [\#162](https://github.com/auth0/jwks-rsa-java/pull/162) ([evansims](https://github.com/evansims))
+
+**Changed**
+- Update Gradle wrapper to 6.9.2 [\#156](https://github.com/auth0/jwks-rsa-java/pull/156) ([jimmyjames](https://github.com/jimmyjames))
+
 ## [0.21.2](https://github.com/auth0/jwks-rsa-java/tree/0.21.2) (2022-09-15)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.21.1...0.21.2)
 
