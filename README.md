@@ -6,6 +6,11 @@
 [![Maven Central](https://img.shields.io/maven-central/v/com.auth0/jwks-rsa.svg?style=flat-square)](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%20com.auth0%20a%3Ajwks-rsa)
 [![javadoc](https://javadoc.io/badge2/com.auth0/jwks-rsa-java/javadoc.svg)](https://javadoc.io/doc/com.auth0/jwks-rsa)
 
+> **Note**
+> As part of our ongoing commitment to best security practices, we have rotated the signing keys used to sign previous releases of this SDK. As a result, new patch builds have been released using the new signing key. Please upgrade at your earliest convenience.
+> 
+> While this change won't affect most developers, if you have implemented a dependency signature validation step in your build process, you may notice a warning that past releases can't be verified. This is expected, and a result of the key rotation process. Updating to the latest version will resolve this for you.
+
 :books: [Documentation](#documentation) - :rocket: [Getting Started](#getting-started) - :computer: [API Reference](#api-reference) :speech_balloon: [Feedback](#feedback)
 
 ## Documentation
@@ -26,14 +31,14 @@ Add the dependency via Maven:
 <dependency>
   <groupId>com.auth0</groupId>
   <artifactId>jwks-rsa</artifactId>
-  <version>0.21.2</version>
+  <version>0.21.3</version>
 </dependency>
 ```
 
 or Gradle:
 
 ```gradle
-implementation 'com.auth0:jwks-rsa:0.21.2'
+implementation 'com.auth0:jwks-rsa:0.21.3'
 ```
 
 ### Usage
