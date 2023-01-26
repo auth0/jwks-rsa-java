@@ -72,9 +72,9 @@ JwkProvider provider = new JwkProviderBuilder("https://samples.auth0.com/")
 
 A `Jwk` can be obtained using the `get(String keyId)` method:
 
-``java
+```java
 Jwk jwk = provider.get("{kid of the signing key}"); // throws Exception when not found or can't get one
-``
+```
 
 The provider can be configured to cache JWKs to avoid unnecessary network requests, as well as only fetch the JWKs within a defined rate limit:
 
