@@ -30,7 +30,7 @@ public class GuavaCachedJwkProviderTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         provider = new GuavaCachedJwkProvider(fallback);
     }
 
@@ -38,6 +38,27 @@ public class GuavaCachedJwkProviderTest {
     public void shouldFailToGetSingleWhenNotExists() throws Exception {
         expectedException.expect(SigningKeyNotFoundException.class);
         when(fallback.get(anyString())).thenThrow(new SigningKeyNotFoundException("TEST!", null));
+        provider.get(KID);
+    }
+
+    @Test
+    public void shouldThrowSigningKeyNotFoundException() throws Exception {
+        expectedException.expect(SigningKeyNotFoundException.class);
+        when(fallback.get(anyString())).thenThrow(new SigningKeyNotFoundException("TEST!", null));
+        provider.get(KID);
+    }
+
+    @Test
+    public void shouldThrowRateLimitReachedException() throws Exception {
+        expectedException.expect(RateLimitReachedException.class);
+        when(fallback.get(anyString())).thenThrow(new RateLimitReachedException(1234));
+        provider.get(KID);
+    }
+
+    @Test
+    public void shouldThrowNetworkException() throws Exception {
+        expectedException.expect(NetworkException.class);
+        when(fallback.get(anyString())).thenThrow(new NetworkException("TEST!", null));
         provider.get(KID);
     }
 
@@ -77,7 +98,7 @@ public class GuavaCachedJwkProviderTest {
     }
 
     @Test
-    public void shouldGetBaseProvider() throws Exception {
+    public void shouldGetBaseProvider() {
         assertThat(provider.getBaseProvider(), equalTo(fallback));
     }
 }
