@@ -4,7 +4,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import java.time.Duration;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -60,14 +59,15 @@ public class GuavaCachedJwkProvider implements JwkProvider {
     public Jwk get(final String keyId) throws JwkException {
         try {
             String cacheKey = keyId == null ? NULL_KID_KEY : keyId;
-            return cache.get(cacheKey, new Callable<Jwk>() {
-                @Override
-                public Jwk call() throws Exception {
-                    return provider.get(keyId);
-                }
-            });
+            return cache.get(cacheKey, () -> provider.get(keyId));
         } catch (ExecutionException e) {
-            throw new SigningKeyNotFoundException("Failed to get key with kid " + keyId, e);
+            // throw the proper exception directly, see https://github.com/auth0/jwks-rsa-java/issues/165
+            // cause should always be JwkException, but check just to be safe
+            if (e.getCause() instanceof JwkException) {
+                throw (JwkException) e.getCause();
+            }
+            // If somehow cause is not JwkException, just wrap
+            throw new JwkException("Unable to obtain key with kid " + keyId, e);
         }
     }
 
