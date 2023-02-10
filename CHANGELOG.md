@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.22.0](https://github.com/auth0/jwks-rsa-java/tree/0.22.0) (2023-02-10)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.21.3...0.22.0)
+
+**Fixed**
+- Throw proper exception from cached provider [\#169](https://github.com/auth0/jwks-rsa-java/pull/169) ([jimmyjames](https://github.com/jimmyjames))
+
 ## [0.21.3](https://github.com/auth0/jwks-rsa-java/tree/0.21.3) (2023-01-11)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.21.2...0.21.3)
 
