@@ -177,7 +177,7 @@ public class JwkProviderBuilder {
             urlProvider = new RateLimitedJwkProvider(urlProvider, bucket);
         }
         if (this.cached) {
-            urlProvider = new GuavaCachedJwkProvider(urlProvider, cacheSize, expiresIn);
+            urlProvider = new CaffeineCachedJwkProvider(urlProvider, cacheSize, expiresIn);
         }
         return urlProvider;
     }
