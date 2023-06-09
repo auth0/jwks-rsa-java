@@ -1,7 +1,6 @@
 package com.auth0.jwk;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -9,9 +8,7 @@ import org.junit.rules.ExpectedException;
 import java.security.SecureRandom;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -43,7 +40,7 @@ public class JwkTest {
     private static final String MODULUS = "vGChUGMTWZNfRsXxd-BtzC4RDYOMqtIhWHol--HNib5SgudWBg6rEcxvR6LWrx57N6vfo68wwT9_FHlZpaK6NXA_dWFW4f3NftfWLL7Bqy90sO4vijM6LMSE6rnl5VB9_Gsynk7_jyTgYWdTwKur0YRec93eha9oCEXmy7Ob1I2dJ8OQmv2GlvA7XZalMxAq4rFnXLzNQ7hCsHrUJP1p7_7SolWm9vTokkmckzSI_mAH2R27Z56DmI7jUkL9fLU-jz-fz4bkNg-mPz4R-kUmM_ld3-xvto79BtxJvOw5qqtLNnRjiDzoqRv-WrBdw5Vj8Pvrg1fwscfVWHlmq-1pFQ";
     private static final String EXPONENT = "AQAB";
     private static final String CERT_CHAIN = "CERT_CHAIN";
-    private static final List<String> KEY_OPS_LIST = Lists.newArrayList("sign");
+    private static final List<String> KEY_OPS_LIST = Arrays.asList("sign");
     private static final String KEY_OPS_STRING = "sign";
 
     @Rule
@@ -164,7 +161,7 @@ public class JwkTest {
     @Test
     public void shouldReturnPublicKeyForEmptyKeyOpsParam() throws Exception {
         final String kid = randomKeyId();
-        Map<String, Object> values = publicKeyRsaValues(kid, Lists.newArrayList());
+        Map<String, Object> values = publicKeyRsaValues(kid, Arrays.asList());
         Jwk jwk = Jwk.fromValues(values);
 
         assertThat(jwk.getPublicKey(), notNullValue());
@@ -217,7 +214,7 @@ public class JwkTest {
     }
 
     private static Map<String, Object> unsupportedValues(String kid) {
-        Map<String, Object> values = Maps.newHashMap();
+        Map<String, Object> values = new HashMap();
         values.put("alg", "AES_256");
         values.put("kty", AES);
         values.put("use", SIG);
@@ -226,12 +223,12 @@ public class JwkTest {
     }
 
     private static Map<String, Object> publicKeyRsaValues(String kid, Object keyOps) {
-        Map<String, Object> values = Maps.newHashMap();
+        Map<String, Object> values = new HashMap();
         values.put("alg", RS_256);
         values.put("kty", RSA);
         values.put("use", SIG);
         values.put("key_ops", keyOps);
-        values.put("x5c", Lists.newArrayList(CERT_CHAIN));
+        values.put("x5c", Arrays.asList(CERT_CHAIN));
         values.put("x5t", THUMBPRINT);
         values.put("kid", kid);
         values.put("n", MODULUS);
@@ -240,7 +237,7 @@ public class JwkTest {
     }
 
     private static Map<String, Object> publicKeyEllipticCurveValues(String kid, String alg, Object keyOps, String crv, String x, String y) {
-        Map<String, Object> values = Maps.newHashMap();
+        Map<String, Object> values = new HashMap();
         values.put("alg", alg);
         values.put("kty", EC);
         values.put("use", SIG);

@@ -60,8 +60,8 @@ public class JwkProviderBuilderTest {
                 .cached(true)
                 .build();
         assertThat(provider, notNullValue());
-        assertThat(provider, instanceOf(GuavaCachedJwkProvider.class));
-        assertThat(((GuavaCachedJwkProvider) provider).getBaseProvider(), instanceOf(UrlJwkProvider.class));
+        assertThat(provider, instanceOf(CaffineCachedJwkProvider.class));
+        assertThat(((CaffineCachedJwkProvider) provider).getBaseProvider(), instanceOf(UrlJwkProvider.class));
     }
 
     @Test
@@ -71,8 +71,8 @@ public class JwkProviderBuilderTest {
                 .cached(10, 24, TimeUnit.HOURS)
                 .build();
         assertThat(provider, notNullValue());
-        assertThat(provider, instanceOf(GuavaCachedJwkProvider.class));
-        assertThat(((GuavaCachedJwkProvider) provider).getBaseProvider(), instanceOf(UrlJwkProvider.class));
+        assertThat(provider, instanceOf(CaffineCachedJwkProvider.class));
+        assertThat(((CaffineCachedJwkProvider) provider).getBaseProvider(), instanceOf(UrlJwkProvider.class));
     }
 
     @Test
@@ -104,8 +104,8 @@ public class JwkProviderBuilderTest {
                 .rateLimited(true)
                 .build();
         assertThat(provider, notNullValue());
-        assertThat(provider, instanceOf(GuavaCachedJwkProvider.class));
-        JwkProvider baseProvider = ((GuavaCachedJwkProvider) provider).getBaseProvider();
+        assertThat(provider, instanceOf(CaffineCachedJwkProvider.class));
+        JwkProvider baseProvider = ((CaffineCachedJwkProvider) provider).getBaseProvider();
         assertThat(baseProvider, instanceOf(RateLimitedJwkProvider.class));
         assertThat(((RateLimitedJwkProvider) baseProvider).getBaseProvider(), instanceOf(UrlJwkProvider.class));
     }
@@ -117,8 +117,8 @@ public class JwkProviderBuilderTest {
                 .rateLimited(10, 24, TimeUnit.HOURS)
                 .build();
         assertThat(provider, notNullValue());
-        assertThat(provider, instanceOf(GuavaCachedJwkProvider.class));
-        JwkProvider baseProvider = ((GuavaCachedJwkProvider) provider).getBaseProvider();
+        assertThat(provider, instanceOf(CaffineCachedJwkProvider.class));
+        JwkProvider baseProvider = ((CaffineCachedJwkProvider) provider).getBaseProvider();
         assertThat(baseProvider, instanceOf(RateLimitedJwkProvider.class));
         assertThat(((RateLimitedJwkProvider) baseProvider).getBaseProvider(), instanceOf(UrlJwkProvider.class));
     }
@@ -127,9 +127,9 @@ public class JwkProviderBuilderTest {
     public void shouldCreateCachedAndRateLimitedProviderByDefault() {
         JwkProvider provider = new JwkProviderBuilder(domain).build();
         assertThat(provider, notNullValue());
-        assertThat(provider, instanceOf(GuavaCachedJwkProvider.class));
+        assertThat(provider, instanceOf(CaffineCachedJwkProvider.class));
 
-        JwkProvider wrappedCachedProvider = ((GuavaCachedJwkProvider) provider).getBaseProvider();
+        JwkProvider wrappedCachedProvider = ((CaffineCachedJwkProvider) provider).getBaseProvider();
         assertThat(wrappedCachedProvider, instanceOf(RateLimitedJwkProvider.class));
 
         JwkProvider wrappedRateLimitedProvider = ((RateLimitedJwkProvider) wrappedCachedProvider).getBaseProvider();

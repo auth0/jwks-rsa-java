@@ -1,17 +1,19 @@
 package com.auth0.jwk;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 
 import java.time.Duration;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 /**
- * Jwk provider that caches previously obtained Jwk in memory using a Google Guava cache
+ * Jwk provider that caches previously obtained Jwk in memory using a Ben Manes' Caffine cache
  */
 @SuppressWarnings("WeakerAccess")
-public class GuavaCachedJwkProvider implements JwkProvider {
+public class CaffineCachedJwkProvider implements JwkProvider {
 
     private final Cache<String, Jwk> cache;
     private final JwkProvider provider;
@@ -23,7 +25,7 @@ public class GuavaCachedJwkProvider implements JwkProvider {
      *
      * @param provider fallback provider to use when jwk is not cached
      */
-    public GuavaCachedJwkProvider(final JwkProvider provider) {
+    public CaffineCachedJwkProvider(final JwkProvider provider) {
         this(provider, 5, Duration.ofMinutes(10));
     }
 
@@ -35,9 +37,9 @@ public class GuavaCachedJwkProvider implements JwkProvider {
      * @param expiresIn   amount of time a jwk will live in the cache
      * @param expiresUnit unit of the expiresIn parameter
      */
-    public GuavaCachedJwkProvider(final JwkProvider provider, long size, long expiresIn, TimeUnit expiresUnit) {
+    public CaffineCachedJwkProvider(final JwkProvider provider, long size, long expiresIn, TimeUnit expiresUnit) {
         this.provider = provider;
-        this.cache = CacheBuilder.newBuilder()
+        this.cache = Caffeine.newBuilder()
                 .maximumSize(size)
                 // configure using timeunit; see https://github.com/auth0/jwks-rsa-java/issues/136
                 .expireAfterWrite(expiresIn, expiresUnit)
@@ -47,11 +49,11 @@ public class GuavaCachedJwkProvider implements JwkProvider {
     /**
      * Creates a new cached provider specifying cache size and ttl
      *
-     * @param provider    fallback provider to use when jwk is not cached
-     * @param size        number of jwt to cache
-     * @param expiresIn   amount of time a jwk will live in the cache
+     * @param provider  fallback provider to use when jwk is not cached
+     * @param size      number of jwt to cache
+     * @param expiresIn amount of time a jwk will live in the cache
      */
-    public GuavaCachedJwkProvider(final JwkProvider provider, long size, Duration expiresIn) {
+    public CaffineCachedJwkProvider(final JwkProvider provider, long size, Duration expiresIn) {
         this(provider, size, expiresIn.toMillis(), TimeUnit.MILLISECONDS);
     }
 
@@ -59,8 +61,19 @@ public class GuavaCachedJwkProvider implements JwkProvider {
     public Jwk get(final String keyId) throws JwkException {
         try {
             String cacheKey = keyId == null ? NULL_KID_KEY : keyId;
-            return cache.get(cacheKey, () -> provider.get(keyId));
-        } catch (ExecutionException e) {
+            return cache.get(cacheKey, new Function<String, Jwk>() {
+                @Override
+                public Jwk apply(String ignored) {
+                    try {
+                        // key passed to apply function is ignored, as we want to
+                        // always use the real keyId here, even if it is null.
+                        return provider.get(keyId);
+                    } catch (JwkException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+        } catch (Throwable e) {
             // throw the proper exception directly, see https://github.com/auth0/jwks-rsa-java/issues/165
             // cause should always be JwkException, but check just to be safe
             if (e.getCause() instanceof JwkException) {
