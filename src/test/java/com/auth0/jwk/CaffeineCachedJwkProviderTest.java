@@ -15,10 +15,10 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GuavaCachedJwkProviderTest {
+public class CaffeineCachedJwkProviderTest {
 
     private static final String KID = "KID";
-    private GuavaCachedJwkProvider provider;
+    private CaffeineCachedJwkProvider provider;
 
     @Mock
     private JwkProvider fallback;
@@ -31,7 +31,7 @@ public class GuavaCachedJwkProviderTest {
 
     @Before
     public void setUp() {
-        provider = new GuavaCachedJwkProvider(fallback);
+        provider = new CaffeineCachedJwkProvider(fallback);
     }
 
     @Test
@@ -79,12 +79,12 @@ public class GuavaCachedJwkProviderTest {
 
     @Test
     public void shouldCacheWhenIdMatchesDefaultMissingIdKey() throws Exception {
-        when(fallback.get(eq(GuavaCachedJwkProvider.NULL_KID_KEY))).thenReturn(jwk);
-        assertThat(provider.get(GuavaCachedJwkProvider.NULL_KID_KEY), equalTo(jwk));
-        verify(fallback).get(eq(GuavaCachedJwkProvider.NULL_KID_KEY));
+        when(fallback.get(eq(CaffeineCachedJwkProvider.NULL_KID_KEY))).thenReturn(jwk);
+        assertThat(provider.get(CaffeineCachedJwkProvider.NULL_KID_KEY), equalTo(jwk));
+        verify(fallback).get(eq(CaffeineCachedJwkProvider.NULL_KID_KEY));
 
         verifyNoMoreInteractions(fallback);
-        assertThat(provider.get(GuavaCachedJwkProvider.NULL_KID_KEY), equalTo(jwk));
+        assertThat(provider.get(CaffeineCachedJwkProvider.NULL_KID_KEY), equalTo(jwk));
     }
 
     @Test

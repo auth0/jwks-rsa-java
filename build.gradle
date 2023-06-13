@@ -62,7 +62,7 @@ repositories {
 
 dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version:'2.15.0'
-    implementation group: 'com.google.guava', name: 'guava', version:'31.1-jre'
+    implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '2.9.3'
     testImplementation group: 'junit', name: 'junit', version:'4.13.1'
     testImplementation group: 'org.mockito', name: 'mockito-core', version:'1.10.19'
     testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version:'1.3'
