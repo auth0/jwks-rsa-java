@@ -68,6 +68,15 @@ dependencies {
     testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version:'1.3'
 }
 
+sourceSets.all {
+  configurations.getByName(runtimeClasspathConfigurationName) {
+    attributes.attribute(Attribute.of("org.gradle.jvm.environment", String), "standard-jvm")
+  }
+  configurations.getByName(compileClasspathConfigurationName) {
+    attributes.attribute(Attribute.of("org.gradle.jvm.environment", String), "standard-jvm")
+  }
+}
+
 // Creates a version.txt file containing the current version of the SDK.
 // This file is picked up and parsed by our Ship Orb to determine the version.
 task exportVersion()  {
