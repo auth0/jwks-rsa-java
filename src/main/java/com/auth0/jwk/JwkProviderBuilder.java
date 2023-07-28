@@ -68,7 +68,7 @@ public class JwkProviderBuilder {
     }
 
     /**
-     * Toggle the cache of Jwk. By default the provider will use cache.
+     * Toggle the cache of Jwk. By default, the provider will use a cache size of 5 and a duration of 10 hours.
      *
      * @param cached if the provider should cache jwks
      * @return the builder
