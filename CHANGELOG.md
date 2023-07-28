@@ -1,5 +1,16 @@
 # Change Log
 
+## [0.22.1](https://github.com/auth0/jwks-rsa-java/tree/0.22.1) (2023-07-28)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.22.0...0.22.1)
+
+**Security**
+- Update to Guava 32.1.1 [\#184](https://github.com/auth0/jwks-rsa-java/pull/184) ([jimmyjames](https://github.com/jimmyjames))
+
+**Changed**
+- Update and pin Gradle workflow actions [\#182](https://github.com/auth0/jwks-rsa-java/pull/182) ([evansims](https://github.com/evansims))
+- Update dependencies [\#175](https://github.com/auth0/jwks-rsa-java/pull/175) ([jimmyjames](https://github.com/jimmyjames))
+- Update JavaDocs with default caching behavior [\#179](https://github.com/auth0/jwks-rsa-java/pull/179) ([msailes](https://github.com/msailes))
+
 ## [0.22.0](https://github.com/auth0/jwks-rsa-java/tree/0.22.0) (2023-02-10)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.21.3...0.22.0)
 
