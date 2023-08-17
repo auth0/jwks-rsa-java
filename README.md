@@ -1,6 +1,6 @@
 ![A Java library for obtaining JSON Web Keys from a JWKS (JSON Web Key Set) endpoint.](https://cdn.auth0.com/website/sdks/banners/jwks-rsa-java-banner.png)
 
-[![CircleCI](https://img.shields.io/circleci/project/github/auth0/jwks-rsa-java.svg?style=flat-square)](https://circleci.com/gh/auth0/jwks-rsa-java/tree/master)
+![Build Status](https://img.shields.io/github/checks-status/auth0/jwks-rsa-java/master)
 [![Coverage Status](https://codecov.io/gh/auth0/jwks-rsa-java/branch/master/graph/badge.svg?style=flat-square)](https://codecov.io/github/auth0/jwks-rsa-java)
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat)](https://doge.mit-license.org/)
 [![Maven Central](https://img.shields.io/maven-central/v/com.auth0/jwks-rsa.svg?style=flat-square)](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%20com.auth0%20a%3Ajwks-rsa)
