@@ -7,6 +7,19 @@ on:
     branches: ["master", "main"]
 
 jobs:
+  rl-scanner:
+    uses: ./.github/workflows/rl-secure.yml
+    with:
+      java-version: 8
+      artifact-name: 'jwks-rsa-${{ steps.get_version.outputs.version }}.jar"'
+    secrets:
+      RLSECURE_LICENSE: ${{ secrets.RLSECURE_LICENSE }}
+      RLSECURE_SITE_KEY: ${{ secrets.RLSECURE_SITE_KEY }}
+      SIGNAL_HANDLER_TOKEN: ${{ secrets.SIGNAL_HANDLER_TOKEN }}
+      PRODSEC_TOOLS_USER: ${{ secrets.PRODSEC_TOOLS_USER }}
+      PRODSEC_TOOLS_TOKEN: ${{ secrets.PRODSEC_TOOLS_TOKEN }}
+      PRODSEC_TOOLS_ARN: ${{ secrets.PRODSEC_TOOLS_ARN }}
+
   gradle:
     runs-on:  ubuntu-latest
     steps:
