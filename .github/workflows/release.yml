@@ -5,9 +5,6 @@ on:
     types:
       - closed
   workflow_dispatch:
-  push:
-    branches:
-      - 'add-rl-scanner'
 
 permissions:
   contents: write
@@ -24,7 +21,7 @@ jobs:
     uses: ./.github/workflows/rl-secure.yml
     with:
       java-version: 8
-      artifact-name: 'jwks-rsa.jar'
+      artifact-name: "jwks-rsa-java.tgz"
     secrets:
       RLSECURE_LICENSE: ${{ secrets.RLSECURE_LICENSE }}
       RLSECURE_SITE_KEY: ${{ secrets.RLSECURE_SITE_KEY }}
