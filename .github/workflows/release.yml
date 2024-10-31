@@ -32,6 +32,7 @@ jobs:
 
   release:
     uses: ./.github/workflows/java-release.yml
+    needs: rl-scanner
     with:
       java-version: 8.0.382-tem
       is-android: false
