@@ -20,7 +20,7 @@ jobs:
       java-version: 8.0.382-tem
     secrets:
       ossr-username: ${{ secrets.OSSR_USERNAME }}
-      ossr-token: ${{ secrets.OSSR_TOKEN }}
+      ossr-password: ${{ secrets.OSSR_PASSWORD }}
       signing-key: ${{ secrets.SIGNING_KEY }}
       signing-password: ${{ secrets.SIGNING_PASSWORD }}
       github-token: ${{ secrets.GITHUB_TOKEN }}
