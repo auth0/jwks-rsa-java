@@ -109,8 +109,6 @@ test {
 }
 
 ext {
-    hamcrestVersion = '2.2'
-    jupiterVersion = '5.9.3'
     baselineCompareVersion = '0.15.0'
     testInJavaVersions = [8, 11, 17, 21]
 }
