@@ -1,11 +1,5 @@
 # Change Log
 
-## [0.22.2](https://github.com/auth0/jwks-rsa-java/tree/0.22.2) (2025-06-17)
-[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.22.1...0.22.2)
-
-**Added**
-- fix: bumps guava patch to unblock android users [\#210](https://github.com/auth0/jwks-rsa-java/pull/210) ([tanya732](https://github.com/tanya732))
-
 ## [0.22.1](https://github.com/auth0/jwks-rsa-java/tree/0.22.1) (2023-07-28)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.22.0...0.22.1)
 
