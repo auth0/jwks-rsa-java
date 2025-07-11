@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Jwk provider that loads them from a {@link URL}
@@ -19,6 +20,8 @@ public class UrlJwkProvider implements JwkProvider {
 
     @VisibleForTesting
     static final String WELL_KNOWN_JWKS_PATH = "/.well-known/jwks.json";
+
+    private final AtomicReference<List<Jwk>> cachedJwks = new AtomicReference<>();
 
     final URL url;
     final Proxy proxy;
@@ -103,6 +106,11 @@ public class UrlJwkProvider implements JwkProvider {
         this(urlForDomain(domain));
     }
 
+    @VisibleForTesting
+    void setCachedJwks(List<Jwk> jwks) {
+        this.cachedJwks.set(jwks);
+    }
+
     static URL urlForDomain(String domain) {
         Util.checkArgument(!Util.isNullOrEmpty(domain), "A domain is required");
 
@@ -158,9 +166,20 @@ public class UrlJwkProvider implements JwkProvider {
         return jwks;
     }
 
+    public List<Jwk> getCachedJwks() throws JwkException {
+        List<Jwk> jwks = cachedJwks.get();
+        if (jwks == null) {
+            synchronized (this) {
+                jwks = getAll();
+                cachedJwks.set(jwks);
+            }
+        }
+        return jwks;
+    }
+
     @Override
     public Jwk get(String keyId) throws JwkException {
-        final List<Jwk> jwks = getAll();
+        List<Jwk> jwks = getCachedJwks();
         if (keyId == null && jwks.size() == 1) {
             return jwks.get(0);
         }
@@ -171,6 +190,27 @@ public class UrlJwkProvider implements JwkProvider {
                 }
             }
         }
+
+        // Key not found — refreshing JWKS from remote
+        synchronized (this) {
+            List<Jwk> freshJwks = getAll();
+            cachedJwks.set(freshJwks);
+
+            // Retry lookup in freshly fetched JWKS
+            if (keyId == null && freshJwks.size() == 1) {
+                return freshJwks.get(0);
+            }
+
+            if (keyId != null) {
+                for (Jwk jwk : freshJwks) {
+                    if (keyId.equals(jwk.getId())) {
+                        return jwk;
+                    }
+                }
+            }
+        }
+
+
         throw new SigningKeyNotFoundException("No key found in " + url.toString() + " with kid " + keyId, null);
     }
 }
