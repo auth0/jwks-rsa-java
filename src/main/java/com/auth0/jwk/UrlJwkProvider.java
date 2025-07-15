@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -170,46 +167,50 @@ public class UrlJwkProvider implements JwkProvider {
         List<Jwk> jwks = cachedJwks.get();
         if (jwks == null) {
             synchronized (this) {
-                jwks = getAll();
-                cachedJwks.set(jwks);
+                jwks = cachedJwks.get();
+                if (jwks == null) {
+                    jwks = getAll();
+                    cachedJwks.set(jwks);
+                }
             }
         }
         return jwks;
     }
 
-    @Override
-    public Jwk get(String keyId) throws JwkException {
-        List<Jwk> jwks = getCachedJwks();
+    private Optional<Jwk> findKey(List<Jwk> jwks, String keyId) {
         if (keyId == null && jwks.size() == 1) {
-            return jwks.get(0);
+            return Optional.of(jwks.get(0));
         }
         if (keyId != null) {
             for (Jwk jwk : jwks) {
                 if (keyId.equals(jwk.getId())) {
-                    return jwk;
+                    return Optional.of(jwk);
                 }
             }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Jwk get(String keyId) throws JwkException {
+        List<Jwk> jwks = getCachedJwks();
+        Optional<Jwk> foundKey = findKey(jwks, keyId);
+        if (foundKey.isPresent()) {
+            return foundKey.get();
         }
 
         // Key not found — refreshing JWKS from remote
         synchronized (this) {
             List<Jwk> freshJwks = getAll();
             cachedJwks.set(freshJwks);
-
-            // Retry lookup in freshly fetched JWKS
-            if (keyId == null && freshJwks.size() == 1) {
-                return freshJwks.get(0);
-            }
-
-            if (keyId != null) {
-                for (Jwk jwk : freshJwks) {
-                    if (keyId.equals(jwk.getId())) {
-                        return jwk;
-                    }
-                }
-            }
         }
 
+        // Retry lookup in freshly fetched JWKS
+        List<Jwk> freshJwks = cachedJwks.get();
+        foundKey = findKey(freshJwks, keyId);
+        if (foundKey.isPresent()) {
+            return foundKey.get();
+        }
 
         throw new SigningKeyNotFoundException("No key found in " + url.toString() + " with kid " + keyId, null);
     }

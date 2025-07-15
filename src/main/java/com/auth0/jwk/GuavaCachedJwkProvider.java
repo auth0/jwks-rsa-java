@@ -4,6 +4,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -75,4 +76,9 @@ public class GuavaCachedJwkProvider implements JwkProvider {
     JwkProvider getBaseProvider() {
         return provider;
     }
+
+//    @Override
+//    public List<Jwk> getAll() throws JwkException {
+//        throw new UnsupportedOperationException("Fetching all JWKs is not supported by this provider.");
+//    }
 }

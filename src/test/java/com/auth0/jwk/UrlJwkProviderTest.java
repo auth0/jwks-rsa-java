@@ -365,7 +365,6 @@ public class UrlJwkProviderTest {
         jwkValues.put("e", "AQAB");
 
         List<Jwk> wrongJwks = Collections.singletonList(Jwk.fromValues(jwkValues));
-        provider.setCachedJwks(wrongJwks);
 
         provider.setCachedJwks(wrongJwks);
 

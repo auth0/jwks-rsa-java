@@ -1,5 +1,7 @@
 package com.auth0.jwk;
 
+import java.util.List;
+
 /**
  * Jwk provider that limits the amount of Jwks to deliver in a given rate.
  */
@@ -32,4 +34,9 @@ public class RateLimitedJwkProvider implements JwkProvider {
     JwkProvider getBaseProvider() {
         return provider;
     }
+
+//    @Override
+//    public List<Jwk> getAll() throws JwkException {
+//        throw new UnsupportedOperationException("Fetching all JWKs is not supported by this provider.");
+//    }
 }
