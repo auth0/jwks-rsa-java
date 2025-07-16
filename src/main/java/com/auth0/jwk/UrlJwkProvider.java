@@ -163,7 +163,7 @@ public class UrlJwkProvider implements JwkProvider {
         return jwks;
     }
 
-    public List<Jwk> getCachedJwks() throws JwkException {
+    private List<Jwk> getCachedJwks() throws JwkException {
         List<Jwk> jwks = cachedJwks.get();
         if (jwks == null) {
             synchronized (this) {
@@ -177,7 +177,23 @@ public class UrlJwkProvider implements JwkProvider {
         return jwks;
     }
 
-    private Optional<Jwk> findKey(List<Jwk> jwks, String keyId) {
+    private Optional<Jwk> findKey(String keyId) throws JwkException {
+        List<Jwk> jwks = getCachedJwks();
+        Optional<Jwk> foundKey = searchKey(jwks, keyId);
+        if (foundKey.isPresent()) {
+            return foundKey;
+        }
+
+        // Key not found — refreshing JWKS from remote
+        synchronized (this) {
+            List<Jwk> freshJwks = getAll();
+            cachedJwks.set(freshJwks);
+
+            return searchKey(freshJwks, keyId);
+        }
+    }
+
+    private Optional<Jwk> searchKey(List<Jwk> jwks, String keyId) {
         if (keyId == null && jwks.size() == 1) {
             return Optional.of(jwks.get(0));
         }
@@ -193,25 +209,10 @@ public class UrlJwkProvider implements JwkProvider {
 
     @Override
     public Jwk get(String keyId) throws JwkException {
-        List<Jwk> jwks = getCachedJwks();
-        Optional<Jwk> foundKey = findKey(jwks, keyId);
-        if (foundKey.isPresent()) {
-            return foundKey.get();
-        }
 
-        // Key not found — refreshing JWKS from remote
-        synchronized (this) {
-            List<Jwk> freshJwks = getAll();
-            cachedJwks.set(freshJwks);
-        }
+        return findKey(keyId).orElseThrow(() ->
+                new SigningKeyNotFoundException("No key found in " + url.toString() + " with kid " + keyId, null)
+        );
 
-        // Retry lookup in freshly fetched JWKS
-        List<Jwk> freshJwks = cachedJwks.get();
-        foundKey = findKey(freshJwks, keyId);
-        if (foundKey.isPresent()) {
-            return foundKey.get();
-        }
-
-        throw new SigningKeyNotFoundException("No key found in " + url.toString() + " with kid " + keyId, null);
     }
 }

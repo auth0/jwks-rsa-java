@@ -76,9 +76,4 @@ public class GuavaCachedJwkProvider implements JwkProvider {
     JwkProvider getBaseProvider() {
         return provider;
     }
-
-//    @Override
-//    public List<Jwk> getAll() throws JwkException {
-//        throw new UnsupportedOperationException("Fetching all JWKs is not supported by this provider.");
-//    }
 }
