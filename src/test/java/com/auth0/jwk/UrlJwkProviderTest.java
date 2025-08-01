@@ -12,7 +12,9 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.*;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.auth0.jwk.UrlJwkProvider.WELL_KNOWN_JWKS_PATH;
 import static org.hamcrest.Matchers.*;
@@ -272,6 +274,7 @@ public class UrlJwkProviderTest {
         UrlJwkProvider urlJwkProvider = new UrlJwkProvider(url, connectTimeout, readTimeout);
         assertThat(urlJwkProvider.proxy, is(nullValue()));
 
+        urlJwkProvider.setCachedJwks(null);
         Jwk jwk = urlJwkProvider.get("NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg");
         assertNotNull(jwk);
         assertThat(mockFactory.urlUsed.get(), is(url));
@@ -280,6 +283,8 @@ public class UrlJwkProviderTest {
         // Test creation: custom headers
         UrlJwkProvider urlJwkProviderWithHeaders = new UrlJwkProvider(url, connectTimeout, readTimeout, null,
             Collections.singletonMap("Accept", "application/jwks-set+json"));
+
+        urlJwkProvider.setCachedJwks(null); // <-- force fetch
         Jwk hJwk = urlJwkProviderWithHeaders.get("NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg");
         assertNotNull(hJwk);
         assertThat(mockFactory.urlUsed.get(), is(url));
@@ -291,6 +296,7 @@ public class UrlJwkProviderTest {
         UrlJwkProvider pUrlJwkProvider = new UrlJwkProvider(pUrl, connectTimeout, readTimeout, proxy);
         assertThat(pUrlJwkProvider.proxy, is(proxy));
 
+        urlJwkProvider.setCachedJwks(null); // <-- force fetch
         Jwk pJwk = pUrlJwkProvider.get("NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg");
         assertNotNull(pJwk);
         assertThat(mockFactory.urlUsed.get(), is(pUrl));
@@ -317,6 +323,7 @@ public class UrlJwkProviderTest {
         try {
             IOException exception = mock(IOException.class);
             when(urlConnection.getInputStream()).thenThrow(exception);
+            urlJwkProvider.setCachedJwks(null); // <-- force fetch
             urlJwkProvider.get("NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg");
         } catch (Exception e) {
             capturedException = e;
@@ -328,4 +335,73 @@ public class UrlJwkProviderTest {
         //release
         mockFactory.clear();
     }
+
+    @Test
+    public void shouldCacheJwksAfterFirstFetch() throws Exception {
+        URL url = getClass().getResource("/jwks.json");
+        UrlJwkProvider provider = spy(new UrlJwkProvider(url));
+
+        Jwk firstJwk = provider.get(KID);
+        assertNotNull(firstJwk);
+
+        Jwk secondJwk = provider.get(KID);
+        assertNotNull(secondJwk);
+
+        verify(provider, times(1)).getAll();
+    }
+
+    @Test
+    public void shouldRefreshCacheIfKeyNotFound() throws Exception {
+        URL url = getClass().getResource("/jwks.json");
+        UrlJwkProvider provider = spy(new UrlJwkProvider(url));
+
+        // Pre-load a cache with an invalid key (simulate wrong cache)
+        Map<String, Object> jwkValues = new HashMap<>();
+        jwkValues.put("kid", "wrong-kid");
+        jwkValues.put("kty", "RSA");
+        jwkValues.put("alg", "RS256");
+        jwkValues.put("use", "sig");
+        jwkValues.put("n", "test-modulus");
+        jwkValues.put("e", "AQAB");
+
+        List<Jwk> wrongJwks = Collections.singletonList(Jwk.fromValues(jwkValues));
+
+        provider.setCachedJwks(wrongJwks);
+
+        // Call with correct key - should miss cache, then refresh
+        Jwk actualJwk = provider.get(KID);
+        assertNotNull(actualJwk);
+
+        verify(provider, times(1)).getAll();
+    }
+
+    @Test
+    public void shouldFailIfKeyNotFoundEvenAfterRefresh() throws Exception {
+        expectedException.expect(SigningKeyNotFoundException.class);
+
+        URL url = getClass().getResource("/jwks.json");
+        UrlJwkProvider provider = spy(new UrlJwkProvider(url));
+
+        // Set empty cache
+        provider.setCachedJwks(Collections.emptyList());
+
+        // Call with missing key — should refresh, but still fail
+        provider.get("wrong-kid");
+
+        verify(provider, times(1)).getAll(); // Only one refresh
+    }
+
+    @Test
+    public void shouldFetchIfCacheIsNull() throws Exception {
+        UrlJwkProvider provider = spy(new UrlJwkProvider(getClass().getResource("/jwks.json")));
+
+        // Ensure cache is unset (null)
+        provider.setCachedJwks(null);
+
+        Jwk jwk = provider.get(KID);
+        assertNotNull(jwk);
+
+        verify(provider, atLeastOnce()).getAll(); // Should definitely be called
+    }
+
 }
