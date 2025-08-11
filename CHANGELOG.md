@@ -1,11 +1,5 @@
 # Change Log
 
-## [0.23.0](https://github.com/auth0/jwks-rsa-java/tree/0.23.0) (2025-08-11)
-[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.22.2...0.23.0)
-
-**Added**
-- Feat: Added Cache Implementation [\#221](https://github.com/auth0/jwks-rsa-java/pull/221) ([tanya732](https://github.com/tanya732))
-
 ## [0.22.2](https://github.com/auth0/jwks-rsa-java/tree/0.22.2) (2025-06-17)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.22.1...0.22.2)
 
