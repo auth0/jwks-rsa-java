@@ -118,6 +118,11 @@ public class UrlJwkProvider implements JwkProvider {
         this(urlForDomain(domain));
     }
 
+    @VisibleForTesting
+    void setCachedJwks(List<Jwk> jwks) {
+        this.cachedJwks.set(jwks);
+    }
+
     static URL urlForDomain(String domain) {
         Util.checkArgument(!Util.isNullOrEmpty(domain), "A domain is required");
 
@@ -165,19 +170,56 @@ public class UrlJwkProvider implements JwkProvider {
         return jwks;
     }
 
-    @Override
-    public Jwk get(String keyId) throws JwkException {
-        final List<Jwk> jwks = getAll();
+    private List<Jwk> getCachedJwks() throws JwkException {
+        List<Jwk> jwks = cachedJwks.get();
+        if (jwks == null) {
+            synchronized (this) {
+                jwks = cachedJwks.get();
+                if (jwks == null) {
+                    jwks = getAll();
+                    cachedJwks.set(jwks);
+                }
+            }
+        }
+        return jwks;
+    }
+
+    private Optional<Jwk> findKey(String keyId) throws JwkException {
+        List<Jwk> jwks = getCachedJwks();
+        Optional<Jwk> foundKey = searchKey(jwks, keyId);
+        if (foundKey.isPresent()) {
+            return foundKey;
+        }
+
+        // Key not found — refreshing JWKS from remote
+        synchronized (this) {
+            List<Jwk> freshJwks = getAll();
+            cachedJwks.set(freshJwks);
+
+            return searchKey(freshJwks, keyId);
+        }
+    }
+
+    private Optional<Jwk> searchKey(List<Jwk> jwks, String keyId) {
         if (keyId == null && jwks.size() == 1) {
-            return jwks.get(0);
+            return Optional.of(jwks.get(0));
         }
         if (keyId != null) {
             for (Jwk jwk : jwks) {
                 if (keyId.equals(jwk.getId())) {
-                    return jwk;
+                    return Optional.of(jwk);
                 }
             }
         }
-        throw new SigningKeyNotFoundException("No key found in " + url.toString() + " with kid " + keyId, null);
+        return Optional.empty();
+    }
+
+    @Override
+    public Jwk get(String keyId) throws JwkException {
+
+        return findKey(keyId).orElseThrow(() ->
+                new SigningKeyNotFoundException("No key found in " + url.toString() + " with kid " + keyId, null)
+        );
+
     }
 }

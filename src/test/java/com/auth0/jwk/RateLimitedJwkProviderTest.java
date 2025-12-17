@@ -6,11 +6,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+
+import org.mockito.junit.MockitoJUnitRunner;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anyString;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -41,7 +43,6 @@ public class RateLimitedJwkProviderTest {
     public void shouldFailToGetWhenBucketIsEmpty() throws Exception {
         when(bucket.consume()).thenReturn(false);
         expectedException.expect(RateLimitReachedException.class);
-        when(fallback.get(eq(KID))).thenReturn(jwk);
         provider.get(KID);
     }
 
