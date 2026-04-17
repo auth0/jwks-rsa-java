@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocketFactory;
 
 /**
  * Jwk provider that loads them from a {@link URL}
@@ -25,6 +27,7 @@ public class UrlJwkProvider implements JwkProvider {
     final Map<String, String> headers;
     final Integer connectTimeout;
     final Integer readTimeout;
+    final SSLSocketFactory sslSocketFactory;
 
     private final ObjectReader reader;
 
@@ -59,6 +62,20 @@ public class UrlJwkProvider implements JwkProvider {
      * @param headers        a map of request header keys to values to send on the request. Default is "Accept: application/json".
      */
     public UrlJwkProvider(URL url, Integer connectTimeout, Integer readTimeout, Proxy proxy, Map<String, String> headers) {
+        this(url, connectTimeout, readTimeout, proxy, headers, null);
+    }
+
+    /**
+     * Creates a provider that loads from the given URL using custom request headers and SSL configuration.
+     *
+     * @param url              to load the jwks
+     * @param connectTimeout   connection timeout in milliseconds (default is null)
+     * @param readTimeout      read timeout in milliseconds (default is null)
+     * @param proxy            proxy server to use when making the connection (default is null)
+     * @param headers          a map of request header keys to values to send on the request. Default is "Accept: application/json".
+     * @param sslSocketFactory the SSL socket factory to use for HTTPS connections (null for JVM default)
+     */
+    public UrlJwkProvider(URL url, Integer connectTimeout, Integer readTimeout, Proxy proxy, Map<String, String> headers, SSLSocketFactory sslSocketFactory) {
         Util.checkArgument(url != null, "A non-null url is required");
         Util.checkArgument(connectTimeout == null || connectTimeout >= 0, "Invalid connect timeout value '" + connectTimeout + "'. Must be a non-negative integer.");
         Util.checkArgument(readTimeout == null || readTimeout >= 0, "Invalid read timeout value '" + readTimeout + "'. Must be a non-negative integer.");
@@ -67,6 +84,7 @@ public class UrlJwkProvider implements JwkProvider {
         this.proxy = proxy;
         this.connectTimeout = connectTimeout;
         this.readTimeout = readTimeout;
+        this.sslSocketFactory = sslSocketFactory;
         this.reader = new ObjectMapper().readerFor(Map.class);
 
         this.headers = (headers == null) ?
@@ -126,6 +144,9 @@ public class UrlJwkProvider implements JwkProvider {
     private Map<String, Object> getJwks() throws SigningKeyNotFoundException {
         try {
             final URLConnection c = (proxy == null) ? this.url.openConnection() : this.url.openConnection(proxy);
+            if (c instanceof HttpsURLConnection && sslSocketFactory != null) {
+                ((HttpsURLConnection) c).setSSLSocketFactory(sslSocketFactory);
+            }
             if (connectTimeout != null) {
                 c.setConnectTimeout(connectTimeout);
             }

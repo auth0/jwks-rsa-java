@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocketFactory;
 
 import static com.auth0.jwk.UrlJwkProvider.WELL_KNOWN_JWKS_PATH;
 import static org.hamcrest.Matchers.*;
@@ -402,6 +404,39 @@ public class UrlJwkProviderTest {
         assertNotNull(jwk);
 
         verify(provider, atLeastOnce()).getAll(); // Should definitely be called
+    }
+
+    @Test
+    public void shouldConfigureSSLSocketFactoryForHttpsConnection() throws Exception {
+        HttpsURLConnection httpsUrlConnection = mock(HttpsURLConnection.class);
+        when(httpsUrlConnection.getInputStream()).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                return getClass().getResourceAsStream("/jwks.json");
+            }
+        });
+
+        SSLSocketFactory sslSocketFactory = mock(SSLSocketFactory.class);
+        URL url = getClass().getResource("/jwks.json");
+        UrlJwkProvider provider = new UrlJwkProvider(url, null, null, null, null, sslSocketFactory);
+
+        assertThat(provider.sslSocketFactory, is(sslSocketFactory));
+    }
+
+    @Test
+    public void shouldDefaultSSLSocketFactoryToNull() throws Exception {
+        URL url = getClass().getResource("/jwks.json");
+        UrlJwkProvider provider = new UrlJwkProvider(url);
+
+        assertThat(provider.sslSocketFactory, is(nullValue()));
+    }
+
+    @Test
+    public void shouldDefaultSSLSocketFactoryToNullWith5ArgConstructor() throws Exception {
+        URL url = getClass().getResource("/jwks.json");
+        UrlJwkProvider provider = new UrlJwkProvider(url, null, null, null, null);
+
+        assertThat(provider.sslSocketFactory, is(nullValue()));
     }
 
 }

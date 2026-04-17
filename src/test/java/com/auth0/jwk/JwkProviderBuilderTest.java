@@ -10,10 +10,12 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import javax.net.ssl.SSLSocketFactory;
 
 import static com.auth0.jwk.UrlJwkProvider.WELL_KNOWN_JWKS_PATH;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.mock;
 
 public class JwkProviderBuilderTest {
 
@@ -194,5 +196,31 @@ public class JwkProviderBuilderTest {
         assertThat(provider, notNullValue());
         UrlJwkProvider urlJwkProvider = (UrlJwkProvider) provider;
         assertThat(urlJwkProvider.headers, equalTo(headers));
+    }
+
+    @Test
+    public void shouldCreateForUrlWithSSLSocketFactory() throws Exception {
+        URL url = new URL(normalizedDomain + WELL_KNOWN_JWKS_PATH);
+        SSLSocketFactory sslSocketFactory = mock(SSLSocketFactory.class);
+        JwkProvider provider = new JwkProviderBuilder(url)
+                .sslSocketFactory(sslSocketFactory)
+                .rateLimited(false)
+                .cached(false)
+                .build();
+        assertThat(provider, notNullValue());
+        UrlJwkProvider urlJwkProvider = (UrlJwkProvider) provider;
+        assertThat(urlJwkProvider.sslSocketFactory, equalTo(sslSocketFactory));
+    }
+
+    @Test
+    public void shouldDefaultSSLSocketFactoryToNull() throws Exception {
+        URL url = new URL(normalizedDomain + WELL_KNOWN_JWKS_PATH);
+        JwkProvider provider = new JwkProviderBuilder(url)
+                .rateLimited(false)
+                .cached(false)
+                .build();
+        assertThat(provider, notNullValue());
+        UrlJwkProvider urlJwkProvider = (UrlJwkProvider) provider;
+        assertThat(urlJwkProvider.sslSocketFactory, is(nullValue()));
     }
 }

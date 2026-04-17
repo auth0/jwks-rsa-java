@@ -5,6 +5,7 @@ import java.net.URL;
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import javax.net.ssl.SSLSocketFactory;
 
 import static com.auth0.jwk.UrlJwkProvider.urlForDomain;
 
@@ -24,6 +25,7 @@ public class JwkProviderBuilder {
     private BucketImpl bucket;
     private boolean rateLimited;
     private Map<String, String> headers;
+    private SSLSocketFactory sslSocketFactory;
 
     /**
      * Creates a new Builder with the given URL where to load the jwks from.
@@ -167,12 +169,25 @@ public class JwkProviderBuilder {
     }
 
     /**
+     * Sets a custom {@link SSLSocketFactory} for HTTPS connections to the JWKS endpoint.
+     * This allows configuration of TLS version, cipher suites, and custom certificate validation.
+     * When not set, the JVM default SSL configuration will be used.
+     *
+     * @param sslSocketFactory the SSL socket factory to use for HTTPS connections (null for JVM default)
+     * @return the builder
+     */
+    public JwkProviderBuilder sslSocketFactory(SSLSocketFactory sslSocketFactory) {
+        this.sslSocketFactory = sslSocketFactory;
+        return this;
+    }
+
+    /**
      * Creates a {@link JwkProvider}
      *
      * @return a newly created {@link JwkProvider}
      */
     public JwkProvider build() {
-        JwkProvider urlProvider = new UrlJwkProvider(url, connectTimeout, readTimeout, proxy, headers);
+        JwkProvider urlProvider = new UrlJwkProvider(url, connectTimeout, readTimeout, proxy, headers, sslSocketFactory);
         if (this.rateLimited) {
             urlProvider = new RateLimitedJwkProvider(urlProvider, bucket);
         }

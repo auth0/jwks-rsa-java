@@ -44,6 +44,22 @@ JwkProvider provider = new JwkProviderBuilder("https://samples.auth0.com/")
         .build();
 ```
 
+### Configure SSL/TLS settings
+
+A custom `SSLSocketFactory` can be configured for HTTPS connections to the JWKS endpoint. This is useful for environments that require a specific TLS version, custom trust stores, or mutual TLS (mTLS).
+
+```java
+// Configure a specific TLS version
+SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
+sslContext.init(null, null, new SecureRandom());
+
+JwkProvider provider = new JwkProviderBuilder("https://samples.auth0.com/")
+        .sslSocketFactory(sslContext.getSocketFactory())
+        .build();
+```
+
+When not configured, the JVM's default SSL settings will be used.
+
 See the [JwkProviderBuilder JavaDocs](https://javadoc.io/doc/com.auth0/jwks-rsa/latest/com/auth0/jwk/JwkProviderBuilder.html) for all available configurations.
 
 ## Error handling
