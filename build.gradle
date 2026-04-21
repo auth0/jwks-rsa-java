@@ -115,8 +115,8 @@ ext {
 }
 
 dependencies {
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version:'2.18.6'
-    implementation (group: 'com.google.guava', name: 'guava', version:'32.1.2-jre') {
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version:'2.21.2'
+    implementation (group: 'com.google.guava', name: 'guava', version:'33.6.0-jre') {
         // needed due to https://github.com/google/guava/issues/6654
         exclude group: "org.mockito", module: "mockito-core"
     }
