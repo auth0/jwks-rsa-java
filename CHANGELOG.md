@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.23.1](https://github.com/auth0/jwks-rsa-java/tree/0.23.1) (2026-04-21)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.23.0...0.23.1)
+
+**Added**
+- Chore: Bump guava dependency [\#253](https://github.com/auth0/jwks-rsa-java/pull/253) ([tanya732](https://github.com/tanya732))
+
 ## [0.23.0](https://github.com/auth0/jwks-rsa-java/tree/0.23.0) (2025-08-11)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.22.2...0.23.0)
 
