@@ -32,14 +32,14 @@ Add the dependency via Maven:
 <dependency>
   <groupId>com.auth0</groupId>
   <artifactId>jwks-rsa</artifactId>
-  <version>0.23.0</version>
+  <version>0.23.1</version>
 </dependency>
 ```
 
 or Gradle:
 
 ```gradle
-implementation 'com.auth0:jwks-rsa:0.23.0'
+implementation 'com.auth0:jwks-rsa:0.23.1'
 ```
 
 ### Usage
