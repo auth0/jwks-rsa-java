@@ -44,6 +44,141 @@ JwkProvider provider = new JwkProviderBuilder("https://samples.auth0.com/")
         .build();
 ```
 
+### Configure a custom HTTP client
+
+The `httpClient()` builder method lets you replace the default `java.net.URLConnection`-based HTTP transport with any HTTP library. This solves four common requirements: custom TLS, authenticated proxies, Cache-Control header access, and HTTP/2.
+
+> When `httpClient()` is set, `proxied()`, `timeouts()`, and `headers()` are ignored — the custom client has full control over the HTTP layer.
+
+#### Custom TLS 
+
+Force TLS 1.3 for JWKS calls without affecting the rest of your JVM:
+
+```java
+SSLContext tls13 = SSLContext.getInstance("TLSv1.3");
+tls13.init(null, null, null);
+
+JwksHttpClient tlsClient = url -> {
+    HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+    conn.setSSLSocketFactory(tls13.getSocketFactory());
+    conn.setRequestProperty("Accept", "application/json");
+    try (InputStream in = conn.getInputStream()) {
+        String body = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        return new JwksHttpResponse(body, conn.getHeaderFields());
+    }
+};
+
+JwkProvider provider = new JwkProviderBuilder("https://samples.auth0.com/")
+    .httpClient(tlsClient)
+    .build();
+```
+
+> **Note:** TLS 1.3 requires Java 11+ or a provider like [Conscrypt](https://github.com/google/conscrypt) on Java 8.
+
+#### Authenticated Proxy 
+
+Use OkHttp to authenticate with a corporate proxy that requires credentials:
+
+```java
+OkHttpClient okHttp = new OkHttpClient.Builder()
+    .proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.corp.com", 8080)))
+    .proxyAuthenticator((route, response) ->
+        response.request().newBuilder()
+            .header("Proxy-Authorization", Credentials.basic("user", "pass"))
+            .build())
+    .connectTimeout(Duration.ofSeconds(5))
+    .readTimeout(Duration.ofSeconds(10))
+    .build();
+
+JwksHttpClient proxyClient = url -> {
+    Request request = new Request.Builder().url(url).build();
+    try (Response response = okHttp.newCall(request).execute()) {
+        return new JwksHttpResponse(
+            response.body().string(),
+            response.headers().toMultimap()
+        );
+    }
+};
+
+JwkProvider provider = new JwkProviderBuilder("https://samples.auth0.com/")
+    .httpClient(proxyClient)
+    .build();
+```
+
+#### Cache-Control Headers 
+
+Response headers (including `Cache-Control`) are now accessible via `JwksHttpResponse`:
+
+```java
+JwksHttpClient headerAwareClient = url -> {
+    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+    conn.setRequestProperty("Accept", "application/json");
+    try (InputStream in = conn.getInputStream()) {
+        String body = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        JwksHttpResponse response = new JwksHttpResponse(body, conn.getHeaderFields());
+
+        // Headers are now available for inspection
+        String cacheControl = response.getHeaderValue("Cache-Control");
+        // e.g., "max-age=3600"
+
+        return response;
+    }
+};
+
+JwkProvider provider = new JwkProviderBuilder("https://samples.auth0.com/")
+    .httpClient(headerAwareClient)
+    .build();
+```
+
+#### HTTP/2 Support
+
+**Using Java 11+ HttpClient:**
+
+```java
+java.net.http.HttpClient http2Client = java.net.http.HttpClient.newBuilder()
+    .version(java.net.http.HttpClient.Version.HTTP_2)
+    .connectTimeout(Duration.ofSeconds(5))
+    .build();
+
+JwksHttpClient h2Client = url -> {
+    java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder(url.toURI())
+        .header("Accept", "application/json")
+        .GET()
+        .build();
+    java.net.http.HttpResponse<String> response = http2Client.send(
+        request, java.net.http.HttpResponse.BodyHandlers.ofString());
+    return new JwksHttpResponse(response.body(), response.headers().map());
+};
+
+JwkProvider provider = new JwkProviderBuilder("https://samples.auth0.com/")
+    .httpClient(h2Client)
+    .build();
+```
+
+**Using OkHttp (Java 8 compatible):**
+
+```java
+OkHttpClient okHttp = new OkHttpClient.Builder()
+    .protocols(Arrays.asList(Protocol.HTTP_2, Protocol.HTTP_1_1))
+    .connectTimeout(Duration.ofSeconds(5))
+    .readTimeout(Duration.ofSeconds(10))
+    .build();
+
+JwksHttpClient okClient = url -> {
+    Request request = new Request.Builder().url(url).build();
+    try (Response response = okHttp.newCall(request).execute()) {
+        return new JwksHttpResponse(
+            response.body().string(),
+            response.headers().toMultimap()
+        );
+    }
+};
+
+JwkProvider provider = new JwkProviderBuilder("https://samples.auth0.com/")
+    .httpClient(okClient)
+    .build();
+```
+
 See the [JwkProviderBuilder JavaDocs](https://javadoc.io/doc/com.auth0/jwks-rsa/latest/com/auth0/jwk/JwkProviderBuilder.html) for all available configurations.
 
 ## Error handling
