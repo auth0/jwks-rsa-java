@@ -46,7 +46,7 @@ JwkProvider provider = new JwkProviderBuilder("https://samples.auth0.com/")
 
 ### Configure a custom HTTP client
 
-The `httpClient()` builder method lets you replace the default `java.net.URLConnection`-based HTTP transport with any HTTP library. This solves four common requirements: custom TLS, authenticated proxies, Cache-Control header access, and HTTP/2.
+The `httpClient()` builder method lets you replace the default `java.net.URLConnection`-based HTTP transport with any HTTP library. This solves three common requirements: custom TLS, authenticated proxies, and HTTP/2.
 
 > When `httpClient()` is set, `proxied()`, `timeouts()`, and `headers()` are ignored — the custom client has full control over the HTTP layer.
 
@@ -102,31 +102,6 @@ JwksHttpClient proxyClient = url -> {
 
 JwkProvider provider = new JwkProviderBuilder("https://samples.auth0.com/")
     .httpClient(proxyClient)
-    .build();
-```
-
-#### Cache-Control Headers 
-
-Response headers (including `Cache-Control`) are now accessible via `JwksHttpResponse`:
-
-```java
-JwksHttpClient headerAwareClient = url -> {
-    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-    conn.setRequestProperty("Accept", "application/json");
-    try (InputStream in = conn.getInputStream()) {
-        String body = new String(in.readAllBytes(), StandardCharsets.UTF_8);
-        JwksHttpResponse response = new JwksHttpResponse(body, conn.getHeaderFields());
-
-        // Headers are now available for inspection
-        String cacheControl = response.getHeaderValue("Cache-Control");
-        // e.g., "max-age=3600"
-
-        return response;
-    }
-};
-
-JwkProvider provider = new JwkProviderBuilder("https://samples.auth0.com/")
-    .httpClient(headerAwareClient)
     .build();
 ```
 
