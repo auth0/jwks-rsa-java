@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.24.0](https://github.com/auth0/jwks-rsa-java/tree/0.24.0) (2026-05-07)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.23.1...0.24.0)
+
+**Added**
+- Feat: Allow custom HTTP client for JWKS fetching  [\#256](https://github.com/auth0/jwks-rsa-java/pull/256) ([tanya732](https://github.com/tanya732))
+
 ## [0.23.1](https://github.com/auth0/jwks-rsa-java/tree/0.23.1) (2026-04-21)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.23.0...0.23.1)
 
