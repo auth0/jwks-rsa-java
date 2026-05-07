@@ -20,6 +20,7 @@ import static com.auth0.jwk.UrlJwkProvider.WELL_KNOWN_JWKS_PATH;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class UrlJwkProviderTest {
@@ -402,6 +403,39 @@ public class UrlJwkProviderTest {
         assertNotNull(jwk);
 
         verify(provider, atLeastOnce()).getAll(); // Should definitely be called
+    }
+
+    @Test
+    public void shouldUseCustomHttpClient() throws Exception {
+        String jwksJson = "{\"keys\":[{\"alg\":\"RS256\",\"kty\":\"RSA\",\"use\":\"sig\","
+                + "\"n\":\"test\",\"e\":\"AQAB\",\"kid\":\"custom-kid\"}]}";
+        JwksHttpClient customClient = mock(JwksHttpClient.class);
+        when(customClient.fetch(any(URL.class))).thenReturn(new JwksHttpResponse(jwksJson));
+
+        URL url = new URL("https://example.com/.well-known/jwks.json");
+        UrlJwkProvider provider = new UrlJwkProvider(url, customClient);
+
+        Jwk jwk = provider.get("custom-kid");
+        assertNotNull(jwk);
+        verify(customClient).fetch(url);
+    }
+
+    @Test
+    public void shouldThrowNetworkExceptionWhenCustomClientFails() throws Exception {
+        expectedException.expect(NetworkException.class);
+
+        JwksHttpClient customClient = mock(JwksHttpClient.class);
+        when(customClient.fetch(any(URL.class))).thenThrow(new IOException("connection failed"));
+
+        URL url = new URL("https://example.com/.well-known/jwks.json");
+        UrlJwkProvider provider = new UrlJwkProvider(url, customClient);
+        provider.get(KID);
+    }
+
+    @Test
+    public void shouldFailWithNullHttpClient() {
+        expectedException.expect(IllegalArgumentException.class);
+        new UrlJwkProvider(getClass().getResource("/jwks.json"), null);
     }
 
 }

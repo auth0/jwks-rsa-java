@@ -24,6 +24,7 @@ public class JwkProviderBuilder {
     private BucketImpl bucket;
     private boolean rateLimited;
     private Map<String, String> headers;
+    private JwksHttpClient httpClient;
 
     /**
      * Creates a new Builder with the given URL where to load the jwks from.
@@ -167,12 +168,54 @@ public class JwkProviderBuilder {
     }
 
     /**
+     * Sets a custom HTTP client for fetching JWKS.
+     *
+     * <p>When a custom client is provided, it takes precedence over configurations set via
+     * {@link #proxied(Proxy)}, {@link #timeouts(int, int)}, and {@link #headers(Map)} — those
+     * settings are only used by the default HTTP client.</p>
+     *
+     * <p>Example using OkHttp:</p>
+     * <pre>{@code
+     * OkHttpClient ok = new OkHttpClient.Builder()
+     *     .proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.corp", 8080)))
+     *     .proxyAuthenticator((route, resp) -> resp.request().newBuilder()
+     *         .header("Proxy-Authorization", Credentials.basic("user", "pass")).build())
+     *     .protocols(Arrays.asList(Protocol.HTTP_2, Protocol.HTTP_1_1))
+     *     .build();
+     *
+     * JwksHttpClient client = url -> {
+     *     Request req = new Request.Builder().url(url).build();
+     *     try (Response resp = ok.newCall(req).execute()) {
+     *         return new JwksHttpResponse(resp.body().string(), resp.headers().toMultimap());
+     *     }
+     * };
+     *
+     * JwkProvider provider = new JwkProviderBuilder(domain)
+     *     .httpClient(client)
+     *     .build();
+     * }</pre>
+     *
+     * @param httpClient the custom HTTP client to use for fetching JWKS
+     * @return the builder
+     * @see JwksHttpClient
+     */
+    public JwkProviderBuilder httpClient(JwksHttpClient httpClient) {
+        this.httpClient = httpClient;
+        return this;
+    }
+
+    /**
      * Creates a {@link JwkProvider}
      *
      * @return a newly created {@link JwkProvider}
      */
     public JwkProvider build() {
-        JwkProvider urlProvider = new UrlJwkProvider(url, connectTimeout, readTimeout, proxy, headers);
+        JwkProvider urlProvider;
+        if (this.httpClient != null) {
+            urlProvider = new UrlJwkProvider(url, this.httpClient);
+        } else {
+            urlProvider = new UrlJwkProvider(url, connectTimeout, readTimeout, proxy, headers);
+        }
         if (this.rateLimited) {
             urlProvider = new RateLimitedJwkProvider(urlProvider, bucket);
         }

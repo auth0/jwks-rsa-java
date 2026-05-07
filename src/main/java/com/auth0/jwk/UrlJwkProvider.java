@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -27,6 +26,7 @@ public class UrlJwkProvider implements JwkProvider {
     final Integer readTimeout;
 
     private final ObjectReader reader;
+    private final JwksHttpClient httpClient;
 
     /**
      * Creates a provider that loads from the given URL
@@ -71,6 +71,30 @@ public class UrlJwkProvider implements JwkProvider {
 
         this.headers = (headers == null) ?
                 Collections.singletonMap("Accept", "application/json") : headers;
+        this.httpClient = new DefaultJwksHttpClient(connectTimeout, readTimeout, proxy, this.headers);
+    }
+
+    /**
+     * Creates a provider that loads from the given URL using a custom HTTP client.
+     *
+     * <p>Use this constructor (or the builder's {@code httpClient()} method) to provide a custom
+     * {@link JwksHttpClient} implementation for full control over the HTTP transport — including
+     * TLS configuration, proxy authentication, HTTP/2, and response header access.</p>
+     *
+     * @param url        to load the jwks
+     * @param httpClient the custom HTTP client to use for fetching JWKS
+     */
+    public UrlJwkProvider(URL url, JwksHttpClient httpClient) {
+        Util.checkArgument(url != null, "A non-null url is required");
+        Util.checkArgument(httpClient != null, "A non-null httpClient is required");
+
+        this.url = url;
+        this.proxy = null;
+        this.connectTimeout = null;
+        this.readTimeout = null;
+        this.headers = Collections.singletonMap("Accept", "application/json");
+        this.reader = new ObjectMapper().readerFor(Map.class);
+        this.httpClient = httpClient;
     }
 
     /**
@@ -125,21 +149,8 @@ public class UrlJwkProvider implements JwkProvider {
 
     private Map<String, Object> getJwks() throws SigningKeyNotFoundException {
         try {
-            final URLConnection c = (proxy == null) ? this.url.openConnection() : this.url.openConnection(proxy);
-            if (connectTimeout != null) {
-                c.setConnectTimeout(connectTimeout);
-            }
-            if (readTimeout != null) {
-                c.setReadTimeout(readTimeout);
-            }
-
-            for (Map.Entry<String, String> entry : headers.entrySet()) {
-                c.setRequestProperty(entry.getKey(), entry.getValue());
-            }
-
-            try (InputStream inputStream = c.getInputStream()) {
-                return reader.readValue(inputStream);
-            }
+            JwksHttpResponse response = httpClient.fetch(this.url);
+            return reader.readValue(response.getBody());
         } catch (IOException e) {
             throw new NetworkException("Cannot obtain jwks from url " + url.toString(), e);
         }

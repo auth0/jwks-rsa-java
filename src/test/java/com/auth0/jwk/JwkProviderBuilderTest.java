@@ -4,6 +4,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
@@ -194,5 +195,68 @@ public class JwkProviderBuilderTest {
         assertThat(provider, notNullValue());
         UrlJwkProvider urlJwkProvider = (UrlJwkProvider) provider;
         assertThat(urlJwkProvider.headers, equalTo(headers));
+    }
+
+    @Test
+    public void shouldCreateWithCustomHttpClient() throws Exception {
+        URL url = new URL(normalizedDomain + WELL_KNOWN_JWKS_PATH);
+        JwksHttpClient customClient = new JwksHttpClient() {
+            @Override
+            public JwksHttpResponse fetch(URL url) throws IOException {
+                return new JwksHttpResponse("{\"keys\":[]}", Collections.<String, java.util.List<String>>emptyMap());
+            }
+        };
+        JwkProvider provider = new JwkProviderBuilder(url)
+                .httpClient(customClient)
+                .rateLimited(false)
+                .cached(false)
+                .build();
+        assertThat(provider, notNullValue());
+        assertThat(provider, instanceOf(UrlJwkProvider.class));
+    }
+
+    @Test
+    public void shouldIgnoreProxyAndTimeoutsWhenCustomClientProvided() throws Exception {
+        URL url = new URL(normalizedDomain + WELL_KNOWN_JWKS_PATH);
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.hostname", 8080));
+        JwksHttpClient customClient = new JwksHttpClient() {
+            @Override
+            public JwksHttpResponse fetch(URL url) throws IOException {
+                return new JwksHttpResponse("{}");
+            }
+        };
+        JwkProvider provider = new JwkProviderBuilder(url)
+                .proxied(proxy)
+                .timeouts(5000, 10000)
+                .httpClient(customClient)
+                .rateLimited(false)
+                .cached(false)
+                .build();
+        assertThat(provider, notNullValue());
+        UrlJwkProvider urlJwkProvider = (UrlJwkProvider) provider;
+        // When custom client is used, proxy and timeouts on UrlJwkProvider should be null
+        assertThat(urlJwkProvider.proxy, is(nullValue()));
+        assertThat(urlJwkProvider.connectTimeout, is(nullValue()));
+        assertThat(urlJwkProvider.readTimeout, is(nullValue()));
+    }
+
+    @Test
+    public void shouldWrapCustomClientWithCacheAndRateLimit() throws Exception {
+        URL url = new URL(normalizedDomain + WELL_KNOWN_JWKS_PATH);
+        JwksHttpClient customClient = new JwksHttpClient() {
+            @Override
+            public JwksHttpResponse fetch(URL url) throws IOException {
+                return new JwksHttpResponse("{}");
+            }
+        };
+        JwkProvider provider = new JwkProviderBuilder(url)
+                .httpClient(customClient)
+                .cached(true)
+                .rateLimited(true)
+                .build();
+        assertThat(provider, instanceOf(GuavaCachedJwkProvider.class));
+        JwkProvider rateLimited = ((GuavaCachedJwkProvider) provider).getBaseProvider();
+        assertThat(rateLimited, instanceOf(RateLimitedJwkProvider.class));
+        assertThat(((RateLimitedJwkProvider) rateLimited).getBaseProvider(), instanceOf(UrlJwkProvider.class));
     }
 }
