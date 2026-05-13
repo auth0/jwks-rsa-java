@@ -48,6 +48,12 @@ compileJava {
     targetCompatibility '1.8'
 }
 
+jar {
+    manifest {
+        attributes 'Automatic-Module-Name': 'com.auth0.jwks'
+    }
+}
+
 import me.champeau.gradle.japicmp.JapicmpTask
 
 project.afterEvaluate {
