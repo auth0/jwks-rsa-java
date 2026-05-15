@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.24.1](https://github.com/auth0/jwks-rsa-java/tree/0.24.1) (2026-05-15)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.24.0...0.24.1)
+
+**Added**
+- Chore: Add Automatic-Module-Name to JAR manifest [\#258](https://github.com/auth0/jwks-rsa-java/pull/258) ([tanya732](https://github.com/tanya732))
+
 ## [0.24.0](https://github.com/auth0/jwks-rsa-java/tree/0.24.0) (2026-05-07)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.23.1...0.24.0)
 
