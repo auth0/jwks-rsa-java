@@ -39,6 +39,8 @@ public class Jwk {
     private final String certificateThumbprint;
     private final Map<String, Object> additionalAttributes;
 
+    private PublicKey publicKey;
+
     /**
      * Creates a new Jwk
      *
@@ -174,15 +176,20 @@ public class Jwk {
      */
     @SuppressWarnings("WeakerAccess")
     public PublicKey getPublicKey() throws InvalidPublicKeyException {
-        PublicKey publicKey = null;
+        if (publicKey == null) {
+            buildPublicKey();
+        }
+        return publicKey;
+    }
 
+    private void buildPublicKey() throws InvalidPublicKeyException {
         switch (type) {
             case ALGORITHM_RSA:
                 try {
-                    KeyFactory kf = KeyFactory.getInstance(ALGORITHM_RSA);
+                    KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM_RSA);
                     BigInteger modulus = new BigInteger(1, Base64.getUrlDecoder().decode(stringValue("n")));
                     BigInteger exponent = new BigInteger(1, Base64.getUrlDecoder().decode(stringValue("e")));
-                    publicKey = kf.generatePublic(new RSAPublicKeySpec(modulus, exponent));
+                    publicKey = keyFactory.generatePublic(new RSAPublicKeySpec(modulus, exponent));
                 } catch (InvalidKeySpecException e) {
                     throw new InvalidPublicKeyException("Invalid public key", e);
                 } catch (NoSuchAlgorithmException e) {
@@ -194,7 +201,7 @@ public class Jwk {
                 try {
                     KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM_ELLIPTIC_CURVE);
                     ECPoint ecPoint = new ECPoint(new BigInteger(1, Base64.getUrlDecoder().decode(stringValue("x"))),
-                            new BigInteger(1, Base64.getUrlDecoder().decode(stringValue("y"))));
+                                                  new BigInteger(1, Base64.getUrlDecoder().decode(stringValue("y"))));
                     AlgorithmParameters algorithmParameters = AlgorithmParameters.getInstance(ALGORITHM_ELLIPTIC_CURVE);
 
                     String curve = stringValue("crv");
@@ -224,8 +231,6 @@ public class Jwk {
             default:
                 throw new InvalidPublicKeyException("The key type of " + type + " is not supported");
         }
-
-        return publicKey;
     }
 
     private String stringValue(String key) {
