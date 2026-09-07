@@ -20,6 +20,23 @@ JwkProvider provider = new JwkProviderBuilder("https://samples.auth0.com/")
         .build(); 
 ```
 
+### Key rotation
+
+Issuers such as AWS Cognito periodically **rotate** their signing keys, publishing new keys (each with a new `kid`) at the JWKS endpoint. You do not need to configure anything special or manually drop the cache to handle this: when a token presents a `kid` that is not in the cache, the provider automatically re-fetches the JWKS once before failing. So a rotated key is picked up on the next request that needs it.
+
+```java
+// No extra configuration required — refresh-on-miss is built in.
+JwkProvider provider = new JwkProviderBuilder("https://samples.auth0.com/")
+        .cached(10, 24, TimeUnit.HOURS)
+        .build();
+
+// If "my-rotated-kid" is not cached, the provider re-fetches the JWKS and returns the new key.
+// Only if it is still absent after that refresh is a SigningKeyNotFoundException thrown.
+Jwk jwk = provider.get("my-rotated-kid");
+```
+
+> **Limitation:** the automatic refresh triggers on an *unknown* `kid`. If an issuer re-uses the same `kid` string for a new key (uncommon — Cognito and Auth0 assign a new `kid` per key), the cached entry is served until it expires. For such issuers, use a shorter cache TTL via `.cached(size, ttl)` or disable caching with `.cached(false)`.
+
 ### Configure rate limits
 
 `RateLimitJwkProvider` will limit the amounts of different signing keys to get in a given time frame.

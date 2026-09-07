@@ -11,6 +11,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.auth0.jwk.UrlJwkProvider.WELL_KNOWN_JWKS_PATH;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -238,6 +239,46 @@ public class JwkProviderBuilderTest {
         assertThat(urlJwkProvider.proxy, is(nullValue()));
         assertThat(urlJwkProvider.connectTimeout, is(nullValue()));
         assertThat(urlJwkProvider.readTimeout, is(nullValue()));
+    }
+
+    @Test
+    public void shouldFetchRotatedKeyThroughFullChainWhenKidNotCached() throws Exception {
+        // End-to-end rotation test through the default chain: GuavaCachedJwkProvider ->
+        // RateLimitedJwkProvider -> UrlJwkProvider. The issuer rotates its signing key, so a
+        // token arrives with a new kid ("kid-B") that was never cached. The Guava layer misses,
+        // delegates down, and UrlJwkProvider's refresh-on-miss re-fetches the JWKS to resolve it.
+        URL url = new URL(normalizedDomain + WELL_KNOWN_JWKS_PATH);
+
+        final AtomicInteger fetchCount = new AtomicInteger(0);
+        JwksHttpClient rotatingClient = new JwksHttpClient() {
+            @Override
+            public JwksHttpResponse fetch(URL url) {
+                // First fetch: only kid-A is published. Subsequent fetches: kid-A and the rotated kid-B.
+                String body = fetchCount.getAndIncrement() == 0
+                        ? "{\"keys\":[{\"kid\":\"kid-A\",\"kty\":\"RSA\"}]}"
+                        : "{\"keys\":[{\"kid\":\"kid-A\",\"kty\":\"RSA\"},{\"kid\":\"kid-B\",\"kty\":\"RSA\"}]}";
+                return new JwksHttpResponse(body, Collections.<String, java.util.List<String>>emptyMap());
+            }
+        };
+
+        JwkProvider provider = new JwkProviderBuilder(url)
+                .httpClient(rotatingClient)
+                .cached(true)
+                .rateLimited(true)
+                .build();
+
+        // kid-A resolves from the first fetch.
+        Jwk keyA = provider.get("kid-A");
+        assertThat(keyA, notNullValue());
+        assertThat(keyA.getId(), equalTo("kid-A"));
+
+        // kid-B is unknown at every layer -> triggers a refresh-on-miss that re-fetches the JWKS.
+        Jwk keyB = provider.get("kid-B");
+        assertThat(keyB, notNullValue());
+        assertThat(keyB.getId(), equalTo("kid-B"));
+
+        // At least one refresh must have occurred beyond the initial fetch to discover kid-B.
+        assertThat(fetchCount.get(), greaterThanOrEqualTo(2));
     }
 
     @Test
