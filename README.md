@@ -88,6 +88,8 @@ JwkProvider provider = new JwkProviderBuilder("https://samples.auth0.com/")
         .build();
 ```
 
+When a requested `kid` is not cached (for example after an issuer rotates its signing keys), the provider automatically re-fetches the JWKS before failing, so key rotation is handled without extra configuration. See [Key rotation](./EXAMPLES.md#key-rotation) for details.
+
 See the [examples](./EXAMPLES.md) for additional configurations.
 
 ## API Reference
