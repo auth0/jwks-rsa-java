@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.24.2](https://github.com/auth0/jwks-rsa-java/tree/0.24.2) (2026-10-29)
+[Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.24.1...0.24.2)
+
+**Added**
+- chore: bump jackson [\#278](https://github.com/auth0/jwks-rsa-java/pull/278) ([tanya732](https://github.com/tanya732))
+- add key-rotation tests and docs for JWKS refresh-on-miss [\#277](https://github.com/auth0/jwks-rsa-java/pull/277) ([tanya732](https://github.com/tanya732))
+
+**Security**
+-  fix: bump jackson-databind to 2.22.4 and guava to 33.7.2-jre [\#288](https://github.com/auth0/jwks-rsa-java/pull/288) ([tanya732](https://github.com/tanya732))
+
 ## [0.24.1](https://github.com/auth0/jwks-rsa-java/tree/0.24.1) (2026-05-15)
 [Full Changelog](https://github.com/auth0/jwks-rsa-java/compare/0.24.0...0.24.1)
 
