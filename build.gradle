@@ -17,7 +17,7 @@ plugins {
 }
 
 jacoco {
-    toolVersion = "0.8.11" // Latest version as of 2025
+    toolVersion = "0.8.16"
 }
 
 repositories {
