@@ -6,18 +6,16 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import java.io.IOException;
 import java.net.*;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Jwk provider that loads them from a {@link URL}
+ * Jwk provider that loads them from a {@link URL}. Every lookup fetches the current JWKS; wrap it in a
+ * {@link GuavaCachedJwkProvider} (or use {@link JwkProviderBuilder}) to cache keys.
  */
 @SuppressWarnings("WeakerAccess")
 public class UrlJwkProvider implements JwkProvider {
 
     @VisibleForTesting
     static final String WELL_KNOWN_JWKS_PATH = "/.well-known/jwks.json";
-
-    private final AtomicReference<List<Jwk>> cachedJwks = new AtomicReference<>();
 
     final URL url;
     final Proxy proxy;
@@ -127,11 +125,6 @@ public class UrlJwkProvider implements JwkProvider {
         this(urlForDomain(domain));
     }
 
-    @VisibleForTesting
-    void setCachedJwks(List<Jwk> jwks) {
-        this.cachedJwks.set(jwks);
-    }
-
     static URL urlForDomain(String domain) {
         Util.checkArgument(!Util.isNullOrEmpty(domain), "A domain is required");
 
@@ -174,56 +167,12 @@ public class UrlJwkProvider implements JwkProvider {
         return jwks;
     }
 
-    private List<Jwk> getCachedJwks() throws JwkException {
-        List<Jwk> jwks = cachedJwks.get();
-        if (jwks == null) {
-            synchronized (this) {
-                jwks = cachedJwks.get();
-                if (jwks == null) {
-                    jwks = getAll();
-                    cachedJwks.set(jwks);
-                }
-            }
-        }
-        return jwks;
-    }
-
-    private Optional<Jwk> findKey(String keyId) throws JwkException {
-        List<Jwk> jwks = getCachedJwks();
-        Optional<Jwk> foundKey = searchKey(jwks, keyId);
-        if (foundKey.isPresent()) {
-            return foundKey;
-        }
-
-        // Key not found — refreshing JWKS from remote
-        synchronized (this) {
-            List<Jwk> freshJwks = getAll();
-            cachedJwks.set(freshJwks);
-
-            return searchKey(freshJwks, keyId);
-        }
-    }
-
-    private Optional<Jwk> searchKey(List<Jwk> jwks, String keyId) {
-        if (keyId == null && jwks.size() == 1) {
-            return Optional.of(jwks.get(0));
-        }
-        if (keyId != null) {
-            for (Jwk jwk : jwks) {
-                if (keyId.equals(jwk.getId())) {
-                    return Optional.of(jwk);
-                }
-            }
-        }
-        return Optional.empty();
+    JwkSet getJwkSet() throws SigningKeyNotFoundException {
+        return new JwkSet(url, getAll());
     }
 
     @Override
     public Jwk get(String keyId) throws JwkException {
-
-        return findKey(keyId).orElseThrow(() ->
-                new SigningKeyNotFoundException("No key found in " + url.toString() + " with kid " + keyId, null)
-        );
-
+        return getJwkSet().get(keyId);
     }
 }

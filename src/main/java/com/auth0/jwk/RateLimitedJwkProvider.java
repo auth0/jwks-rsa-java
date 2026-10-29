@@ -22,10 +22,21 @@ public class RateLimitedJwkProvider implements JwkProvider {
 
     @Override
     public Jwk get(final String keyId) throws JwkException {
+        consumeToken();
+        return provider.get(keyId);
+    }
+
+    JwksSource limit(final JwksSource source) {
+        return () -> {
+            consumeToken();
+            return source.load();
+        };
+    }
+
+    private void consumeToken() throws RateLimitReachedException {
         if (!bucket.consume()) {
             throw new RateLimitReachedException(bucket.willLeakIn());
         }
-        return provider.get(keyId);
     }
 
     @VisibleForTesting

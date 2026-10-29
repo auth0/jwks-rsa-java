@@ -245,8 +245,8 @@ public class JwkProviderBuilderTest {
     public void shouldFetchRotatedKeyThroughFullChainWhenKidNotCached() throws Exception {
         // End-to-end rotation test through the default chain: GuavaCachedJwkProvider ->
         // RateLimitedJwkProvider -> UrlJwkProvider. The issuer rotates its signing key, so a
-        // token arrives with a new kid ("kid-B") that was never cached. The Guava layer misses,
-        // delegates down, and UrlJwkProvider's refresh-on-miss re-fetches the JWKS to resolve it.
+        // token arrives with a new kid ("kid-B") that was never cached. The Guava layer misses
+        // and re-fetches the JWKS to resolve it.
         URL url = new URL(normalizedDomain + WELL_KNOWN_JWKS_PATH);
 
         final AtomicInteger fetchCount = new AtomicInteger(0);
