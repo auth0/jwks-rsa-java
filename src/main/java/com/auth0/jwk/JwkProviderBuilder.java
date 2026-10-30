@@ -1,5 +1,7 @@
 package com.auth0.jwk;
 
+import com.google.common.base.Ticker;
+
 import java.net.Proxy;
 import java.net.URL;
 import java.time.Duration;
@@ -25,6 +27,7 @@ public class JwkProviderBuilder {
     private boolean rateLimited;
     private Map<String, String> headers;
     private JwksHttpClient httpClient;
+    private Ticker ticker;
 
     /**
      * Creates a new Builder with the given URL where to load the jwks from.
@@ -42,6 +45,7 @@ public class JwkProviderBuilder {
         this.cacheSize = 5;
         this.rateLimited = true;
         this.bucket = new BucketImpl(10, 1, TimeUnit.MINUTES);
+        this.ticker = Ticker.systemTicker();
     }
 
     /**
@@ -204,24 +208,35 @@ public class JwkProviderBuilder {
         return this;
     }
 
+    @VisibleForTesting
+    JwkProviderBuilder ticker(Ticker ticker) {
+        this.ticker = ticker;
+        return this;
+    }
+
     /**
      * Creates a {@link JwkProvider}
      *
      * @return a newly created {@link JwkProvider}
      */
     public JwkProvider build() {
-        JwkProvider urlProvider;
+        UrlJwkProvider urlProvider;
         if (this.httpClient != null) {
             urlProvider = new UrlJwkProvider(url, this.httpClient);
         } else {
             urlProvider = new UrlJwkProvider(url, connectTimeout, readTimeout, proxy, headers);
         }
+        JwkProvider provider = urlProvider;
+        JwksSource source = urlProvider::getJwkSet;
         if (this.rateLimited) {
-            urlProvider = new RateLimitedJwkProvider(urlProvider, bucket);
+            RateLimitedJwkProvider rateLimitedProvider = new RateLimitedJwkProvider(urlProvider, bucket);
+            source = rateLimitedProvider.limit(source);
+            provider = rateLimitedProvider;
         }
         if (this.cached) {
-            urlProvider = new GuavaCachedJwkProvider(urlProvider, cacheSize, expiresIn);
+            provider = new GuavaCachedJwkProvider(provider, source, cacheSize, expiresIn.toMillis(),
+                    TimeUnit.MILLISECONDS, ticker);
         }
-        return urlProvider;
+        return provider;
     }
 }
