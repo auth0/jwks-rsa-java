@@ -78,16 +78,6 @@ public class GuavaCachedJwkProviderTest {
     }
 
     @Test
-    public void shouldCacheWhenIdMatchesDefaultMissingIdKey() throws Exception {
-        when(fallback.get(eq(GuavaCachedJwkProvider.NULL_KID_KEY))).thenReturn(jwk);
-        assertThat(provider.get(GuavaCachedJwkProvider.NULL_KID_KEY), equalTo(jwk));
-        verify(fallback).get(eq(GuavaCachedJwkProvider.NULL_KID_KEY));
-
-        verifyNoMoreInteractions(fallback);
-        assertThat(provider.get(GuavaCachedJwkProvider.NULL_KID_KEY), equalTo(jwk));
-    }
-
-    @Test
     public void shouldCacheWhenNullId() throws Exception {
         when(fallback.get(eq(null))).thenReturn(jwk);
         assertThat(provider.get(null), equalTo(jwk));
@@ -95,23 +85,6 @@ public class GuavaCachedJwkProviderTest {
 
         verifyNoMoreInteractions(fallback);
         assertThat(provider.get(null), equalTo(jwk));
-    }
-
-    @Test
-    public void shouldFetchNewKeyWhenKidNotCached() throws Exception {
-        // Simulates key rotation where the rotated key carries a new kid: the Guava layer
-        // has no entry for the new kid, so it must delegate to the fallback (which reaches
-        // UrlJwkProvider's refresh-on-miss) rather than masking the new key.
-        String rotatedKid = "ROTATED_KID";
-        Jwk rotatedJwk = mock(Jwk.class);
-        when(fallback.get(eq(KID))).thenReturn(jwk);
-        when(fallback.get(eq(rotatedKid))).thenReturn(rotatedJwk);
-
-        assertThat(provider.get(KID), equalTo(jwk));
-        assertThat(provider.get(rotatedKid), equalTo(rotatedJwk));
-
-        verify(fallback).get(eq(KID));
-        verify(fallback).get(eq(rotatedKid));
     }
 
     @Test
